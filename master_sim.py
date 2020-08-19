@@ -42,22 +42,6 @@ p2_0 = data['ptj_prueba_a2016'].to_numpy()
 
 p2 = data['ptj_prueba_a2016'].to_numpy()
 
-#p1_0One = data[['ptj_portafolio_rec2018']]
-
-#p1 = data['ptj_portafolio_rec2018'].to_numpy()
-
-#p1_0Two = data[['ptj_portafolio_rec2018']]
-
-#p1_0 = data[['ptj_portafolio_rec2018']].to_numpy()
-
-#p2_0One = data[['ptj_prueba_rec2018']]
-
-#p2 = data['ptj_prueba_rec2018'].to_numpy()
-
-#p2_0Two = data[['ptj_prueba_rec2018']]
-
-#p2_0 = data[['ptj_portafolio_rec2018']].to_numpy()
-
 yearsOne = data[['experience']]
 
 years = data['experience'].to_numpy()
@@ -74,7 +58,8 @@ categPrueba = data[['cat_prueba_a2016']]
 
 catPrueba = data['cat_prueba_a2016'].to_numpy()
 
-#recuperar placement inicial de datos (2016)
+
+#Recover initial placement from data (2016) 
 
 TrameInitial = data[['tramo_a2016']]
 
