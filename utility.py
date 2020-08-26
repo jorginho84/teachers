@@ -475,16 +475,22 @@ class Utility(object):
         p0 = np.where((p2v1 == 0),p1v1, p0)
         p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(self.p1 + self.p2)/2, p0)
         
-        p = []
+        pb = []
 
            
         for j in range(2):
             
-            p.append(self.param.alphas[j][0]*p0 + \
+            pb.append(self.param.alphas[j][0]*p0 + \
                      self.param.alphas[j][1]*effort + \
                          self.param.alphas[j][2]*np.square(effort) + \
                              self.param.alphas[j][3]*self.years)
+        
+        
+        pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3
+        pv2 = ((1/(1+np.exp(-pb[1]))) + (1/3))*3
 
+        p = [pv1, pv2]
+                
         return p
 
     def utility(self, income, e, h):
