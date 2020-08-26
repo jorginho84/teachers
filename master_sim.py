@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 sys.path.append("")
 import utility as util
 import parameters as parameters
+import simdata as sd
 
 # DATA 2018
 
@@ -152,6 +153,18 @@ print(distancetrame)
 
 h_student = model.student_h(effort)
 print(h_student)
+
+utilityTeacher = model.utility(income, effort, h_student)
+print(utilityTeacher)
+
+# SIMDATA
+
+modelSD = sd.SimData(N,model)
+
+utilitySD = modelSD.util(effort)
+print(utilitySD)
+
+
 
 
 

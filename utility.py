@@ -466,11 +466,14 @@ class Utility(object):
         returns: test scores and portfolio
 
         """
+        
+        p1v1 = np.where(np.isnan(self.p1), 0, self.p1)
+        p2v1 = np.where(np.isnan(self.p2), 0, self.p2)
 
-        p0 = np.zeros(self.p1.shape)
-        p0 = np.where((self.p1 == 0),self.p2, p0)
-        p0 = np.where((self.p2 == 0),self.p1, p0)
-        p0 = np.where((self.p1 != 0) & (self.p2 != 0) ,(self.p1 + self.p2)/2, p0)
+        p0 = np.zeros(p1v1.shape)
+        p0 = np.where((p1v1 == 0),p2v1, p0)
+        p0 = np.where((p2v1 == 0),p1v1, p0)
+        p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(self.p1 + self.p2)/2, p0)
         
         p = []
 
@@ -494,8 +497,8 @@ class Utility(object):
 
         e_av = (e[0] + e[1])/2
 
-        return np.log(income) + self.param.gamma[0]*np.square(e_av)/2
-        + self.param.gamma[1]*np.square(h)/2
+        return np.log(income) + self.param.gammas[0]*np.square(e_av)/2
+        + self.param.gammas[1]*np.square(h)/2
 
 
 
