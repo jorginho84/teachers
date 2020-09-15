@@ -17,6 +17,7 @@ sys.path.append("")
 import utility as util
 import parameters as parameters
 import simdata as sd
+import between
 
 # DATA 2018
 
@@ -154,15 +155,38 @@ print(distancetrame)
 h_student = model.student_h(effort)
 print(h_student)
 
+between.betweenOne()
+
+print("Direct utility")
+
 utilityTeacher = model.utility(income, effort, h_student)
 print(utilityTeacher)
 
 # SIMDATA
 
+between.betweenOne()
+
+print("Utility simdata")
+
 modelSD = sd.SimData(N,model)
 
 utilitySD = modelSD.util(effort)
 print(utilitySD)
+
+
+between.betweenOne()
+
+# SIMULACIÓN SIMDATA
+
+#opt = modelSD.choice()
+
+#recuperas el optimo e.
+# cuentes cuanto se demora.
+#vector_opt = opt.x
+
+#print(vector_opt)
+
+#con esfuerzo optimo, puedes simular simce, test scores, placement.
 
 
 

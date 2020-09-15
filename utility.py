@@ -482,7 +482,7 @@ class Utility(object):
             
             pb.append(self.param.alphas[j][0]*p0 + \
                      self.param.alphas[j][1]*effort + \
-                         self.param.alphas[j][2]*np.square(effort) + \
+                         self.param.alphas[j][2]*effort + \
                              self.param.alphas[j][3]*self.years)
         
         
@@ -500,11 +500,11 @@ class Utility(object):
         returns: utility in log income terms
 
         """
+        
 
-        e_av = (e[0] + e[1])/2
+        #e_av = (e[0] + e[1])/2
 
-        return np.log(income) + self.param.gammas[0]*np.square(e_av)/2
-        + self.param.gammas[1]*np.square(h)/2
+        return np.log(income) + self.param.gammas[0]*np.square(e)/2 + self.param.gammas[1]*np.square(h)/2
 
 
 
