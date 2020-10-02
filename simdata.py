@@ -55,10 +55,32 @@ class SimData:
         """
         
         effort0 = np.zeros(self.N)
+        effort1 = np.ones(self.N)
+        effort2 = np.ones(self.N)*2
         
-        #averiguar
-        #opt = minimize(self.util, effort0,  method='Nelder-Mead', options={'maxiter':5000, 'maxfev': 90000, 'ftol': 1e-3, 'disp': True})
+        u_l = self.util(effort0)
+        u_m = self.util(effort1)
+        u_h = self.util(effort2)
         
-        opt = minimize(self.util, effort0,  method='Nelder-Mead', options={'maxiter':5, 'ftol': 1e-3, 'disp': True})
+        u_v2 = np.array([u_l, u_m, u_h]).T
         
-        return opt
+        effort_v1 = np.argmax(u_v2, axis=1)
+        
+        teacher_scores = self.model.t_test(effort_v1)
+        
+        placement = self.model.placement(teacher_scores)
+        
+        income = self.model.income(placement)
+        
+        simce = self.model.student_h(effort_v1)
+        
+        #updating
+        effort_opt = effort_v1
+        teacher_opt = teacher_scores
+        simce_opt = simce
+        placement_opt = placement
+        income_opt = income
+        
+                        
+        return {'Opt Effort': effort_opt, 'Opt Teacher': teacher_opt, 'Opt Simce': simce_opt,
+                'Opt Placement': placement_opt, 'Opt Income': income_opt}

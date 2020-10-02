@@ -443,19 +443,29 @@ class Utility(object):
         """
         takes student initial HC and teacher effort to compute achievement
 
-        return: student test score
+        return: student test score, where effort_low = 0
 
         """
+        effort_m1 = np.zeros(effort.shape)
+        effort_m = np.where(effort==1, 1, effort_m1)
+        effort_h1 = np.zeros(effort.shape)
+        effort_h = np.where((effort==2), 1, effort_h1)
+    
         eps = np.random.randn(self.N)*self.param.betas[3]
+        
+        h = self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + eps
+        
         
         """
         h = self.param.betas[0] + self.param.betas[1]*effort[0] + \
                     self.param.betas[2]*effort[1] + \
                     self.param.betas[3]*np.square(effort[0]) + self.param.betas[4]*np.square(effort[1])+ eps
-        """
+        
         
         h = self.param.betas[0] + self.param.betas[1]*effort + \
             self.param.betas[2]*np.square(effort) + eps
+            
+        """
 
         return h
 
@@ -469,11 +479,18 @@ class Utility(object):
         
         p1v1 = np.where(np.isnan(self.p1), 0, self.p1)
         p2v1 = np.where(np.isnan(self.p2), 0, self.p2)
+        
+        eps_t = np.random.normal(0, 0.1, p1v1.shape)
 
         p0 = np.zeros(p1v1.shape)
         p0 = np.where((p1v1 == 0),p2v1, p0)
         p0 = np.where((p2v1 == 0),p1v1, p0)
         p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(self.p1 + self.p2)/2, p0)
+        
+        effort_m1 = np.zeros(effort.shape)
+        effort_m = np.where(effort==1, 1, effort_m1)
+        effort_h1 = np.zeros(effort.shape)
+        effort_h = np.where((effort==2), 1, effort_h1)
         
         pb = []
 
@@ -481,9 +498,8 @@ class Utility(object):
         for j in range(2):
             
             pb.append(self.param.alphas[j][0]*p0 + \
-                     self.param.alphas[j][1]*effort + \
-                         self.param.alphas[j][2]*effort + \
-                             self.param.alphas[j][3]*self.years)
+                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
+                         self.param.alphas[j][3]*self.years + eps_t) 
         
         
         pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3
@@ -493,7 +509,7 @@ class Utility(object):
                 
         return p
 
-    def utility(self, income, e, h):
+    def utility(self, income, effort, h):
         """
         Takes states income, student achievement, and effort
 
@@ -501,10 +517,14 @@ class Utility(object):
 
         """
         
+        effort_m1 = np.zeros(effort.shape)
+        effort_m = np.where(effort==1, 1, effort_m1)
+        effort_h1 = np.zeros(effort.shape)
+        effort_h = np.where((effort==2), 1, effort_h1)
+        
+        U_rsl = np.log(income) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.square(h)/2
 
-        #e_av = (e[0] + e[1])/2
-
-        return np.log(income) + self.param.gammas[0]*np.square(e)/2 + self.param.gammas[1]*np.square(h)/2
+        return U_rsl
 
 
 

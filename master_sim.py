@@ -18,6 +18,7 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import between
+import random
 
 # DATA 2018
 
@@ -73,14 +74,14 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[0.5,0.5,-0.05,0.05],
-		[0.5,0.5,-0.05,0.05]]
+alphas = [[0.5,0.3,0.5,0.05],
+		[0.5,0.4,0.7,0.05]]
 
 #betas = [100,0.9,0.9,-0.05,-0.05,20]
 
 betas = [100,0.9,-0.05,20]
 
-gammas = [-0.1,0.1]
+gammas = [-0.1,-0.2,0.1]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -130,27 +131,47 @@ print(initial_p)
 
 
 
-mu, sigma = 0, 1 # mean and standard deviation
-misj = len(initial_p)
-effort = np.random.normal(mu, sigma, misj)
+between.betweenOne()
 
-a, b = model.t_test(effort)
-print(a)
-print(b)
+print("Random Effort")
+
+misj = len(initial_p)
+effort = np.random.randint(3, size=misj)
+print(effort)
+
+between.betweenOne()
+
+print("Effort Teachers")
 
 tscores = model.t_test(effort)
 print(tscores)
 
+between.betweenOne()
+
+print("Placement")
+
 placement = model.placement(tscores)
 print(placement)
+
+between.betweenOne()
+
+print("Income")
     
 income = model.income(placement)
 print(income)
+
+between.betweenOne()
+
+print("Distance")
 
 nextT, distancetrame = model.distance(placement)
 print(nextT)
 print(distancetrame)
 
+
+between.betweenOne()
+
+print("Effort Student")
 
 h_student = model.student_h(effort)
 print(h_student)
@@ -178,13 +199,16 @@ between.betweenOne()
 
 # SIMULACIÓN SIMDATA
 
-#opt = modelSD.choice()
+
+print("SIMDATA")
+
+opt = modelSD.choice()
 
 #recuperas el optimo e.
 # cuentes cuanto se demora.
 #vector_opt = opt.x
 
-#print(vector_opt)
+print(opt)
 
 #con esfuerzo optimo, puedes simular simce, test scores, placement.
 
