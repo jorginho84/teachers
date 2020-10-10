@@ -451,9 +451,9 @@ class Utility(object):
         effort_h1 = np.zeros(effort.shape)
         effort_h = np.where((effort==2), 1, effort_h1)
     
-        eps = np.random.randn(self.N)*self.param.betas[3]
+        eps = np.random.randn(self.N)*self.param.betas[4]
         
-        h = self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + eps
+        h = self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + self.param.betas[3]*self.years + eps
         
         
         """
