@@ -18,6 +18,8 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
+import estimate_2 as est_2
+import estimate_3 as est_3
 import between
 import random
 #import xlsxwriter
@@ -252,12 +254,12 @@ corrM = datadf.corr()
 print(corrM)
 
 
-wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
-sheet = wb.active
+#wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+#sheet = wb.active
 
-sheet['C2'] = 'Hello*2'
+#sheet['C2'] = 'Hello*2'
 
-wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+#wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 between.betweenOne()
 
@@ -268,6 +270,22 @@ modelestimate = est.estimate(N,modelSD,years,treatment)
 
 corr_data = modelestimate.simulation(50)
 print(corr_data)
+
+################# estimate 2 ##################
+
+modelestimate_2 = est_2.estimate_2(N,modelSD,years,treatment) 
+
+corr_data_2 = modelestimate_2.simulation_2(50)
+print(corr_data_2)
+
+################# estimate 3 ##################
+
+modelestimate_3 = est_3.estimate_3(N,years,treatment) 
+
+corr_data_3 = modelestimate_3.simulation_3(50,modelSD)
+print(corr_data_3)
+
+
 
 
 ##### PYTHON TO EXCEL #####
