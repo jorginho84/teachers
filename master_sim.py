@@ -98,8 +98,8 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[0.5,0.1,0.2,-0.01],
-		[0.5,0.1,0.2,-0.01]]
+alphas = [[0.5,0.1,0.2,-0.01,0.1],
+		[0.5,0.1,0.2,-0.01,0.1]]
 
 #betas = [100,0.9,0.9,-0.05,-0.05,20]
 #Parámetros más importantes
@@ -266,24 +266,24 @@ between.betweenOne()
 
 print('Estimate correlation')
 
-modelestimate = est.estimate(N,modelSD,years,treatment) 
+#modelestimate = est.estimate(N,modelSD,years,treatment) 
 
-corr_data = modelestimate.simulation(50)
-print(corr_data)
+#corr_data = modelestimate.simulation(50)
+#print(corr_data)
 
 ################# estimate 2 ##################
 
 modelestimate_2 = est_2.estimate_2(N,modelSD,years,treatment) 
 
-corr_data_2 = modelestimate_2.simulation_2(50)
-print(corr_data_2)
+corr_data = modelestimate_2.simulation_2(50)
+print(corr_data)
 
 ################# estimate 3 ##################
 
-modelestimate_3 = est_3.estimate_3(N,years,treatment) 
+#modelestimate_3 = est_3.estimate_3(N,years,treatment) 
 
-corr_data_3 = modelestimate_3.simulation_3(50,modelSD)
-print(corr_data_3)
+#corr_data_3 = modelestimate_3.simulation_3(50,modelSD)
+#print(corr_data_3)
 
 
 
@@ -299,39 +299,40 @@ print(corr_data_3)
 wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 sheet = wb.active
 
-sheet['C5'] = 'corr(Port,Simce)'
-sheet['C6'] = 'corr(Pru,Simce)'
-sheet['C7'] = 'corr(Port,Pru)'
-sheet['C8'] = '\ alpha_0 E[Port]'
-sheet['C9'] = '\ alpha_0 E[Pru]'
-sheet['C10'] = '\ alpha_3 corr(exp,Port)'
-sheet['C11'] = '\ alpha_3 corr(exp,Pru)'
-sheet['C12'] = '\sigma_1 Var(Port)'
-sheet['C13'] = '\sigma_1 Var(Pru)'
-sheet['C14'] = '\% Initial'
-sheet['C15'] = '\% Intermediate'
-sheet['C16'] = '\% Advanced'
-sheet['C17'] = '\% Expert'
-sheet['C18'] = '\ alpha_1 E[SIMCE]'
+sheet['C5'] = 'Mean Portfolio'
+sheet['C6'] = 'Variance Portfolio'
+sheet['C7'] = 'Mean SIMCE'
+sheet['C8'] = 'Variance SIMCE'
+sheet['C9'] = 'Mean Test'
+sheet['C10'] = 'Variance Test'
+sheet['C11'] = 'Mean Portfolio-Test'
+sheet['C12'] = '\% Initial'
+sheet['C13'] = '\% Intermediate'
+sheet['C14'] = '\% Advanced'
+sheet['C15'] = '\% Expert'
+sheet['C16'] = 'corr(Port,Simce)'
+sheet['C17'] = 'corr(Test,Simce)'
+sheet['C18'] = 'corr(exp,Port)'
+sheet['C19'] = 'corr(exp,Test)'
 sheet['D4'] = 'simulation'
 sheet['E4'] = 'data'
 sheet['F4'] = 'se'
 
-sheet['D5'] = corr_data['Estimation SIMCE vs Portfolio']
-sheet['D6'] = corr_data['Estimation SIMCE vs Prueba']
-sheet['D7'] = corr_data['Estimation Portfolio vs Prueba']
-sheet['D8'] = corr_data['Mean Portfolio']
+sheet['D5'] = corr_data['Mean Portfolio']
+sheet['D6'] = corr_data['Var Port']
+sheet['D7'] = corr_data['Mean SIMCE']
+sheet['D8'] = corr_data['Var SIMCE']
 sheet['D9'] = corr_data['Mean Test']
-sheet['D10'] = corr_data['Estimation EXP vs Portfolio']
-sheet['D11'] = corr_data['Estimation EXP vs Prueba']
-sheet['D12'] = corr_data['Var Port']
-sheet['D13'] = corr_data['Var Test']
-sheet['D14'] = corr_data['perc init']
-sheet['D15'] = corr_data['perc inter']
-sheet['D16'] = corr_data['perc advanced']
-sheet['D17'] = corr_data['perc expert']
-sheet['D18'] = corr_data['Mean SIMCE']
-
+sheet['D10'] = corr_data['Var Test']
+sheet['D11'] = corr_data['Mean PortTest']
+sheet['D12'] = corr_data['perc init']
+sheet['D13'] = corr_data['perc inter']
+sheet['D14'] = corr_data['perc advanced']
+sheet['D15'] = corr_data['perc expert']
+sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
+sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
+sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
+sheet['D19'] = corr_data['Estimation EXP vs Prueba']
 
 
 

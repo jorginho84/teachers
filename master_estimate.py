@@ -19,6 +19,7 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
 sys.path.append("D:\Git\TeacherPrincipal")
+sys.path.append("D:\Git\result")
 #import gridemax
 import time
 #import int_linear
@@ -27,6 +28,11 @@ import parameters as parameters
 import simdata as sd
 import estimate as est
 #import pybobyqa
+#import xlsxwriter
+from openpyxl import Workbook 
+from openpyxl import load_workbook
+import time
+
 
 
 moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
@@ -101,8 +107,8 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[0.5,0.1,0.2,-0.01],
-		[0.5,0.1,0.2,-0.01]]
+alphas = [[0.5,0.1,0.2,-0.01,0.1],
+		[0.5,0.1,0.2,-0.01,0.1]]
 
 #betas = [100,0.9,0.9,-0.05,-0.05,20]
 #Parámetros más importantes
@@ -270,8 +276,61 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
 
 
-corr_datav1 = output_ins.simulation(50,modelSD)
-print(corr_datav1)
+corr_data = output_ins.simulation(50,modelSD)
+print(corr_data)
+
+##### PYTHON TO EXCEL #####
+
+#workbook = xlsxwriter.Workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+#worksheet = workbook.add_worksheet()
+
+#book = Workbook()
+#sheet = book.active
+
+wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+sheet = wb.active
+
+sheet['C5'] = 'Mean Portfolio'
+sheet['C6'] = 'Variance Portfolio'
+sheet['C7'] = 'Mean SIMCE'
+sheet['C8'] = 'Variance SIMCE'
+sheet['C9'] = 'Mean Test'
+sheet['C10'] = 'Variance Test'
+sheet['C11'] = 'Mean Portfolio-Test'
+sheet['C12'] = '\% Initial'
+sheet['C13'] = '\% Intermediate'
+sheet['C14'] = '\% Advanced'
+sheet['C15'] = '\% Expert'
+sheet['C16'] = 'corr(Port,Simce)'
+sheet['C17'] = 'corr(Test,Simce)'
+sheet['C18'] = 'corr(exp,Port)'
+sheet['C19'] = 'corr(exp,Test)'
+sheet['C20'] = '\% Intermediate control'
+sheet['C21'] = '\% adva/expert control'
+sheet['D4'] = 'simulation'
+sheet['E4'] = 'data'
+sheet['F4'] = 'se'
+
+sheet['D5'] = corr_data['Mean Portfolio']
+sheet['D6'] = corr_data['Var Port']
+sheet['D7'] = corr_data['Mean SIMCE']
+sheet['D8'] = corr_data['Var SIMCE']
+sheet['D9'] = corr_data['Mean Test']
+sheet['D10'] = corr_data['Var Test']
+sheet['D11'] = corr_data['Mean PortTest']
+sheet['D12'] = corr_data['perc init']
+sheet['D13'] = corr_data['perc inter']
+sheet['D14'] = corr_data['perc advanced']
+sheet['D15'] = corr_data['perc expert']
+sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
+sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
+sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
+sheet['D19'] = corr_data['Estimation EXP vs Prueba']
+sheet['D20'] = corr_data['perc inter control']
+sheet['D21'] = corr_data['perc adv/exp control']
+
+
+wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 
 start_time = time.time()
@@ -284,43 +343,60 @@ print ('Done in')
 print("--- %s seconds ---" % (time_opt))
 
 
-"""
-def sym(a):
-	return ((1/(1+np.exp(-a))) - 0.5)*2
-
 #the list of estimated parameters
-eta_opt = output.x[0]
-alpha_p_opt = output.x[1]
-alpha_f_opt = output.x[2]
-betaw0 = output.x[3]
-betaw1 = output.x[4]
-betaw2 = output.x[5]
-betaw3 = np.exp(output.x[6])
-betaw4 = output.x[7]
-beta_s1 = output.x[8]
-beta_s2 = output.x[9]
-beta_s3 = np.exp(output.x[10])
-beta_emp_s = output.x[11]
-gamma1_y_opt = output.x[12]
-gamma2_y_opt = output.x[13]
-gamma3_y_opt = output.x[14]
-gamma1_o_opt = output.x[15]
-gamma2_o_opt = output.x[16]
-gamma3_o_opt = output.x[17]
-tfp_opt = output.x[18]
-sigma2theta_opt = output.x[19]
-rho_theta_epsilon_opt = sym(output.x[20])
-qprob_opt = output.x[21]
-
-betas_opt = np.array([eta_opt, alpha_p_opt,
-	alpha_f_opt,
-	betaw0,betaw1,betaw2,betaw3,betaw4,
-	beta_s1,beta_s2,beta_s3,beta_emp_s,
-	gamma1_y_opt,gamma2_y_opt,gamma3_y_opt,
-	gamma1_o_opt,gamma2_o_opt,gamma3_o_opt,
-	tfp_opt,
-	sigma2theta_opt,
-	rho_theta_epsilon_opt,qprob_opt])
-"""
+beta_1 = output.x[0]
+beta_2 = output.x[1]
+beta_3 = output.x[2]
+beta_4 = output.x[3]
+beta_5 = output.x[4]
+beta_6 = output.x[5]
+beta_7 = np.exp(output.x[6])
+beta_8 = output.x[7]
+beta_9 = output.x[8]
+beta_10 = output.x[9]
+beta_11 = np.exp(output.x[10])
+beta_12 = output.x[11]
+beta_13 = output.x[12]
+beta_14 = output.x[13]
+beta_15 = output.x[14]
+beta_16 = output.x[15]
+beta_17 = output.x[16]
 
 
+betas_opt = np.array([beta_1, beta_2,
+	beta_3,
+	beta_4,beta_5,beta_6,beta_7,beta_8,
+	beta_9,beta_10,beta_11,beta_12,
+	beta_13,beta_14,beta_15,
+	beta_16,beta_17])
+
+print(betas_opt)
+
+wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+
+sheet = wb.active
+
+sheet['G4'] = 'Betas Opt'
+sheet['G5'] = beta_1
+sheet['G6'] = beta_2
+sheet['G7'] = beta_3
+sheet['G8'] = beta_4
+sheet['G9'] = beta_5
+sheet['G10'] = beta_6
+sheet['G11'] = beta_7
+sheet['G12'] = beta_8
+sheet['G13'] = beta_9
+sheet['G14'] = beta_10
+sheet['G15'] = beta_11
+sheet['G16'] = beta_12
+sheet['G17'] = beta_13
+sheet['G18'] = beta_14
+sheet['G19'] = beta_15
+sheet['G20'] = beta_16
+sheet['G21'] = beta_17
+
+
+wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+
+
+#np.save('D:\Git\result\beta_opt.npy',betas_opt)

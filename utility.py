@@ -498,9 +498,9 @@ class Utility(object):
            
         for j in range(2):
             
-            pb.append(self.param.alphas[j][0]*p0 + \
+            pb.append(self.param.alphas[j][0] + \
                      self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
-                         self.param.alphas[j][3]*self.years/10 + np.random.normal(0, 0.1, p1v1.shape)) 
+                         self.param.alphas[j][3]*self.years/10 + np.random.normal(0, self.param.alphas[j][4], p1v1.shape)) 
         
         
         pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3
