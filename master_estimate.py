@@ -1,34 +1,43 @@
 # -*- coding: utf-8 -*-
 """
-Simulates data
+Created on Wed Dec  9 11:28:07 2020
 
+@author: pjac2
 """
 
+#from __future__ import division #omit for python 3.x
 import numpy as np
 import pandas as pd
 import pickle
-import tracemalloc
 import itertools
 import sys, os
 from scipy import stats
+#from scipy.optimize import minimize
+from scipy.optimize import fmin_bfgs
+from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
+#sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
 sys.path.append("D:\Git\TeacherPrincipal")
+sys.path.append("D:\Git\result")
+#import gridemax
+import time
+#import int_linear
 import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-import estimate_2 as est_2
-import estimate_3 as est_3
-import between
-import random
+#import pybobyqa
 #import xlsxwriter
 from openpyxl import Workbook 
 from openpyxl import load_workbook
 import time
 
-# DATA 2018
 
+
+moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
+
+#ajhdsajk = moments_vector[0,1]
 
 data = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
 
@@ -156,7 +165,6 @@ initial_p = model.initial()
 print(initial_p)
 
 
-between.betweenOne()
 
 print("Random Effort")
 
@@ -164,28 +172,27 @@ misj = len(initial_p)
 effort = np.random.randint(2, size=misj)
 print(effort)
 
-between.betweenOne()
 
 print("Effort Teachers")
 
 tscores = model.t_test(effort)
 print(tscores)
 
-between.betweenOne()
+
 
 print("Placement")
 
 placement = model.placement(tscores)
 print(placement)
 
-between.betweenOne()
+
 
 print("Income")
     
 income = model.income(placement)
 print(income)
 
-between.betweenOne()
+
 
 print("Distance")
 
@@ -194,14 +201,14 @@ print(nextT)
 print(distancetrame)
 
 
-between.betweenOne()
+
 
 print("Effort Student")
 
 h_student = model.student_h(effort)
 print(h_student)
 
-between.betweenOne()
+
 
 print("Direct utility")
 
@@ -210,7 +217,7 @@ print(utilityTeacher)
 
 # SIMDATA
 
-between.betweenOne()
+
 
 print("Utility simdata")
 
@@ -220,7 +227,7 @@ utilitySD = modelSD.util(effort)
 print(utilitySD)
 
 
-between.betweenOne()
+
 
 # SIMULACIÓN SIMDATA
 
@@ -233,60 +240,44 @@ print(opt)
 jashdkjhsa = opt['Opt Teacher'][0]
 
 
+#param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
 
-datah = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 'Treatment': opt['Treatment']}
-datadfh = pd.DataFrame(datah, columns=['SIMCE','PORTFOLIO','TEST', 'Treatment'])
-datahgf = datadfh[datadfh['Treatment']==0]
+#aaa333 = param0.alphas[0][0]
 
-print(np.mean(datahgf['SIMCE'].to_numpy()))
+#w_matrix  = np.linalg.inv(var_cov)
+w_matrix = np.identity(15)
 
+#Creating a grid for the emax computation
+#dict_grid=gridemax.grid(500)
 
-jdhd = np.mean(datahgf['Treatment'].to_numpy())
-print(datahgf['Treatment'])
+#For montercarlo integration
+#D = 25
 
-tratatat = datadfh['Treatment'].to_numpy()
-tratatat = sum(datadfh['Treatment']==1)
-print(tratatat)
-
-datav2 = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1]}
-datadf = pd.DataFrame(datahgf, columns=['SIMCE','PORTFOLIO','TEST'])
-corrM = datadf.corr()
-print(corrM)
+#Number of samples to produce
+#M = 50
 
 
-#wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
-#sheet = wb.active
+#How many hours is part- and full-time work
+#hours_p = 20
+#hours_f = 40
 
-#sheet['C2'] = 'Hello*2'
+#Indicate if model includes a work requirement (wr), 
+#and child care subsidy (cs) and a wage subsidy (ws)
+#wr = 1
+#cs = 1
+#ws = 1
 
-#wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+#model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+            
+#modelSD = sd.SimData(N,model,treatment)
 
-between.betweenOne()
+
+output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
+                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
 
 
-print('Estimate correlation')
-
-#modelestimate = est.estimate(N,modelSD,years,treatment) 
-
-#corr_data = modelestimate.simulation(50)
-#print(corr_data)
-
-################# estimate 2 ##################
-
-modelestimate_2 = est_2.estimate_2(N,modelSD,years,treatment) 
-
-corr_data = modelestimate_2.simulation_2(50)
+corr_data = output_ins.simulation(50,modelSD)
 print(corr_data)
-
-################# estimate 3 ##################
-
-#modelestimate_3 = est_3.estimate_3(N,years,treatment) 
-
-#corr_data_3 = modelestimate_3.simulation_3(50,modelSD)
-#print(corr_data_3)
-
-
-
 
 ##### PYTHON TO EXCEL #####
 
@@ -314,6 +305,8 @@ sheet['C16'] = 'corr(Port,Simce)'
 sheet['C17'] = 'corr(Test,Simce)'
 sheet['C18'] = 'corr(exp,Port)'
 sheet['C19'] = 'corr(exp,Test)'
+sheet['C20'] = '\% Intermediate control'
+sheet['C21'] = '\% adva/expert control'
 sheet['D4'] = 'simulation'
 sheet['E4'] = 'data'
 sheet['F4'] = 'se'
@@ -333,78 +326,77 @@ sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
 sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
 sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
 sheet['D19'] = corr_data['Estimation EXP vs Prueba']
-
-
-
+sheet['D20'] = corr_data['perc inter control']
+sheet['D21'] = corr_data['perc adv/exp control']
 
 
 wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 
+start_time = time.time()
 
-"""
-worksheet.write('C5', 'corr(Port,Simce)')
-worksheet.write('C6', 'corr(Pru,Simce)')
-worksheet.write('C7', 'corr(Port,Pru)')
-worksheet.write('C8', '\ alpha_0 E[Port]')
-worksheet.write('C9', '\ alpha_0 E[Pru]')
-worksheet.write('C10', '\ alpha_3 corr(exp,Port)')
-worksheet.write('C11', '\ alpha_3 corr(exp,Pru)')
-worksheet.write('C12', '\sigma_1 Var(Port)')
-worksheet.write('C13', '\sigma_1 Var(Pru)')
-worksheet.write('C14', '\% Initial')
-worksheet.write('C15', '\% Intermediate')
-worksheet.write('C16', '\% Advanced')
-worksheet.write('C17', '\% Expert')
-worksheet.write('D4', 'simulation')
-worksheet.write('E4', 'data')
-worksheet.write('F4', 'se')
+#here we go
+output = output_ins.optimizer()
+
+time_opt=time.time() - start_time
+print ('Done in')
+print("--- %s seconds ---" % (time_opt))
 
 
-
-worksheet.write('D5', corr_data['Estimation SIMCE vs Portfolio'])
-worksheet.write('D6', corr_data['Estimation SIMCE vs Prueba'])
-worksheet.write('D7', corr_data['Estimation Portfolio vs Prueba'])
-worksheet.write('D8', corr_data['Mean Portfolio'])
-worksheet.write('D9', corr_data['Mean Test'])
-worksheet.write('D12', corr_data['Var Port'])
-worksheet.write('D13', corr_data['Var Test'])
-worksheet.write('D14', corr_data['perc init'])
-worksheet.write('D15', corr_data['perc inter'])
-worksheet.write('D16', corr_data['perc advanced'])
-worksheet.write('D17', corr_data['perc expert'])
-
-
-
-
-
-workbook.close()
-"""
-
-"""
-'perc init': est_sim_perc_init,
-            'perc inter': est_sim_perc_inter,
-            'perc advanced': est_sim_perc_advan,
-            'perc expert': est_sim_perc_expert,
+#the list of estimated parameters
+beta_1 = output.x[0]
+beta_2 = output.x[1]
+beta_3 = output.x[2]
+beta_4 = output.x[3]
+beta_5 = output.x[4]
+beta_6 = output.x[5]
+beta_7 = np.exp(output.x[6])
+beta_8 = output.x[7]
+beta_9 = output.x[8]
+beta_10 = output.x[9]
+beta_11 = np.exp(output.x[10])
+beta_12 = output.x[11]
+beta_13 = output.x[12]
+beta_14 = output.x[13]
+beta_15 = output.x[14]
+beta_16 = output.x[15]
+beta_17 = output.x[16]
 
 
+betas_opt = np.array([beta_1, beta_2,
+	beta_3,
+	beta_4,beta_5,beta_6,beta_7,beta_8,
+	beta_9,beta_10,beta_11,beta_12,
+	beta_13,beta_14,beta_15,
+	beta_16,beta_17])
 
-#con esfuerzo optimo, puedes simular simce, test scores, placement.
+print(betas_opt)
 
-pd.value_counts(opt['Opt Placement'])
+wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
-lkj = sum(opt['Opt Placement']==1)
-print(lkj)
+sheet = wb.active
 
-perc_init = (sum(opt['Opt Placement']==1) / len(opt['Opt Placement'])) * 100
-print(perc_init)
+sheet['G4'] = 'Betas Opt'
+sheet['G5'] = beta_1
+sheet['G6'] = beta_2
+sheet['G7'] = beta_3
+sheet['G8'] = beta_4
+sheet['G9'] = beta_5
+sheet['G10'] = beta_6
+sheet['G11'] = beta_7
+sheet['G12'] = beta_8
+sheet['G13'] = beta_9
+sheet['G14'] = beta_10
+sheet['G15'] = beta_11
+sheet['G16'] = beta_12
+sheet['G17'] = beta_13
+sheet['G18'] = beta_14
+sheet['G19'] = beta_15
+sheet['G20'] = beta_16
+sheet['G21'] = beta_17
 
-len(opt['Opt Placement']==1)
 
-perc_init = (opt['Opt Placement'].sum()/(len(opt['Opt Placement']) - opt['Opt Placement'].isnull().sum()))*100
-#data_1982['perct'] = (data_1982[data_1982['TELEPHONE']==1]/data_1982['TELEPHONE'].sum())*100
-
-print('\nTelephone Percentaje\n', perc_init,'%')
-"""
+wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 
+#np.save('D:\Git\result\beta_opt.npy',betas_opt)
