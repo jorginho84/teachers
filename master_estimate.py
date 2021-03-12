@@ -31,11 +31,14 @@ import estimate as est
 #import xlsxwriter
 from openpyxl import Workbook 
 from openpyxl import load_workbook
-import time
 
 
 
-moments_vector = pd.read_excel("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/Outcomes.xlsx", header=3, usecols='C:F').values
+
+moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
+#moments_vector_excel = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='D')
+#moments_vector_zero = moments_vector_excel[['simulation']]
+#moments_vector = moments_vector_zero['simulation'].to_numpy()
 
 #ajhdsajk = moments_vector[0,1]
 
@@ -161,7 +164,6 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
 
 w_matrix = np.identity(15)
 
-
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
 
@@ -235,4 +237,4 @@ sheet['G21'] = beta_17
 wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 
-#np.save('D:\Git\result\beta_opt.npy',betas_opt)
+#np.save('D:\Git\TeacherPrincipal\beta_opt.npy',betas_opt)
