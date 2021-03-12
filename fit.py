@@ -1,44 +1,18 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec  9 11:28:07 2020
+Created on Mon Jan 25 17:33:39 2021
 
-@author: pjac2
+@author: jorge-home
+
+This code computes fit anaylisis
+
 """
 
-#from __future__ import division #omit for python 3.x
-import numpy as np
-import pandas as pd
-import pickle
-import itertools
-import sys, os
-from scipy import stats
-#from scipy.optimize import minimize
-from scipy.optimize import fmin_bfgs
-from joblib import Parallel, delayed
-from scipy import interpolate
-import matplotlib.pyplot as plt
-#sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeacherPrincipal")
-sys.path.append("D:\Git\result")
-#import gridemax
-import time
-#import int_linear
-import utility as util
-import parameters as parameters
-import simdata as sd
-import estimate as est
-#import pybobyqa
-#import xlsxwriter
-from openpyxl import Workbook 
-from openpyxl import load_workbook
 
+betas_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/betas_v1.npy")
 
-
-
-moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
-#moments_vector_excel = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='D')
-#moments_vector_zero = moments_vector_excel[['simulation']]
-#moments_vector = moments_vector_zero['simulation'].to_numpy()
+moments_vector = pd.read_excel("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/Outcomes.xlsx", header=3, usecols='C:F').values
 
 #ajhdsajk = moments_vector[0,1]
 
@@ -168,73 +142,60 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
 
 
-start_time = time.time()
+corr_data = output_ins.simulation(50,modelSD)
+print(corr_data)
 
-#here we go
-output = output_ins.optimizer()
+##### PYTHON TO EXCEL #####
 
-time_opt=time.time() - start_time
-print ('Done in')
-print("--- %s seconds ---" % (time_opt))
+#workbook = xlsxwriter.Workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+#worksheet = workbook.add_worksheet()
 
-
-#the list of estimated parameters
-beta_1 = output.x[0]
-beta_2 = output.x[1]
-beta_3 = output.x[2]
-beta_4 = output.x[3]
-beta_5 = output.x[4]
-beta_6 = output.x[5]
-beta_7 = np.exp(output.x[6])
-beta_8 = output.x[7]
-beta_9 = output.x[8]
-beta_10 = output.x[9]
-beta_11 = np.exp(output.x[10])
-beta_12 = output.x[11]
-beta_13 = output.x[12]
-beta_14 = output.x[13]
-beta_15 = output.x[14]
-beta_16 = output.x[15]
-beta_17 = output.x[16]
-
-
-betas_opt = np.array([beta_1, beta_2,
-	beta_3,
-	beta_4,beta_5,beta_6,beta_7,beta_8,
-	beta_9,beta_10,beta_11,beta_12,
-	beta_13,beta_14,beta_15,
-	beta_16,beta_17])
-
-print(betas_opt)
-
-
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/betas_v1.npy',betas_opt)
+#book = Workbook()
+#sheet = book.active
 
 wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
-
 sheet = wb.active
 
-sheet['G4'] = 'Betas Opt'
-sheet['G5'] = beta_1
-sheet['G6'] = beta_2
-sheet['G7'] = beta_3
-sheet['G8'] = beta_4
-sheet['G9'] = beta_5
-sheet['G10'] = beta_6
-sheet['G11'] = beta_7
-sheet['G12'] = beta_8
-sheet['G13'] = beta_9
-sheet['G14'] = beta_10
-sheet['G15'] = beta_11
-sheet['G16'] = beta_12
-sheet['G17'] = beta_13
-sheet['G18'] = beta_14
-sheet['G19'] = beta_15
-sheet['G20'] = beta_16
-sheet['G21'] = beta_17
+sheet['C5'] = 'Mean Portfolio'
+sheet['C6'] = 'Variance Portfolio'
+sheet['C7'] = 'Mean SIMCE'
+sheet['C8'] = 'Variance SIMCE'
+sheet['C9'] = 'Mean Test'
+sheet['C10'] = 'Variance Test'
+sheet['C11'] = 'Mean Portfolio-Test'
+sheet['C12'] = '\% Initial'
+sheet['C13'] = '\% Intermediate'
+sheet['C14'] = '\% Advanced'
+sheet['C15'] = '\% Expert'
+sheet['C16'] = 'corr(Port,Simce)'
+sheet['C17'] = 'corr(Test,Simce)'
+sheet['C18'] = 'corr(exp,Port)'
+sheet['C19'] = 'corr(exp,Test)'
+sheet['C20'] = '\% Intermediate control'
+sheet['C21'] = '\% adva/expert control'
+sheet['D4'] = 'simulation'
+sheet['E4'] = 'data'
+sheet['F4'] = 'se'
+
+sheet['D5'] = corr_data['Mean Portfolio']
+sheet['D6'] = corr_data['Var Port']
+sheet['D7'] = corr_data['Mean SIMCE']
+sheet['D8'] = corr_data['Var SIMCE']
+sheet['D9'] = corr_data['Mean Test']
+sheet['D10'] = corr_data['Var Test']
+sheet['D11'] = corr_data['Mean PortTest']
+sheet['D12'] = corr_data['perc init']
+sheet['D13'] = corr_data['perc inter']
+sheet['D14'] = corr_data['perc advanced']
+sheet['D15'] = corr_data['perc expert']
+sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
+sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
+sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
+sheet['D19'] = corr_data['Estimation EXP vs Prueba']
+sheet['D20'] = corr_data['perc inter control']
+sheet['D21'] = corr_data['perc adv/exp control']
 
 
 wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 
-#np.save('D:\Git\TeacherPrincipal\beta_opt.npy',betas_opt)
