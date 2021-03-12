@@ -31,12 +31,13 @@ import estimate as est
 #import xlsxwriter
 from openpyxl import Workbook 
 from openpyxl import load_workbook
-import time
 
 
 
 moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
-
+#moments_vector_excel = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='D')
+#moments_vector_zero = moments_vector_excel[['simulation']]
+#moments_vector = moments_vector_zero['simulation'].to_numpy()
 #ajhdsajk = moments_vector[0,1]
 
 data = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
@@ -237,7 +238,7 @@ print("SIMDATA")
 opt = modelSD.choice(treatment)
 print(opt)
 
-jashdkjhsa = opt['Opt Teacher'][0]
+#jashdkjhsa = opt['Opt Teacher'][0]
 
 
 #param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
@@ -245,7 +246,7 @@ jashdkjhsa = opt['Opt Teacher'][0]
 #aaa333 = param0.alphas[0][0]
 
 #w_matrix  = np.linalg.inv(var_cov)
-w_matrix = np.identity(15)
+w_matrix = np.identity(17)
 
 #Creating a grid for the emax computation
 #dict_grid=gridemax.grid(500)
@@ -399,4 +400,4 @@ sheet['G21'] = beta_17
 wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
 
 
-#np.save('D:\Git\result\beta_opt.npy',betas_opt)
+#np.save('D:\Git\TeacherPrincipal\beta_opt.npy',betas_opt)
