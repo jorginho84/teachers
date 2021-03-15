@@ -18,8 +18,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeacherPrincipal")
-sys.path.append("D:\Git\result")
+sys.path.append("D:\Git\TeachersMaster")
 #import gridemax
 import time
 #import int_linear
@@ -34,15 +33,13 @@ from openpyxl import load_workbook
 
 
 
-
-moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
+moments_vector = pd.read_excel("D:\Git\TeachersMaster\Outcomes.xlsx", header=3, usecols='C:F').values
 #moments_vector_excel = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='D')
 #moments_vector_zero = moments_vector_excel[['simulation']]
 #moments_vector = moments_vector_zero['simulation'].to_numpy()
-
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
+data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
 
 
 
@@ -162,7 +159,8 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
 
-w_matrix = np.identity(15)
+
+w_matrix = np.identity(17)
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
@@ -171,7 +169,7 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
 start_time = time.time()
 
 #here we go
-output = output_ins.optimizer()
+output_me = output_ins.optimizer()
 
 time_opt=time.time() - start_time
 print ('Done in')
@@ -179,38 +177,40 @@ print("--- %s seconds ---" % (time_opt))
 
 
 #the list of estimated parameters
-beta_1 = output.x[0]
-beta_2 = output.x[1]
-beta_3 = output.x[2]
-beta_4 = output.x[3]
-beta_5 = output.x[4]
-beta_6 = output.x[5]
-beta_7 = np.exp(output.x[6])
-beta_8 = output.x[7]
-beta_9 = output.x[8]
-beta_10 = output.x[9]
-beta_11 = np.exp(output.x[10])
-beta_12 = output.x[11]
-beta_13 = output.x[12]
-beta_14 = output.x[13]
-beta_15 = output.x[14]
-beta_16 = output.x[15]
-beta_17 = output.x[16]
+beta_1 = output_me.x[0]
+beta_2 = output_me.x[1]
+beta_3 = output_me.x[2]
+beta_4 = output_me.x[3]
+beta_5 = output_me.x[4]
+beta_6 = output_me.x[5]
+beta_7 = np.exp(output_me.x[6])
+beta_8 = output_me.x[7]
+beta_9 = output_me.x[8]
+beta_10 = output_me.x[9]
+beta_11 = np.exp(output_me.x[10])
+beta_12 = output_me.x[11]
+beta_13 = output_me.x[12]
+beta_14 = output_me.x[13]
+beta_15 = output_me.x[14]
+beta_16 = output_me.x[15]
+beta_17 = output_me.x[16]
 
 
-betas_opt = np.array([beta_1, beta_2,
+betas_opt_me = np.array([beta_1, beta_2,
 	beta_3,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
 	beta_16,beta_17])
 
-print(betas_opt)
+print(betas_opt_me)
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/betas_v1.npy',betas_opt)
+np.save('D:\\Git\\TeachersMaster\\betasopt_model.npy',betas_opt_me)
 
-wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+#betas_nelder_2 = np.load("D:\\Git\\TeacherPrincipal\\betasopt_model.npy")
+
+wb = load_workbook('D:\Git\TeachersMaster\Outcomes.xlsx')
 
 sheet = wb.active
 
@@ -234,7 +234,7 @@ sheet['G20'] = beta_16
 sheet['G21'] = beta_17
 
 
-wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+wb.save('D:\Git\TeachersMaster\Outcomes.xlsx')
 
 
 #np.save('D:\Git\TeacherPrincipal\beta_opt.npy',betas_opt)

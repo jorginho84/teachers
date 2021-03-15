@@ -28,9 +28,10 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
+sys.path.append("D:\Git\TeachersMaster")
 
 
-df = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
+df = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
 
     
 def simulation(times,data):
@@ -59,32 +60,32 @@ def simulation(times,data):
         for i in range(1,times):
             rev = data.sample(n, replace=True)            
             #the list of estimated parameters
-            moments_vector = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='C:F').values
+            moments_vector = pd.read_excel("D:\Git\TeachersMaster\Outcomes.xlsx", header=3, usecols='C:F').values
             # TREATMENT #
-            treatmentOne = rev[['d_trat']]
+            #treatmentOne = rev[['d_trat']]
             treatment = rev['d_trat'].to_numpy()
             # EXPERIENCE #
-            yearsOne = rev[['experience']]
+            #yearsOne = rev[['experience']]
             years = rev['experience'].to_numpy()
             # SCORE PORTFOLIO #
-            p1_0_1 = rev[['score_port']]
+            #p1_0_1 = rev[['score_port']]
             p1_0 = rev['score_port'].to_numpy()
             p1 = rev['score_port'].to_numpy()
             # SCORE TEST #
-            p2_0_1 = rev[['score_test']]
+            #p2_0_1 = rev[['score_test']]
             p2_0 = rev['score_test'].to_numpy()
             p2 = rev['score_test'].to_numpy()
             # CATEGORY PORTFOLIO #
-            categPortfolio = rev[['cat_port']]
+            #categPortfolio = rev[['cat_port']]
             catPort = rev['cat_port'].to_numpy()
             # CATEGORY TEST #
-            categPrueba = rev[['cat_test']]
+            #categPrueba = rev[['cat_test']]
             catPrueba = rev['cat_test'].to_numpy()
             # TRAME #
-            TrameInitial = rev[['trame']]
+            #TrameInitial = rev[['trame']]
             TrameI = data['trame'].to_numpy()
             # TYPE SCHOOL #
-            typeSchoolOne = rev[['typeschool']]
+            #typeSchoolOne = rev[['typeschool']]
             typeSchool = rev['typeschool'].to_numpy()
             #### PARAMETERS MODEL ####
             N = np.size(p1_0)
@@ -150,32 +151,42 @@ def simulation(times,data):
         est_gamma_0 = np.std(gamma_0)
         est_gamma_1 = np.std(gamma_1)
         est_gamma_2 = np.std(gamma_2)
+        
    
         return {'SE alpha_00': est_alpha_00,
-            'SE alpha_01': est_alpha_01,
-            'SE alpha_02': est_alpha_02,
-            'SE alpha_03': est_alpha_03,
-            'SE alpha_04': est_alpha_04,
-            'SE alpha_10': est_alpha_10,
-            'SE alpha_11': est_alpha_11,
-            'SE alpha_12': est_alpha_12,
-            'SE alpha_13': est_alpha_13,
-            'SE alpha_14': est_alpha_14,
-            'SE beta_0': est_beta_0,
-            'SE beta_1': est_beta_1,
-            'SE beta_2': est_beta_2,
-            'SE beta_3': est_beta_3,
-            'SE gamma_0': est_gamma_0,
-            'SE gamma_1': est_gamma_1,
-            'SE gamma_2': est_gamma_2}
+                'SE alpha_01': est_alpha_01,
+                'SE alpha_02': est_alpha_02,
+                'SE alpha_03': est_alpha_03,
+                'SE alpha_04': est_alpha_04,
+                'SE alpha_10': est_alpha_10,
+                'SE alpha_11': est_alpha_11,
+                'SE alpha_12': est_alpha_12,
+                'SE alpha_13': est_alpha_13,
+                'SE alpha_14': est_alpha_14,
+                'SE beta_0': est_beta_0,
+                'SE beta_1': est_beta_1,
+                'SE beta_2': est_beta_2,
+                'SE beta_3': est_beta_3,
+                'SE gamma_0': est_gamma_0,
+                'SE gamma_1': est_gamma_1,
+                'SE gamma_2': est_gamma_2}
     
 
 
 
 
 
-result = simulation(3,df)
+result = simulation(2,df)
 print(result)
 
 
+betas_opt = np.array([result['SE alpha_00'], result['SE alpha_01'], 
+                              result['SE alpha_02'],result['SE alpha_03'],result['SE alpha_04'],
+                              result['SE alpha_10'],result['SE alpha_11'],result['SE alpha_12'], 
+                                  result['SE alpha_13'],result['SE alpha_14'],result['SE beta_0'],
+                                  result['SE beta_1'],result['SE beta_2'], 
+                                      result['SE beta_3'],result['SE gamma_0'],result['SE gamma_1'], result['SE gamma_2']])
 
+
+
+np.save('D:\Git\TeachersMaster\se_model.npy',betas_opt)
