@@ -19,7 +19,7 @@ import parameters as parameters
 import simdata as sd
 import estimate as est
 import estimate_2 as est_2
-import estimate_3 as est_3
+#import estimate_3 as est_3
 import between
 import random
 #import xlsxwriter
@@ -30,7 +30,7 @@ import time
 # DATA 2018
 
 
-data = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
+data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
 
 
 
