@@ -80,20 +80,20 @@ class estimate:
             # Here we consider the database complete
             datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'TREATMENT', 'PLACEMENT'])
             #1 Portfolio mean
-            est_mean_Port[i] = np.mean(datadfT['PORTFOLIO'].to_numpy())
+            est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
             #2 Portfolio var
-            est_var_Port[i] = np.var(datadfT['PORTFOLIO'].to_numpy())
+            est_var_Port[i] = np.var(np.array(datadfT['PORTFOLIO']))
             #3 SIMCE mean
-            est_mean_SIMCE[i] = np.mean(datadfT['SIMCE'].to_numpy())
+            est_mean_SIMCE[i] = np.mean(np.array(datadfT['SIMCE']))
             #4 SIMCE var
-            est_var_SIMCE[i] = np.var(datadfT['SIMCE'].to_numpy())
+            est_var_SIMCE[i] = np.var(np.array(datadfT['SIMCE']))
             #5 Test mean
-            est_mean_Pru[i] = np.mean(datadfT['TEST'].to_numpy())
+            est_mean_Pru[i] = np.mean(np.array(datadfT['TEST']))
             #6 Test var
-            est_var_Pru[i] = np.var(datadfT['TEST'].to_numpy())
+            est_var_Pru[i] = np.var(np.array(datadfT['TEST']))
             #7 Portfolio-Test mean
-            p1 = datadfT['PORTFOLIO'].to_numpy()
-            p2 = datadfT['TEST'].to_numpy()
+            p1 = np.array(datadfT['PORTFOLIO'])
+            p2 = np.array(datadfT['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)
             p2v1 = np.where(np.isnan(p2), 0, p2)
             p0 = np.zeros(p1.shape)
@@ -236,30 +236,30 @@ class estimate:
         #Outer matrix
         x_vector=np.zeros((num_par,1))
         
-        x_vector[0,0] = beta_mport - self.moments_vector[0,1]
-        x_vector[1,0] = beta_vport - self.moments_vector[1,1]
-        x_vector[2,0] = beta_msimce - self.moments_vector[2,1]
-        x_vector[3,0] = beta_vsimce - self.moments_vector[3,1]
-        x_vector[4,0] = beta_mtest - self.moments_vector[4,1]
-        x_vector[5,0] = beta_vtest - self.moments_vector[5,1]
-        x_vector[6,0] = beta_mporttest - self.moments_vector[6,1]
-        x_vector[7,0] = beta_pinit - self.moments_vector[7,1]
-        x_vector[8,0] = beta_pinter - self.moments_vector[8,1]
-        x_vector[9,0] = beta_padv - self.moments_vector[9,1]
-        x_vector[10,0] = beta_pexpert - self.moments_vector[10,1]
-        x_vector[11,0] = beta_sport - self.moments_vector[11,1]
-        x_vector[12,0] = beta_spru - self.moments_vector[12,1]
-        x_vector[13,0] = beta_expport - self.moments_vector[13,1]
-        x_vector[14,0] = beta_exptest - self.moments_vector[14,1]
-        x_vector[15,0] = beta_inter_c - self.moments_vector[15,1]
-        x_vector[16,0] = beta_advexp_c - self.moments_vector[16,1]
+        x_vector[0,0] = beta_mport - self.moments_vector[0,0]
+        x_vector[1,0] = beta_vport - self.moments_vector[1,0]
+        x_vector[2,0] = beta_msimce - self.moments_vector[2,0]
+        x_vector[3,0] = beta_vsimce - self.moments_vector[3,0]
+        x_vector[4,0] = beta_mtest - self.moments_vector[4,0]
+        x_vector[5,0] = beta_vtest - self.moments_vector[5,0]
+        x_vector[6,0] = beta_mporttest - self.moments_vector[6,0]
+        x_vector[7,0] = beta_pinit - self.moments_vector[7,0]
+        x_vector[8,0] = beta_pinter - self.moments_vector[8,0]
+        x_vector[9,0] = beta_padv - self.moments_vector[9,0]
+        x_vector[10,0] = beta_pexpert - self.moments_vector[10,0]
+        x_vector[11,0] = beta_sport - self.moments_vector[11,0]
+        x_vector[12,0] = beta_spru - self.moments_vector[12,0]
+        x_vector[13,0] = beta_expport - self.moments_vector[13,0]
+        x_vector[14,0] = beta_exptest - self.moments_vector[14,0]
+        x_vector[15,0] = beta_inter_c - self.moments_vector[15,0]
+        x_vector[16,0] = beta_advexp_c - self.moments_vector[16,0]
         
         
         #The Q metric
         q_w = np.dot(np.dot(np.transpose(x_vector),self.w_matrix),x_vector)
-        print ('')
-        print ('The objetive function value equals ', q_w)
-        print ('')
+        #print ('')
+        #print ('The objetive function value equals ', q_w)
+        #print ('')
         
         #time_opt = time.time() - start_time
         #print ('Done aux model generation in')
