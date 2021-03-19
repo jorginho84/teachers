@@ -18,7 +18,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeachersMaster")
+sys.path.append("D:\Git\TeacherBranch")
 #import gridemax
 import time
 #import int_linear
@@ -33,13 +33,13 @@ from openpyxl import load_workbook
 
 
 
-moments_vector = pd.read_excel("D:\Git\TeachersMaster\Outcomes.xlsx", header=3, usecols='C:F').values
+moments_vector = pd.read_excel("D:\Git\TeacherBranch\Outcomes.xlsx", header=3, usecols='C:F').values
 #moments_vector_excel = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='D')
 #moments_vector_zero = moments_vector_excel[['simulation']]
 #moments_vector = moments_vector_zero['simulation'].to_numpy()
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
+data = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
 
 
 
@@ -49,70 +49,37 @@ data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
 #print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
-treatmentOne = data[['d_trat']]
-treatment = data['d_trat'].to_numpy()
+treatment = np.array(data['d_trat'])
 
 # EXPERIENCE #
-yearsOne = data[['experience']]
-years = data['experience'].to_numpy()
+years = np.array(data['experience'])
 
 # SCORE PORTFOLIO #
-p1_0_1 = data[['score_port']]
-p1_0 = data['score_port'].to_numpy()
-p1 = data['score_port'].to_numpy()
-
-#p1_0_1 = data[['ptj_portafolio_a2016']]
-#p1_0 = data['ptj_portafolio_a2016'].to_numpy()
-#p1 = data['ptj_portafolio_a2016'].to_numpy()
+p1_0 = np.array(data['score_port_past'])
+p1 = np.array(data['score_port'])
 
 # SCORE TEST #
-p2_0_1 = data[['score_test']]
-p2_0 = data['score_test'].to_numpy()
-p2 = data['score_test'].to_numpy()
-
-#p2_0_1 = data[['ptj_prueba_a2016']]
-#p2_0 = data['ptj_prueba_a2016'].to_numpy()
-#p2 = data['ptj_prueba_a2016'].to_numpy()
+p2_0 = np.array(data['score_port_past'])
+p2 = np.array(data['score_test'])
 
 # CATEGORY PORTFOLIO #
-categPortfolio = data[['cat_port']]
-catPort = data['cat_port'].to_numpy()
-
-#categPortfolio = data[['cat_portafolio_a2016']]
-#catPort = data['cat_portafolio_a2016'].to_numpy()
+catPort = np.array(data['cat_port'])
 
 # CATEGORY TEST #
-categPrueba = data[['cat_test']]
-catPrueba = data['cat_test'].to_numpy()
-
-#categPrueba = data[['cat_prueba_a2016']]
-#catPrueba = data['cat_prueba_a2016'].to_numpy()
-
+catPrueba = np.array(data['cat_test'])
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameInitial = data[['trame']]
-TrameI = data['trame'].to_numpy()
-
-#TrameInitial = data[['tramo_a2016']]
-#TrameI = data['tramo_a2016'].to_numpy()
+TrameI = np.array(data['trame'])
 
 # TYPE SCHOOL #
-typeSchoolOne = data[['typeschool']]
-typeSchool = data['typeschool'].to_numpy()
+typeSchool = np.array(data['typeschool'])
 
 #### PARAMETERS MODEL ####
-
 N = np.size(p1_0)
-
 HOURS = np.array([44]*N)
-
-alphas = [[0.5,0.1,0.2,-0.01,0.1],
-		[0.5,0.1,0.2,-0.01,0.1]]
-
-#betas = [100,0.9,0.9,-0.05,-0.05,20]
-#Parámetros más importantes
-#betas = [100,10,33,20]
+alphas = [[0.5,0.1,0.2,-0.01,0.1,0.8],
+		[0.5,0.1,0.2,-0.01,0.1,0.7]]
 
 betas = [-0.4,0.3,0.9,1]
 
@@ -160,7 +127,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
 
 
-w_matrix = np.identity(17)
+w_matrix = np.identity(19)
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
@@ -194,6 +161,8 @@ beta_14 = output_me.x[13]
 beta_15 = output_me.x[14]
 beta_16 = output_me.x[15]
 beta_17 = output_me.x[16]
+beta_18 = output_me.x[17]
+beta_19 = output_me.x[18]
 
 
 betas_opt_me = np.array([beta_1, beta_2,
@@ -201,16 +170,16 @@ betas_opt_me = np.array([beta_1, beta_2,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
-	beta_16,beta_17])
+	beta_16,beta_17,beta_18,beta_19])
 
 print(betas_opt_me)
 
 
-np.save('D:\\Git\\TeachersMaster\\betasopt_model.npy',betas_opt_me)
+np.save('D:\\Git\\TeacherBranch\\betasopt_model.npy',betas_opt_me)
 
 #betas_nelder_2 = np.load("D:\\Git\\TeacherPrincipal\\betasopt_model.npy")
 
-wb = load_workbook('D:\Git\TeachersMaster\Outcomes.xlsx')
+wb = load_workbook('D:\Git\TeacherBranch\Outcomes.xlsx')
 
 sheet = wb.active
 
@@ -232,9 +201,11 @@ sheet['G18'] = beta_14
 sheet['G19'] = beta_15
 sheet['G20'] = beta_16
 sheet['G21'] = beta_17
+sheet['G22'] = beta_18
+sheet['G23'] = beta_19
 
 
-wb.save('D:\Git\TeachersMaster\Outcomes.xlsx')
+wb.save('D:\Git\TeacherBranch\Outcomes.xlsx')
 
 
-#np.save('D:\Git\TeacherPrincipal\beta_opt.npy',betas_opt)
+#np.save('D:\Git\TeachersBranch\beta_opt.npy',betas_opt_me)

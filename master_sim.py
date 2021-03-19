@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:\Git\TeacherPrincipal")
+sys.path.append("D:\Git\TeacherBranch")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -30,7 +30,7 @@ import time
 # DATA 2018
 
 
-data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
+data = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
 
 
 
@@ -40,70 +40,37 @@ data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
 #print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
-treatmentOne = data[['d_trat']]
-treatment = data['d_trat'].to_numpy()
+treatment = np.array(data['d_trat'])
 
 # EXPERIENCE #
-yearsOne = data[['experience']]
-years = data['experience'].to_numpy()
+years = np.array(data['experience'])
 
 # SCORE PORTFOLIO #
-p1_0_1 = data[['score_port']]
-p1_0 = data['score_port'].to_numpy()
-p1 = data['score_port'].to_numpy()
-
-#p1_0_1 = data[['ptj_portafolio_a2016']]
-#p1_0 = data['ptj_portafolio_a2016'].to_numpy()
-#p1 = data['ptj_portafolio_a2016'].to_numpy()
+p1_0 = np.array(data['score_port_past'])
+p1 = np.array(data['score_port'])
 
 # SCORE TEST #
-p2_0_1 = data[['score_test']]
-p2_0 = data['score_test'].to_numpy()
-p2 = data['score_test'].to_numpy()
-
-#p2_0_1 = data[['ptj_prueba_a2016']]
-#p2_0 = data['ptj_prueba_a2016'].to_numpy()
-#p2 = data['ptj_prueba_a2016'].to_numpy()
+p2_0 = np.array(data['score_port_past'])
+p2 = np.array(data['score_test'])
 
 # CATEGORY PORTFOLIO #
-categPortfolio = data[['cat_port']]
-catPort = data['cat_port'].to_numpy()
-
-#categPortfolio = data[['cat_portafolio_a2016']]
-#catPort = data['cat_portafolio_a2016'].to_numpy()
+catPort = np.array(data['cat_port'])
 
 # CATEGORY TEST #
-categPrueba = data[['cat_test']]
-catPrueba = data['cat_test'].to_numpy()
-
-#categPrueba = data[['cat_prueba_a2016']]
-#catPrueba = data['cat_prueba_a2016'].to_numpy()
-
+catPrueba = np.array(data['cat_test'])
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameInitial = data[['trame']]
-TrameI = data['trame'].to_numpy()
-
-#TrameInitial = data[['tramo_a2016']]
-#TrameI = data['tramo_a2016'].to_numpy()
+TrameI = np.array(data['trame'])
 
 # TYPE SCHOOL #
-typeSchoolOne = data[['typeschool']]
-typeSchool = data['typeschool'].to_numpy()
+typeSchool = np.array(data['typeschool'])
 
 #### PARAMETERS MODEL ####
-
 N = np.size(p1_0)
-
 HOURS = np.array([44]*N)
-
-alphas = [[0.5,0.1,0.2,-0.01,0.1],
-		[0.5,0.1,0.2,-0.01,0.1]]
-
-#betas = [100,0.9,0.9,-0.05,-0.05,20]
-#Parámetros más importantes
-#betas = [100,10,33,20]
+alphas = [[0.5,0.1,0.2,-0.01,0.1,0.8],
+		[0.5,0.1,0.2,-0.01,0.1,0.7]]
 
 betas = [-0.4,0.3,0.9,1]
 
@@ -273,7 +240,7 @@ print('Estimate correlation')
 
 ################# estimate 2 ##################
 
-modelestimate_2 = est_2.estimate_2(N,modelSD,years,treatment) 
+modelestimate_2 = est_2.estimate_2(N,modelSD,years,treatment,p1_0,p2_0) 
 
 corr_data = modelestimate_2.simulation_2(50)
 print(corr_data)
@@ -296,7 +263,7 @@ print(corr_data)
 #book = Workbook()
 #sheet = book.active
 
-wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+wb = load_workbook('D:\Git\TeacherBranch\Outcomes.xlsx')
 sheet = wb.active
 
 sheet['C5'] = 'Mean Portfolio'
@@ -314,9 +281,14 @@ sheet['C16'] = 'corr(Port,Simce)'
 sheet['C17'] = 'corr(Test,Simce)'
 sheet['C18'] = 'corr(exp,Port)'
 sheet['C19'] = 'corr(exp,Test)'
+sheet['C20'] = '\% Intermediate control'
+sheet['C21'] = '\% adva/expert control'
+sheet['C22'] = 'corr(Test,p)'
+sheet['C23'] = 'corr(Port,p)'
 sheet['D4'] = 'simulation'
 sheet['E4'] = 'data'
 sheet['F4'] = 'se'
+
 
 sheet['D5'] = corr_data['Mean Portfolio']
 sheet['D6'] = corr_data['Var Port']
@@ -333,12 +305,16 @@ sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
 sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
 sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
 sheet['D19'] = corr_data['Estimation EXP vs Prueba']
+sheet['D20'] = corr_data['perc inter control']
+sheet['D21'] = corr_data['perc adv/exp control']
+sheet['D22'] = corr_data['Estimation Test vs p']
+sheet['D23'] = corr_data['Estimation Portfolio vs p']
 
 
 
 
 
-wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+wb.save('D:\Git\TeacherBranch\Outcomes.xlsx')
 
 
 

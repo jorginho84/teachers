@@ -19,7 +19,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeachersMaster")
+sys.path.append("D:\Git\TeacherBranch")
 #import gridemax
 import time
 #import int_linear
@@ -35,94 +35,56 @@ from openpyxl import load_workbook
 from scipy import interpolate
 import time
 import openpyxl
-sys.path.append("D:\Git\TeachersMaster")
+sys.path.append("D:\Git\TeacherBranch")
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("D:\\Git\\TeachersMaster\\betasopt_model.npy")
+betas_nelder  = np.load("D:\\Git\\TeacherBranch\\betasopt_model.npy")
 
-data = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
+data = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
 
 data =data[data['d_trat']==1]
 
-#With this we can give tratment=0 to the vector
-#data['d_trat'] = data['d_trat'].replace(1,0)
+#count_nan = data['zpjeport'].isnull().sum()
+#print('Count of nan: ' +str(count_nan))
+#count_nan_1 = data['zpjeprue'].isnull().sum()
+#print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
-#treatmentOne = data[['d_trat']]
-treatment = data['d_trat'].to_numpy()
+treatment = np.array(data['d_trat'])
 
 # EXPERIENCE #
-#yearsOne = data[['experience']]
-years = data['experience'].to_numpy()
+years = np.array(data['experience'])
 
 # SCORE PORTFOLIO #
-#p1_0_1 = data[['score_port']]
-p1_0 = data['score_port'].to_numpy()
-p1 = data['score_port'].to_numpy()
-
-#p1_0_1 = data[['ptj_portafolio_a2016']]
-#p1_0 = data['ptj_portafolio_a2016'].to_numpy()
-#p1 = data['ptj_portafolio_a2016'].to_numpy()
+p1_0 = np.array(data['score_port_past'])
+p1 = np.array(data['score_port'])
 
 # SCORE TEST #
-#p2_0_1 = data[['score_test']]
-p2_0 = data['score_test'].to_numpy()
-p2 = data['score_test'].to_numpy()
-
-#p2_0_1 = data[['ptj_prueba_a2016']]
-#p2_0 = data['ptj_prueba_a2016'].to_numpy()
-#p2 = data['ptj_prueba_a2016'].to_numpy()
+p2_0 = np.array(data['score_port_past'])
+p2 = np.array(data['score_test'])
 
 # CATEGORY PORTFOLIO #
-#categPortfolio = data[['cat_port']]
-catPort = data['cat_port'].to_numpy()
-
-#categPortfolio = data[['cat_portafolio_a2016']]
-#catPort = data['cat_portafolio_a2016'].to_numpy()
+catPort = np.array(data['cat_port'])
 
 # CATEGORY TEST #
-#categPrueba = data[['cat_test']]
-catPrueba = data['cat_test'].to_numpy()
-
-#categPrueba = data[['cat_prueba_a2016']]
-#catPrueba = data['cat_prueba_a2016'].to_numpy()
-
+catPrueba = np.array(data['cat_test'])
 
 # TRAME #
 #Recover initial placement from data (2016) 
-#TrameInitial = data[['trame']]
-TrameI = data['trame'].to_numpy()
-
-#TrameInitial = data[['tramo_a2016']]
-#TrameI = data['tramo_a2016'].to_numpy()
+TrameI = np.array(data['trame'])
 
 # TYPE SCHOOL #
-#typeSchoolOne = data[['typeschool']]
-typeSchool = data['typeschool'].to_numpy()
+typeSchool = np.array(data['typeschool'])
 
 #### PARAMETERS MODEL ####
-
 N = np.size(p1_0)
-
 HOURS = np.array([44]*N)
 
-
-#gamma_0 = betas_nelder[14]
-#gamma_1 = betas_nelder[15]
-#gamma_2 = betas_nelder[16]
-#betas_opt_t = np.array([betas_nelder[11],betas_nelder[12],
-#	betas_nelder[13]]).reshape((3,1))
-#alphas_port = np.array([betas_nelder[0],betas_nelder[1],betas_nelder[2],
-#               betas_nelder[3],betas_nelder[4]]).reshape((5,1))
-#alphas_test = np.array([betas_nelder[5],betas_nelder[6],betas_nelder[7],
-#               betas_nelder[8],betas_nelder[9]]).reshape((5,1))
-
-
 alphas = [[betas_nelder[0],betas_nelder[1],betas_nelder[2],betas_nelder[3],
-           betas_nelder[4]],
+           betas_nelder[4],betas_nelder[17]],
 		[betas_nelder[5],betas_nelder[6],betas_nelder[7],betas_nelder[8],
-           betas_nelder[9]]]
+           betas_nelder[9],betas_nelder[18]]]
 
 #betas = [100,0.9,0.9,-0.05,-0.05,20]
 #Parámetros más importantes

@@ -31,7 +31,7 @@ from openpyxl import load_workbook
 
 #### LOAD DATA ####
 
-df = pd.read_stata('D:\Git\TeachersMaster\data_python.dta')
+df = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
 
 pd.value_counts(df['trame'])
 
@@ -60,6 +60,8 @@ def corr_simulate(data, B):
     est_mean_PortTest = np.zeros(B)
     perc_inter_c = np.zeros(B)
     perc_avanexpet_c = np.zeros(B)
+    est_corrTestp = np.zeros(B)
+    est_corrPortp = np.zeros(B)
     
     for i in range(1,B):
         rev = data.sample(n, replace=True)
@@ -69,6 +71,19 @@ def corr_simulate(data, B):
         est_var_SIMCE[i] = np.var(rev['stdsimce_m'])
         est_mean_Pru[i] = np.mean(rev['score_test'])
         est_var_Pru[i] = np.var(rev['score_test'])
+        p1_past = np.array(rev['score_port_past'])
+        p2_past = np.array(rev['score_test_past'])
+        p1v1 = np.where(np.isnan(p1_past), 0, p1_past)
+        p2v1 = np.where(np.isnan(p2_past), 0, p2_past)
+        p0_past = np.zeros(p1_past.shape)
+        p0_past = np.where((p1v1 == 0),p2v1, p0_past)
+        p0_past = np.where((p2v1 == 0),p1v1, p0_past)
+        p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
+        dataf_past = {'TEST': rev['score_port'], 'PORTFOLIO': rev['score_test'], 'P_past': p0_past}
+        datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO'])
+        corrM = datadf_past.corr()
+        est_corrTestp[i] = corrM.iloc[0]['TEST']
+        est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
         datav = rev[rev['d_trat']==1]
         perc_init[i] = (sum(datav['trame']==1) / len(datav['trame'])) 
         perc_inter[i] = (sum(datav['trame']==2) / len(datav['trame'])) 
@@ -111,6 +126,8 @@ def corr_simulate(data, B):
     est_sim_var_SIMCE = np.mean(est_var_SIMCE)
     est_sim_inter_c = np.mean(perc_inter_c)
     est_sim_advexp_c = np.mean(perc_avanexpet_c)
+    est_sim_Testp = np.mean(est_corrTestp)
+    est_sim_Portp = np.mean(est_corrPortp)
     
     error_SPort = np.std(est_corrSPort)
     error_SPru = np.std(est_corrSPrue)
@@ -129,6 +146,8 @@ def corr_simulate(data, B):
     error_mean_PP = np.std(est_mean_PortTest)
     error_inter_c_PP = np.std(perc_inter_c)
     error_advexp_c_PP = np.std(perc_avanexpet_c)
+    error_Testp = np.std(est_corrTestp)
+    error_Portp = np.std(est_corrPortp)
     
 
     return {'Estimation SIMCE vs Portfolio': est_sim_SPort,
@@ -148,6 +167,8 @@ def corr_simulate(data, B):
             'Mean PortTest': est_sim_mean_PP,
             'perc inter control': est_sim_inter_c,
             'perc adv/exp control': est_sim_advexp_c,
+            'Estimation Portfolio vs p': est_sim_Testp,
+            'Estimation Test vs p': est_sim_Portp,
                 'Error SIMCE vs Portfolio': error_SPort,
                 'Error SIMCE vs Test': error_SPru,
                 'Error Exp vs Portfolio': error_EXPPort,
@@ -164,7 +185,9 @@ def corr_simulate(data, B):
                 'Error var SIMCE': error_var_SIMCE,
                 'Error mean Port-Test': error_mean_PP,
                 'Error inter control': error_inter_c_PP,
-                'Error adv/exp control': error_advexp_c_PP}
+                'Error adv/exp control': error_advexp_c_PP,
+                'Error Portfolio vs p': error_Testp,
+                'Error Test vs p': error_Portp}
 
 
 result = corr_simulate(df,1000)
@@ -173,7 +196,7 @@ print(result)
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('D:\Git\TeachersMaster\Outcomes.xlsx')
+wb = load_workbook('D:\Git\TeacherBranch\Outcomes.xlsx')
 
 sheet = wb.active
 
@@ -195,6 +218,8 @@ sheet['E18'] = result['Estimation EXP vs Portfolio']
 sheet['E19'] = result['Estimation EXP vs Prueba']
 sheet['E20'] = result['perc inter control']
 sheet['E21'] = result['perc adv/exp control']
+sheet['E22'] = result['Estimation Portfolio vs p']
+sheet['E23'] = result['Estimation Test vs p']
 
 
 sheet['F5'] = result['Error mean Port']
@@ -214,11 +239,13 @@ sheet['F18'] = result['Error Exp vs Portfolio']
 sheet['F19'] = result['Error Exp vs Pru']
 sheet['F20'] = result['Error inter control']
 sheet['F21'] = result['Error adv/exp control']
+sheet['F22'] = result['Error Portfolio vs p']
+sheet['F23'] = result['Error Test vs p']
 
 
 #workbook.close()
 
 
-wb.save('D:\Git\TeachersMaster\Outcomes.xlsx')
+wb.save('D:\Git\TeacherBranch\Outcomes.xlsx')
 
 
