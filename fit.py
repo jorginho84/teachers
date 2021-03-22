@@ -9,193 +9,228 @@ This code computes fit anaylisis
 
 """
 
-
-betas_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/betas_v1.npy")
-
-moments_vector = pd.read_excel("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/Outcomes.xlsx", header=3, usecols='C:F').values
-
-#ajhdsajk = moments_vector[0,1]
-
-data = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
-
-
-
-#count_nan = data['zpjeport'].isnull().sum()
-#print('Count of nan: ' +str(count_nan))
-#count_nan_1 = data['zpjeprue'].isnull().sum()
-#print('Count of nan: ' +str(count_nan_1))
-
-# TREATMENT #
-treatmentOne = data[['d_trat']]
-treatment = data['d_trat'].to_numpy()
-
-# EXPERIENCE #
-yearsOne = data[['experience']]
-years = data['experience'].to_numpy()
-
-# SCORE PORTFOLIO #
-p1_0_1 = data[['score_port']]
-p1_0 = data['score_port'].to_numpy()
-p1 = data['score_port'].to_numpy()
-
-#p1_0_1 = data[['ptj_portafolio_a2016']]
-#p1_0 = data['ptj_portafolio_a2016'].to_numpy()
-#p1 = data['ptj_portafolio_a2016'].to_numpy()
-
-# SCORE TEST #
-p2_0_1 = data[['score_test']]
-p2_0 = data['score_test'].to_numpy()
-p2 = data['score_test'].to_numpy()
-
-#p2_0_1 = data[['ptj_prueba_a2016']]
-#p2_0 = data['ptj_prueba_a2016'].to_numpy()
-#p2 = data['ptj_prueba_a2016'].to_numpy()
-
-# CATEGORY PORTFOLIO #
-categPortfolio = data[['cat_port']]
-catPort = data['cat_port'].to_numpy()
-
-#categPortfolio = data[['cat_portafolio_a2016']]
-#catPort = data['cat_portafolio_a2016'].to_numpy()
-
-# CATEGORY TEST #
-categPrueba = data[['cat_test']]
-catPrueba = data['cat_test'].to_numpy()
-
-#categPrueba = data[['cat_prueba_a2016']]
-#catPrueba = data['cat_prueba_a2016'].to_numpy()
+from __future__ import division #omit for python 3.x
+import numpy as np
+import pandas as pd
+import itertools
+import sys, os
+from joblib import Parallel, delayed
+from scipy import stats
+from scipy import interpolate
+import matplotlib
+matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend.
+import matplotlib.pyplot as plt
+import time
+import openpyxl
+sys.path.append("D:\Git\TeacherBranch")
 
 
-# TRAME #
-#Recover initial placement from data (2016) 
-TrameInitial = data[['trame']]
-TrameI = data['trame'].to_numpy()
-
-#TrameInitial = data[['tramo_a2016']]
-#TrameI = data['tramo_a2016'].to_numpy()
-
-# TYPE SCHOOL #
-typeSchoolOne = data[['typeschool']]
-typeSchool = data['typeschool'].to_numpy()
-
-#### PARAMETERS MODEL ####
-
-N = np.size(p1_0)
-
-HOURS = np.array([44]*N)
-
-alphas = [[0.5,0.1,0.2,-0.01,0.1],
-		[0.5,0.1,0.2,-0.01,0.1]]
-
-#betas = [100,0.9,0.9,-0.05,-0.05,20]
-#Parámetros más importantes
-#betas = [100,10,33,20]
-
-betas = [-0.4,0.3,0.9,1]
-
-gammas = [-0.1,-0.2,0.8]
-
-# basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
-# value hour (pesos)= 14403 *
-# value hour (pesos)= 15155 *
-
-dolar= 600
-
-value = [14403, 15155]
-
-hw = [value[0]/dolar,value[1]/dolar]
-
-porc = [0.0338, 0.0333]
-
-# *** This is withouth teaching career ***
-# * value professional qualification (pesos)= 72100 *
-# * value professional mention (pesos)= 24034 *
-# *** This is with teaching career ***
-# * value professional qualification (pesos)= 253076 *
-# * value professional mention (pesos)= 84360 *
-
-qualiPesos = [72100, 24034, 253076, 84360] 
-
-pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
-
-#* Progression component by tranche *
-#* value progression initial (pesos)= 14515
-#* value progression early (pesos)= 47831
-#* value progression advanced (pesos)= 96266
-#* value progression advanced (pesos)= 99914 Fixed component
-#* value progression expert 1 (pesos)= 360892
-#* value progression expert 1 (pesos)= 138769 Fixed component
-#* value progression expert 2 (pesos)= 776654
-#* value progression expert 2 (pesos)= 210929 Fixed component
-
-progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
-
-pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
-           progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
+#Moments Vector
 
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
-
-w_matrix = np.identity(15)
-
-output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
-                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
+moments_vector = pd.read_excel("D:\Git\TeacherBranch\Outcomes.xlsx", header=3, usecols='C:F').values
 
 
-corr_data = output_ins.simulation(50,modelSD)
-print(corr_data)
+#Utility function
 
-##### PYTHON TO EXCEL #####
+simulation_test = np.array([moments_vector[0,1],moments_vector[1,1],moments_vector[2,1],
+                            moments_vector[3,1],moments_vector[4,1],moments_vector[17,1]]).reshape((6,1))
 
-#workbook = xlsxwriter.Workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
-#worksheet = workbook.add_worksheet()
+simulation_port = np.array([moments_vector[5,1],moments_vector[6,1],moments_vector[7,1],
+                            moments_vector[8,1],moments_vector[9,1],moments_vector[18,1]]).reshape((6,1))
 
-#book = Workbook()
-#sheet = book.active
+simulation_eteacher = np.array([moments_vector[10,1],moments_vector[11,1],moments_vector[12,1],
+                                moments_vector[13,1]]).reshape((4,1))
 
-wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
-sheet = wb.active
+simulation_estudent = np.array([moments_vector[14,1],moments_vector[15,1],moments_vector[16,1]]).reshape((3,1))
 
-sheet['C5'] = 'Mean Portfolio'
-sheet['C6'] = 'Variance Portfolio'
-sheet['C7'] = 'Mean SIMCE'
-sheet['C8'] = 'Variance SIMCE'
-sheet['C9'] = 'Mean Test'
-sheet['C10'] = 'Variance Test'
-sheet['C11'] = 'Mean Portfolio-Test'
-sheet['C12'] = '\% Initial'
-sheet['C13'] = '\% Intermediate'
-sheet['C14'] = '\% Advanced'
-sheet['C15'] = '\% Expert'
-sheet['C16'] = 'corr(Port,Simce)'
-sheet['C17'] = 'corr(Test,Simce)'
-sheet['C18'] = 'corr(exp,Port)'
-sheet['C19'] = 'corr(exp,Test)'
-sheet['C20'] = '\% Intermediate control'
-sheet['C21'] = '\% adva/expert control'
-sheet['D4'] = 'simulation'
-sheet['E4'] = 'data'
-sheet['F4'] = 'se'
+mu_c = -0.56
+mu_theta = 0.5
 
-sheet['D5'] = corr_data['Mean Portfolio']
-sheet['D6'] = corr_data['Var Port']
-sheet['D7'] = corr_data['Mean SIMCE']
-sheet['D8'] = corr_data['Var SIMCE']
-sheet['D9'] = corr_data['Mean Test']
-sheet['D10'] = corr_data['Var Test']
-sheet['D11'] = corr_data['Mean PortTest']
-sheet['D12'] = corr_data['perc init']
-sheet['D13'] = corr_data['perc inter']
-sheet['D14'] = corr_data['perc advanced']
-sheet['D15'] = corr_data['perc expert']
-sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
-sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
-sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
-sheet['D19'] = corr_data['Estimation EXP vs Prueba']
-sheet['D20'] = corr_data['perc inter control']
-sheet['D21'] = corr_data['perc adv/exp control']
+##################################
+
+data_test = np.array([moments_vector[0,2],moments_vector[1,2],moments_vector[2,2],
+                            moments_vector[3,2],moments_vector[4,2],moments_vector[17,2]]).reshape((6,1))
+
+data_port = np.array([moments_vector[5,2],moments_vector[6,2],moments_vector[7,2],
+                            moments_vector[8,2],moments_vector[9,2],moments_vector[18,2]]).reshape((6,1))
+
+data_eteacher = np.array([moments_vector[10,2],moments_vector[11,2],moments_vector[12,2],
+                                moments_vector[13,2]]).reshape((4,1))
+
+data_estudent = np.array([moments_vector[14,2],moments_vector[15,2],moments_vector[16,2]]).reshape((3,1))
+
+#################################
+
+error_test = np.array([moments_vector[0,3],moments_vector[1,3],moments_vector[2,3],
+                            moments_vector[3,3],moments_vector[4,3],moments_vector[17,3]]).reshape((6,1))
+
+error_port = np.array([moments_vector[5,3],moments_vector[6,3],moments_vector[7,3],
+                            moments_vector[8,3],moments_vector[9,3],moments_vector[18,3]]).reshape((6,1))
+
+error_eteacher = np.array([moments_vector[10,3],moments_vector[11,3],moments_vector[12,3],
+                                moments_vector[13,3]]).reshape((4,1))
+
+error_estudent = np.array([moments_vector[14,3],moments_vector[15,3],moments_vector[16,3]]).reshape((3,1))
 
 
-wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+
+
+
+
+
+#se_gamma_0 =moments_vector[0,1]
+#se_gamma_1 =se_vector[15]
+#se_gamma_2 =se_vector[16]
+
+
+#Effort Student (this is t_student function in utility class)
+#betas_opt_t = np.array([betas_nelder[10],betas_nelder[11],betas_nelder[12],
+	#betas_nelder[13]]).reshape((4,1))
+
+#se_betas_opt_t=np.array([se_vector[10],se_vector[11],se_vector[12],se_vector[13]]).reshape((4,1))
+
+
+#income_male_betas = np.array([betas_nelder[8],betas_nelder[9],
+	#betas_nelder[10]]).reshape((3,1))
+#c_emp_spouse = betas_nelder[11]
+
+
+#sigma_income_male_betas = np.array([se_vector[8],se_vector[9],
+	#se_vector[10]]).reshape((3,1))
+#sigma_c_emp_spouse = se_vector[11]
+
+#Effort teachers (this is t_test function in utility class)
+#portfolio
+#alphas_port = np.array([betas_nelder[0],betas_nelder[1],betas_nelder[2],
+               #betas_nelder[3],betas_nelder[4]]).reshape((5,1))
+
+#se_alphas_port = np.array([se_vector[0],se_vector[1],se_vector[2],
+               #se_vector[3],se_vector[4]]).reshape((5,1))
+
+
+#alphas_test = np.array([betas_nelder[5],betas_nelder[6],betas_nelder[7],
+               #betas_nelder[8],betas_nelder[9]]).reshape((5,1))
+
+#se_alphas_test = np.array([se_vector[5],se_vector[6],se_vector[7],
+               #se_vector[8],se_vector[9]]).reshape((5,1))
+
+#gamma2 = [betas_nelder[13],betas_nelder[16]]
+#gamma3 = [betas_nelder[14],betas_nelder[17]]
+#tfp = betas_nelder[18]
+#sigma2theta = betas_nelder[19]
+
+#se_gamma1 = [se_vector[12],se_vector[15]]
+#se_gamma2 = [se_vector[13],se_vector[16]]
+#se_gamma3 = [se_vector[14],se_vector[17]]
+#se_tfp = se_vector[18]
+#se_sigma2theta = se_vector[19]
+
+
+kappas = [0,0]
+
+sigma_z  = [0,0]
+
+#rho_theta_epsilon = betas_nelder[20]
+#se_rho_theta_epsilon = se_vector[20]
+
+#qprob = betas_nelder[21]
+#se_qprob = se_vector[21]
+
+#First measure is normalized. starting arbitrary values
+lambdas=[1,1]
+
+
+
+###########.TEX table##################
+
+#utility_list_beta = [gamma_0,gamma_1,gamma_2]
+#utility_list_se = [se_gamma_0,se_gamma_1,se_gamma_2]
+#utility_names = [r'gamma_0',r'gamma_1',r'gamma_2']
+
+sim_test_t = [simulation_test[0,0],simulation_test[1,0],simulation_test[2,0],
+                  simulation_test[3,0],simulation_test[4,0],simulation_test[5,0]]
+data_test_t = [data_test[0,0],data_test[1,0],data_test[2,0],data_test[3,0],data_test[4,0],data_test[5,0]]
+error_test_t = [error_test[0,0],error_test[1,0],error_test[2,0],error_test[3,0],error_test[4,0],error_test[5,0]]
+wage_names = ['E(Test)', 'Var(Test)','Corr(Test,past portfolio)','Corr(Test,Simce)',
+              'Corr(Test,Experience)','alpha_6']
+
+
+sim_port_t = [simulation_port[0,0],simulation_port[1,0],simulation_port[2,0],
+                  simulation_port[3,0],simulation_port[4,0],simulation_port[5,0]]
+data_port_t = [data_port[0,0],data_port[1,0],data_port[2,0],data_port[3,0],data_port[4,0],data_port[5,0]]
+error_port_t = [error_port[0,0],error_port[1,0],error_port[2,0],error_port[3,0],error_port[4,0],error_port[5,0]]
+wage_names_port = ['E(Portfolio)', 'Var(Portfolio)','Corr(Portfolio,past portfolio)','Corr(Portfolio,Simce)',
+              'Corr(Portfolio,Experience)','alpha_6']
+
+#swage_list_beta = [income_male_betas[0,0],income_male_betas[1,0],income_male_betas[2,0],
+#c_emp_spouse]
+#swage_list_se = [sigma_income_male_betas[0,0],sigma_income_male_betas[1,0],sigma_income_male_betas[2,0],
+#sigma_c_emp_spouse]
+#swage_names = ['High school dummy', 'Constant', 'SD of error term','Employment probability']
+
+
+sim_eteacher_t = [simulation_eteacher[0,0],simulation_eteacher[1,0],simulation_eteacher[2,0],
+                   simulation_eteacher[3,0]]
+data_eteacher_t = [data_eteacher[0,0],data_eteacher[1,0],data_eteacher[2,0],data_eteacher[3,0]]
+error_eteacher_t = [error_eteacher[0,0],error_eteacher[1,0],error_eteacher[2,0],error_eteacher[3,0]]
+prod_names_young = [r'gamma_00', r'gamma_01', r'gamma_02', r'gamma_03']
+
+sim_estudent_t = [simulation_estudent[0,0],simulation_estudent[1,0],simulation_estudent[2,0]]
+data_estudent_t = [data_estudent[0,0],data_estudent[1,0],data_estudent[2,0]]
+error_estudent_t = [error_estudent[0,0],error_estudent[1,0],error_estudent[2,0]]
+prod_names_young_t = [r'beta_00', r'beta_01', r'beta_02']
+
+
+#prod_fn_common = [sigma2theta,rho_theta_epsilon,qprob]
+#prod_fn_common_se = [se_sigma2theta,se_rho_theta_epsilon,se_qprob]
+
+#prod_fn_names_common = [r'SD of shock to human capital', r'Correlation of wage and initial human capital'
+#, r'Probability of free child care']
+
+#This is for the paper
+with open('D:\Git\TeacherBranch/moment_est.tex','w') as f:
+	f.write(r'\begin{tabular}{lcccc}'+'\n')
+	f.write(r'\hline' + '\n')
+	f.write(r'Moments &  & Simulated & & Data & & S.E. data \bigstrut\\' + '\n')
+	f.write(r'\hline' + '\n')
+	f.write(r'\emph{A. Utility function} &       &       &       &     &      & \\' + '\n')
+	for j in range(len(sim_eteacher_t)):
+		f.write(prod_names_young[j]+ r' &  & ' + '{:04.3f}'.format(sim_eteacher_t[j]) +
+          r' &  &  '+ '{:04.3f}'.format(data_eteacher_t[j]) +
+			r' &  & '+ '{:04.3f}'.format(error_eteacher_t[j])+ r' \\' + '\n')
+
+	f.write(r' &       &       &       &  \\' + '\n')
+	f.write(r'\emph{B. Effort Student} &       &       &       & & &  \\' + '\n')
+	for j in range(len(sim_estudent_t)):
+		f.write(prod_names_young_t[j]+ r' &  &  '+ '{:04.3f}'.format(sim_estudent_t[j]) +
+			r' &  & '+ '{:04.3f}'.format(error_estudent_t[j])+r' \\' + '\n')
+
+	f.write(r' &       &       &       &  \\' + '\n')
+	f.write(r'\emph{C. Effort teachers Portfolio} &       &       &       &  & & \\' + '\n')
+	for j in range(len(sim_port_t)):
+		f.write(wage_names_port[j]+ r' &  &  '+ '{:04.3f}'.format(sim_port_t[j]) +
+          r' &  &  '+ '{:04.3f}'.format(data_port_t[j]) + 
+			r' &  & '+ '{:04.3f}'.format(error_port_t[j])+ r' \\' + '\n')
+
+	f.write(r' &       &       &       &  \\' + '\n')
+	f.write(r'\emph{D. Effort teachers Test} &       &       &       &  & & \\' + '\n')
+	for j in range(len(sim_test_t)):
+		f.write(wage_names[j] + r' &  &  '+ '{:04.3f}'.format(sim_test_t[j]) +
+          r' &  &  '+ '{:04.3f}'.format(data_test_t[j]) +
+			r' &  & '+ '{:04.3f}'.format(error_test_t[j])+ r' \\' + '\n')
+
+	#for j in range(len(prod_list_beta_old)):
+		#f.write(prod_names_old[j]  + ' (old)' + r' &  &  '+ '{:04.3f}'.format(prod_list_beta_old[j]) +
+			#r' &  & '+ '{:04.3f}'.format(prod_list_se_old[j])+r' \\' + '\n')
+	#for j in range(len(prod_fn_common)):
+		#f.write(prod_fn_names_common[j]+r' &  &  '+ '{:04.3f}'.format(prod_fn_common[j]) +
+			#r' &  & '+ '{:04.3f}'.format(prod_fn_common_se[j])+r' \\' + '\n')
+
+	f.write(r'\hline'+'\n')
+	f.write(r'\end{tabular}' + '\n')
+	f.close()
+
+
 
 
