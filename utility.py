@@ -480,6 +480,9 @@ class Utility(object):
         p1v1 = np.where(np.isnan(self.p1), 0, self.p1)
         p2v1 = np.where(np.isnan(self.p2), 0, self.p2)
         
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
         #eps_t = np.random.normal(0, 0.1, p1v1.shape)
 
         p0 = np.zeros(p1v1.shape)
@@ -487,6 +490,12 @@ class Utility(object):
         p0 = np.where((p2v1 == 0),p1v1, p0)
         p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(self.p1 + self.p2)/2, p0)
         p0 = (p0-np.mean(p0))/np.std(p0)
+        
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        #p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
         
         effort_m1 = np.zeros(effort.shape)
         effort_m = np.where(effort==1, 1, effort_m1)
@@ -500,7 +509,8 @@ class Utility(object):
             
             pb.append(self.param.alphas[j][0] + \
                      self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
-                         self.param.alphas[j][3]*self.years/10 + np.random.normal(0, self.param.alphas[j][4], p1v1.shape)) 
+                         self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
+                             np.random.normal(0, self.param.alphas[j][4], p1v1.shape)) 
         
         
         pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3
