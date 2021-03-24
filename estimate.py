@@ -98,6 +98,7 @@ class estimate:
             #6 Test var
             est_var_Pru[i] = np.var(np.array(datadfT['TEST']))
             #7 Portfolio-Test mean
+
             p1_past = np.array(datadfT['PORTPAST'])
             p2_past = np.array(datadfT['TESTPAST'])
             p1v1 = np.where(np.isnan(p1_past), 0, p1_past)
@@ -111,6 +112,7 @@ class estimate:
             corrM = datadf_past.corr()
             est_corrTestp[i] = corrM.iloc[0]['TEST']
             est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
+
             # Here we consider the data for treatmetn group
             datav = datadfT[datadfT['TREATMENT']==1]
             #8
@@ -254,7 +256,6 @@ class estimate:
         
         #Outer matrix
         x_vector=np.zeros((num_par,1))
-        
         x_vector[0,0] = beta_mport - self.moments_vector[0]
         x_vector[1,0] = beta_vport - self.moments_vector[1]
         x_vector[2,0] = beta_msimce - self.moments_vector[2]
@@ -278,10 +279,11 @@ class estimate:
         
         #The Q metric
         q_w = np.dot(np.dot(np.transpose(x_vector),self.w_matrix),x_vector)
-                     
+                   
         print ('')
         print ('The objetive function value equals ', q_w)
         print ('')
+
         
     
                  
