@@ -32,8 +32,11 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model.npy")
 
-df = pd.read_stata('/home/jrodriguez/teachers/data/data_python.dta')
+df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
+
+moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
 
 def simulation(j):
     """
@@ -42,9 +45,6 @@ def simulation(j):
     n = df.shape[0]
     np.random.seed(j+100)
     rev = df.sample(n, replace=True)            
-    #the list of estimated parameters
-    moments_vector = pd.read_csv("/home/jrodriguez/teachers/codes/moments.csv",header=None).values
-
 
     # TREATMENT #
     #treatmentOne = rev[['d_trat']]
@@ -75,10 +75,14 @@ def simulation(j):
     #### PARAMETERS MODEL ####
     N = np.size(p1_0)
     HOURS = np.array([44]*N)
-    alphas = [[0.5,0.1,0.2,-0.01,0.1],
-              [0.5,0.1,0.2,-0.01,0.1]]
-    betas = [-0.4,0.3,0.9,1]
-    gammas = [-0.1,-0.2,0.8]
+    alphas = [[betas_nelder[0], betas_nelder[1],betas_nelder[2],betas_nelder[3],
+          betas_nelder[4], betas_nelder[5]],
+         [betas_nelder[6], betas_nelder[7],betas_nelder[8],betas_nelder[9],
+         betas_nelder[10], betas_nelder[11]]]
+
+    betas = [betas_nelder[12], betas_nelder[13], betas_nelder[14] ,betas_nelder[15]]
+
+    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
@@ -111,11 +115,13 @@ alpha_01 = np.zeros(boot_n)
 alpha_02 = np.zeros(boot_n)
 alpha_03 = np.zeros(boot_n)
 alpha_04 = np.zeros(boot_n)
+alpha_05 = np.zeros(boot_n)
 alpha_10 = np.zeros(boot_n)
 alpha_11 = np.zeros(boot_n)
 alpha_12 =  np.zeros(boot_n)
 alpha_13 =  np.zeros(boot_n)
 alpha_14 =  np.zeros(boot_n)
+alpha_15 =  np.zeros(boot_n)
 beta_0 =  np.zeros(boot_n)
 beta_1 = np.zeros(boot_n)
 beta_2 = np.zeros(boot_n)
@@ -146,18 +152,20 @@ for j in range(boot_n):
     alpha_02[j] = dics[j][2]
     alpha_03[j] = dics[j][3]
     alpha_04[j] = dics[j][4]
-    alpha_10[j] = dics[j][5]
-    alpha_11[j] = np.exp(dics[j][6])
-    alpha_12[j] = dics[j][7]
-    alpha_13[j] = dics[j][8]
-    alpha_14[j] = dics[j][9]
-    beta_0[j] = np.exp(dics[j][10])
-    beta_1[j] = dics[j][11]
-    beta_2[j] = dics[j][12]
-    beta_3[j] = dics[j][13]
-    gamma_0[j] = dics[j][14]
-    gamma_1[j] = dics[j][15]
-    gamma_2[j] = dics[j][16]
+    alpha_05[j] = dics[j][5]
+    alpha_10[j] = dics[j][6]
+    alpha_11[j] = dics[j][7]
+    alpha_12[j] = dics[j][8]
+    alpha_13[j] = dics[j][9]
+    alpha_14[j] = dics[j][10]
+    alpha_15[j] = dics[j][11]
+    beta_0[j] = dics[j][12]
+    beta_1[j] = dics[j][13]
+    beta_2[j] = dics[j][14]
+    beta_3[j] = dics[j][15]
+    gamma_0[j] = dics[j][16]
+    gamma_1[j] = dics[j][17]
+    gamma_2[j] = dics[j][18]
 
 
 
@@ -166,11 +174,13 @@ est_alpha_01 = np.std(alpha_01)
 est_alpha_02 = np.std(alpha_02)
 est_alpha_03 = np.std(alpha_03)
 est_alpha_04 = np.std(alpha_04)
+est_alpha_05 = np.std(alpha_05)
 est_alpha_10 = np.std(alpha_10)
 est_alpha_11 = np.std(alpha_11)
 est_alpha_12 = np.std(alpha_12)
 est_alpha_13 = np.std(alpha_13)
 est_alpha_14 = np.std(alpha_14)
+est_alpha_15 = np.std(alpha_15)
 est_beta_0 = np.std(beta_0)
 est_beta_1 = np.std(beta_1)
 est_beta_2 = np.std(beta_2)
@@ -184,11 +194,13 @@ dics_se = {'SE alpha_00': est_alpha_00,
                 'SE alpha_02': est_alpha_02,
                 'SE alpha_03': est_alpha_03,
                 'SE alpha_04': est_alpha_04,
+                'SE alpha_05': est_alpha_05,
                 'SE alpha_10': est_alpha_10,
                 'SE alpha_11': est_alpha_11,
                 'SE alpha_12': est_alpha_12,
                 'SE alpha_13': est_alpha_13,
                 'SE alpha_14': est_alpha_14,
+                'SE alpha_15': est_alpha_15,
                 'SE beta_0': est_beta_0,
                 'SE beta_1': est_beta_1,
                 'SE beta_2': est_beta_2,
@@ -199,8 +211,10 @@ dics_se = {'SE alpha_00': est_alpha_00,
     
 betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'], 
                               dics_se['SE alpha_02'],dics_se['SE alpha_03'],dics_se['SE alpha_04'],
+                              dics_se['SE alpha_05'],
                               dics_se['SE alpha_10'],dics_se['SE alpha_11'],dics_se['SE alpha_12'], 
-                                  dics_se['SE alpha_13'],dics_se['SE alpha_14'],dics_se['SE beta_0'],
+                                  dics_se['SE alpha_13'],dics_se['SE alpha_14'],dics_se['SE alpha_15'],
+                                  dics_se['SE beta_0'],
                                   dics_se['SE beta_1'],dics_se['SE beta_2'], 
                                       dics_se['SE beta_3'],dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2']])
 
