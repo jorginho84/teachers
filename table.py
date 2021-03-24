@@ -42,10 +42,10 @@ se_gamma_2 =se_vector[16]
 
 
 #Effort Student (this is t_student function in utility class)
-betas_opt_t = np.array([betas_nelder[11],betas_nelder[12],
-	betas_nelder[13]]).reshape((3,1))
+betas_opt_t = np.array([betas_nelder[10],betas_nelder[11],betas_nelder[12],
+	betas_nelder[13]]).reshape((4,1))
 
-se_betas_opt_t=np.array([se_vector[11],se_vector[12],se_vector[13]]).reshape((3,1))
+se_betas_opt_t=np.array([se_vector[10],se_vector[11],se_vector[12],se_vector[13]]).reshape((4,1))
 
 
 #income_male_betas = np.array([betas_nelder[8],betas_nelder[9],
@@ -105,10 +105,10 @@ utility_list_beta = [gamma_0,gamma_1,gamma_2]
 utility_list_se = [se_gamma_0,se_gamma_1,se_gamma_2]
 utility_names = [r'gamma_0',r'gamma_1',r'gamma_2']
 
-beta_list_beta = [betas_opt_t[0,0],betas_opt_t[1,0],betas_opt_t[2,0]]
+beta_list_beta = [betas_opt_t[0,0],betas_opt_t[1,0],betas_opt_t[2,0],betas_opt_t[3,0]]
 beta_list_se = [se_betas_opt_t[0,0],se_betas_opt_t[1,0],
-se_betas_opt_t[2,0]]
-wage_names = ['beta_0', 'beta_1','beta_2']
+se_betas_opt_t[2,0],se_betas_opt_t[3,0]]
+wage_names = ['beta_0', 'beta_1','beta_2','beta_3']
 
 #swage_list_beta = [income_male_betas[0,0],income_male_betas[1,0],income_male_betas[2,0],
 #c_emp_spouse]

@@ -47,6 +47,8 @@ class estimate:
         self.catPrueba = catPrueba
         self.TrameI = TrameI
         self.moments_vector,self.w_matrix=moments_vector,w_matrix
+        self.p1_0 = p1_0
+        self.p2_0 = p2_0
         
         
     
@@ -71,14 +73,18 @@ class estimate:
         est_mean_PortTest = np.zeros(times)
         perc_inter_c = np.zeros(times)
         perc_avanexpet_c = np.zeros(times)
+        est_corrTestp = np.zeros(times)
+        est_corrPortp = np.zeros(times)
         
         for i in range(1,times):
             #defino el seed como el del profe, constante para cada muestra, seed i.
             np.random.seed(i+100)
             opt = modelSD.choice(self.treatment)
-            dataf = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 'EXP': self.years, 'TREATMENT': opt['Treatment'], 'PLACEMENT': opt['Opt Placement']}
+            dataf = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 
+                     'EXP': self.years, 'TREATMENT': opt['Treatment'], 'PLACEMENT': opt['Opt Placement'], 
+                     'PORTPAST': self.p1_0, 'TESTPAST': self.p2_0}
             # Here we consider the database complete
-            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'TREATMENT', 'PLACEMENT'])
+            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'TREATMENT', 'PLACEMENT', 'PORTPAST', 'TESTPAST'])
             #1 Portfolio mean
             est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
             #2 Portfolio var
@@ -92,15 +98,21 @@ class estimate:
             #6 Test var
             est_var_Pru[i] = np.var(np.array(datadfT['TEST']))
             #7 Portfolio-Test mean
-            p1 = np.array(datadfT['PORTFOLIO'])
-            p2 = np.array(datadfT['TEST'])
-            p1v1 = np.where(np.isnan(p1), 0, p1)
-            p2v1 = np.where(np.isnan(p2), 0, p2)
-            p0 = np.zeros(p1.shape)
-            p0 = np.where((p1v1 == 0),p2v1, p0)
-            p0 = np.where((p2v1 == 0),p1v1, p0)
-            p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1 + p2)/2, p0)
-            est_mean_PortTest[i] = np.mean(p0)
+
+            p1_past = np.array(datadfT['PORTPAST'])
+            p2_past = np.array(datadfT['TESTPAST'])
+            p1v1 = np.where(np.isnan(p1_past), 0, p1_past)
+            p2v1 = np.where(np.isnan(p2_past), 0, p2_past)
+            p0_past = np.zeros(p1_past.shape)
+            p0_past = np.where((p1v1 == 0),p2v1, p0_past)
+            p0_past = np.where((p2v1 == 0),p1v1, p0_past)
+            p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
+            dataf_past = {'TEST': opt['Opt Teacher'][1], 'PORTFOLIO': opt['Opt Teacher'][0], 'P_past': p0_past}
+            datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO'])
+            corrM = datadf_past.corr()
+            est_corrTestp[i] = corrM.iloc[0]['TEST']
+            est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
+
             # Here we consider the data for treatmetn group
             datav = datadfT[datadfT['TREATMENT']==1]
             #8
@@ -127,10 +139,18 @@ class estimate:
             datav_2 = datadfT[datadfT['TREATMENT']==0]
             perc_inter_c[i] = (sum(datav_2['PLACEMENT']==2) / len(datav_2['PLACEMENT']))
             perc_avanexpet_c[i] = (sum(datav_2['PLACEMENT']==3) / (sum(datav_2['PLACEMENT']==4)+sum(datav_2['PLACEMENT']==5))) / len(datav_2['PLACEMENT'])
+            p1 = np.array(datav_2['PORTFOLIO'])
+            p2 = np.array(datav_2['TEST'])
+            p1v1 = np.where(np.isnan(p1), 0, p1)
+            p2v1 = np.where(np.isnan(p2), 0, p2)
+            p0 = np.zeros(p1.shape)
+            p0 = np.where((p1v1 == 0),p2v1, p0)
+            p0 = np.where((p2v1 == 0),p1v1, p0)
+            p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1 + p2)/2, p0)
+            est_mean_PortTest[i] = np.mean(p0)
         
         est_bootsSPort = np.mean(est_corrSPort)
         est_bootsSPrue = np.mean(est_corrSPrue)
-        #est_sim_PP = np.mean(est_corrPP)
         est_sim_mean_Port = np.mean(est_mean_Port)
         est_sim_var_Port = np.mean(est_var_Port)
         est_sim_mean_Pru = np.mean(est_mean_Pru)
@@ -146,14 +166,9 @@ class estimate:
         est_sim_mean_PP = np.mean(est_mean_PortTest)
         est_sim_inter_c = np.mean(perc_inter_c)
         est_sim_advexp_c = np.mean(perc_avanexpet_c)
-        #plt.hist(est_corrSPort, bins=100)
-        #plt.axvline(est_bootsSPort, color='r', linestyle='dashed', linewidth=1)
-        #plt.title("Histogram Portfolio")
-        #plt.hist(est_corrSPrue, bins=100)
-        #plt.axvline(est_bootsSPrue, color='r', linestyle='dashed', linewidth=1)
-        #plt.title("Histogram Test")
-        #sn.heatmap(corrMatrix, annot=True)
-        #plt.show()
+        est_sim_Testp = np.mean(est_corrTestp)
+        est_sim_Portp = np.mean(est_corrPortp)
+
         
         return {'Estimation SIMCE vs Portfolio': est_bootsSPort,
             'Estimation SIMCE vs Prueba': est_bootsSPrue,
@@ -172,7 +187,9 @@ class estimate:
             'Var SIMCE': est_sim_var_SIMCE,
             'Mean PortTest' : est_sim_mean_PP,
             'perc inter control': est_sim_inter_c,
-            'perc adv/exp control': est_sim_advexp_c}
+            'perc adv/exp control': est_sim_advexp_c,
+            'Estimation Test vs p': est_sim_Testp,
+            'Estimation Portfolio vs p': est_sim_Portp}
     
     
     def objfunction(self,beta):
@@ -184,18 +201,20 @@ class estimate:
         self.param0.alphas[0][2] = beta[2]
         self.param0.alphas[0][3] = beta[3]
         self.param0.alphas[0][4] = beta[4]
-        self.param0.alphas[1][0] = beta[5]
-        self.param0.alphas[1][1] = beta[6]
-        self.param0.alphas[1][2] = beta[7]
-        self.param0.alphas[1][3] = beta[8]
-        self.param0.alphas[1][4] = beta[9]
-        self.param0.betas[0] = beta[10]
-        self.param0.betas[1] = beta[11]
-        self.param0.betas[2] = beta[12]
-        self.param0.betas[3] = beta[13]
-        self.param0.gammas[0] = beta[14]
-        self.param0.gammas[1] = beta[15]
-        self.param0.gammas[2] = beta[16]
+        self.param0.alphas[0][5] = beta[5]
+        self.param0.alphas[1][0] = beta[6]
+        self.param0.alphas[1][1] = beta[7]
+        self.param0.alphas[1][2] = beta[8]
+        self.param0.alphas[1][3] = beta[9]
+        self.param0.alphas[1][4] = beta[10]
+        self.param0.alphas[1][5] = beta[11]
+        self.param0.betas[0] = beta[12]
+        self.param0.betas[1] = beta[13]
+        self.param0.betas[2] = beta[14]
+        self.param0.betas[3] = beta[15]
+        self.param0.gammas[0] = beta[16]
+        self.param0.gammas[1] = beta[17]
+        self.param0.gammas[2] = beta[18]
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
@@ -225,48 +244,50 @@ class estimate:
         beta_exptest = result['Estimation EXP vs Prueba']
         beta_inter_c = result['perc inter control']
         beta_advexp_c = result['perc adv/exp control']
+        beta_testp = result['Estimation Test vs p']
+        beta_portp = result['Estimation Portfolio vs p']
         
         
         #Number of moments to match
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
             beta_vtest.size + beta_mporttest.size + beta_pinit.size + beta_pinter.size + beta_padv.size + \
                 beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
-                    beta_inter_c.size + beta_advexp_c.size
+                    beta_inter_c.size + beta_advexp_c.size + beta_testp.size + beta_portp.size
         
         #Outer matrix
         x_vector=np.zeros((num_par,1))
-        
-        x_vector[0,0] = beta_mport - self.moments_vector[0,0]
-        x_vector[1,0] = beta_vport - self.moments_vector[1,0]
-        x_vector[2,0] = beta_msimce - self.moments_vector[2,0]
-        x_vector[3,0] = beta_vsimce - self.moments_vector[3,0]
-        x_vector[4,0] = beta_mtest - self.moments_vector[4,0]
-        x_vector[5,0] = beta_vtest - self.moments_vector[5,0]
-        x_vector[6,0] = beta_mporttest - self.moments_vector[6,0]
-        x_vector[7,0] = beta_pinit - self.moments_vector[7,0]
-        x_vector[8,0] = beta_pinter - self.moments_vector[8,0]
-        x_vector[9,0] = beta_padv - self.moments_vector[9,0]
-        x_vector[10,0] = beta_pexpert - self.moments_vector[10,0]
-        x_vector[11,0] = beta_sport - self.moments_vector[11,0]
-        x_vector[12,0] = beta_spru - self.moments_vector[12,0]
-        x_vector[13,0] = beta_expport - self.moments_vector[13,0]
-        x_vector[14,0] = beta_exptest - self.moments_vector[14,0]
-        x_vector[15,0] = beta_inter_c - self.moments_vector[15,0]
-        x_vector[16,0] = beta_advexp_c - self.moments_vector[16,0]
+        x_vector[0,0] = beta_mport - self.moments_vector[0]
+        x_vector[1,0] = beta_vport - self.moments_vector[1]
+        x_vector[2,0] = beta_msimce - self.moments_vector[2]
+        x_vector[3,0] = beta_vsimce - self.moments_vector[3]
+        x_vector[4,0] = beta_mtest - self.moments_vector[4]
+        x_vector[5,0] = beta_vtest - self.moments_vector[5]
+        x_vector[6,0] = beta_mporttest - self.moments_vector[6]
+        x_vector[7,0] = beta_pinit - self.moments_vector[7]
+        x_vector[8,0] = beta_pinter - self.moments_vector[8]
+        x_vector[9,0] = beta_padv - self.moments_vector[9]
+        x_vector[10,0] = beta_pexpert - self.moments_vector[10]
+        x_vector[11,0] = beta_sport - self.moments_vector[11]
+        x_vector[12,0] = beta_spru - self.moments_vector[12]
+        x_vector[13,0] = beta_expport - self.moments_vector[13]
+        x_vector[14,0] = beta_exptest - self.moments_vector[14]
+        x_vector[15,0] = beta_inter_c - self.moments_vector[15]
+        x_vector[16,0] = beta_advexp_c - self.moments_vector[16]
+        x_vector[17,0] = beta_testp - self.moments_vector[17]
+        x_vector[18,0] = beta_portp - self.moments_vector[18]
         
         
         #The Q metric
         q_w = np.dot(np.dot(np.transpose(x_vector),self.w_matrix),x_vector)
-        #print ('')
-        #print ('The objetive function value equals ', q_w)
-        #print ('')
+                   
+        print ('')
+        print ('The objetive function value equals ', q_w)
+        print ('')
+
         
-        #time_opt = time.time() - start_time
-        #print ('Done aux model generation in')
-        #print("--- %s seconds ---" % (time_opt))
-        
-        
-        
+    
+                 
+    
         return q_w
     
     
@@ -277,11 +298,13 @@ class estimate:
                           self.param0.alphas[0][2],
                           self.param0.alphas[0][3],
                           self.param0.alphas[0][4],
+                          self.param0.alphas[0][5],
                           self.param0.alphas[1][0],
                           self.param0.alphas[1][1],
                           self.param0.alphas[1][2],
                           self.param0.alphas[1][3],
                           self.param0.alphas[1][4],
+                          self.param0.alphas[1][5],
                           self.param0.betas[0],
                           self.param0.betas[1],
                           self.param0.betas[2],
