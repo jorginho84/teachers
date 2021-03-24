@@ -149,7 +149,6 @@ class estimate:
         
         est_bootsSPort = np.mean(est_corrSPort)
         est_bootsSPrue = np.mean(est_corrSPrue)
-        #est_sim_PP = np.mean(est_corrPP)
         est_sim_mean_Port = np.mean(est_mean_Port)
         est_sim_var_Port = np.mean(est_var_Port)
         est_sim_mean_Pru = np.mean(est_mean_Pru)
@@ -167,14 +166,7 @@ class estimate:
         est_sim_advexp_c = np.mean(perc_avanexpet_c)
         est_sim_Testp = np.mean(est_corrTestp)
         est_sim_Portp = np.mean(est_corrPortp)
-        #plt.hist(est_corrSPort, bins=100)
-        #plt.axvline(est_bootsSPort, color='r', linestyle='dashed', linewidth=1)
-        #plt.title("Histogram Portfolio")
-        #plt.hist(est_corrSPrue, bins=100)
-        #plt.axvline(est_bootsSPrue, color='r', linestyle='dashed', linewidth=1)
-        #plt.title("Histogram Test")
-        #sn.heatmap(corrMatrix, annot=True)
-        #plt.show()
+
         
         return {'Estimation SIMCE vs Portfolio': est_bootsSPort,
             'Estimation SIMCE vs Prueba': est_bootsSPrue,
@@ -263,39 +255,37 @@ class estimate:
         #Outer matrix
         x_vector=np.zeros((num_par,1))
         
-        x_vector[0,0] = beta_mport - self.moments_vector[0,1]
-        x_vector[1,0] = beta_vport - self.moments_vector[1,1]
-        x_vector[2,0] = beta_msimce - self.moments_vector[2,1]
-        x_vector[3,0] = beta_vsimce - self.moments_vector[3,1]
-        x_vector[4,0] = beta_mtest - self.moments_vector[4,1]
-        x_vector[5,0] = beta_vtest - self.moments_vector[5,1]
-        x_vector[6,0] = beta_mporttest - self.moments_vector[6,1]
-        x_vector[7,0] = beta_pinit - self.moments_vector[7,1]
-        x_vector[8,0] = beta_pinter - self.moments_vector[8,1]
-        x_vector[9,0] = beta_padv - self.moments_vector[9,1]
-        x_vector[10,0] = beta_pexpert - self.moments_vector[10,1]
-        x_vector[11,0] = beta_sport - self.moments_vector[11,1]
-        x_vector[12,0] = beta_spru - self.moments_vector[12,1]
-        x_vector[13,0] = beta_expport - self.moments_vector[13,1]
-        x_vector[14,0] = beta_exptest - self.moments_vector[14,1]
-        x_vector[15,0] = beta_inter_c - self.moments_vector[15,1]
-        x_vector[16,0] = beta_advexp_c - self.moments_vector[16,1]
-        x_vector[17,0] = beta_testp - self.moments_vector[17,1]
-        x_vector[18,0] = beta_portp - self.moments_vector[18,1]
+        x_vector[0,0] = beta_mport - self.moments_vector[0]
+        x_vector[1,0] = beta_vport - self.moments_vector[1]
+        x_vector[2,0] = beta_msimce - self.moments_vector[2]
+        x_vector[3,0] = beta_vsimce - self.moments_vector[3]
+        x_vector[4,0] = beta_mtest - self.moments_vector[4]
+        x_vector[5,0] = beta_vtest - self.moments_vector[5]
+        x_vector[6,0] = beta_mporttest - self.moments_vector[6]
+        x_vector[7,0] = beta_pinit - self.moments_vector[7]
+        x_vector[8,0] = beta_pinter - self.moments_vector[8]
+        x_vector[9,0] = beta_padv - self.moments_vector[9]
+        x_vector[10,0] = beta_pexpert - self.moments_vector[10]
+        x_vector[11,0] = beta_sport - self.moments_vector[11]
+        x_vector[12,0] = beta_spru - self.moments_vector[12]
+        x_vector[13,0] = beta_expport - self.moments_vector[13]
+        x_vector[14,0] = beta_exptest - self.moments_vector[14]
+        x_vector[15,0] = beta_inter_c - self.moments_vector[15]
+        x_vector[16,0] = beta_advexp_c - self.moments_vector[16]
+        x_vector[17,0] = beta_testp - self.moments_vector[17]
+        x_vector[18,0] = beta_portp - self.moments_vector[18]
         
         
         #The Q metric
         q_w = np.dot(np.dot(np.transpose(x_vector),self.w_matrix),x_vector)
+                     
         print ('')
         print ('The objetive function value equals ', q_w)
         print ('')
         
-        #time_opt = time.time() - start_time
-        #print ('Done aux model generation in')
-        #print("--- %s seconds ---" % (time_opt))
-        
-        
-        
+    
+                 
+    
         return q_w
     
     

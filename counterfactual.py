@@ -19,7 +19,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeacherBranch")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #import gridemax
 import time
 #import int_linear
@@ -35,26 +35,28 @@ from openpyxl import load_workbook
 from scipy import interpolate
 import time
 import openpyxl
-sys.path.append("D:\Git\TeacherBranch")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("D:\\Git\\TeacherBranch\\betasopt_model.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy")
 
-data_1 = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
+data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+
+data_1 = data_1[data_1['d_trat']==1]
 
 means = np.zeros((5,2))
-print(means)
+
 
 for i in range(1,5):
        
-    data_2 =data_1[data_1['Rsquare_5']==i]
+    data =data_1[data_1['Rsquare_5']==i]
     
     for x in range(0,2):
         
-        data =data_2[data_2['d_trat']==x]
+
         # TREATMENT #
-        treatment = np.array(data['d_trat'])
+        treatment = np.ones(np.array(data['experience']).shape[0])*x
         # EXPERIENCE #
         years = np.array(data['experience'])
         # SCORE PORTFOLIO #
@@ -76,12 +78,13 @@ for i in range(1,5):
         N = np.size(p1_0)
         HOURS = np.array([44]*N)
         
-        alphas = [[betas_nelder[0],betas_nelder[1],betas_nelder[2],betas_nelder[3],
-                   betas_nelder[4],betas_nelder[5]],
-                  [betas_nelder[6],betas_nelder[7],betas_nelder[8],betas_nelder[9],
-                   betas_nelder[10],betas_nelder[11]]]
-        
-        betas = [betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+        alphas = [[betas_nelder[0], betas_nelder[1],betas_nelder[2],betas_nelder[3],
+          betas_nelder[4], betas_nelder[5]],
+         [betas_nelder[6], betas_nelder[7],betas_nelder[8],betas_nelder[9],
+          betas_nelder[10], betas_nelder[11]]]
+
+        betas = [betas_nelder[12], betas_nelder[13], betas_nelder[14] ,betas_nelder[15]]
+
         gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
         
         dolar= 600
@@ -201,9 +204,9 @@ for i in range(1,5):
     
     
  
-conterfactual_late = means
-print(conterfactual_late)
-#np.save('D:\Git\TeachersMaster\conterfactual_late.npy',conterfactual_late)
+conterfactual_late = means[:,1] - means[:,0]
+
+
 
 
 

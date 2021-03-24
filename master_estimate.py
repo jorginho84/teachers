@@ -18,7 +18,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeacherBranch")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #import gridemax
 import time
 #import int_linear
@@ -31,15 +31,13 @@ import estimate as est
 from openpyxl import Workbook 
 from openpyxl import load_workbook
 
+np.random.seed(123)
 
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model.npy")
 
-moments_vector = pd.read_excel("D:\Git\TeacherBranch\Outcomes.xlsx", header=3, usecols='C:F').values
-#moments_vector_excel = pd.read_excel("D:\Git\TeacherPrincipal\Outcomes.xlsx", header=3, usecols='D')
-#moments_vector_zero = moments_vector_excel[['simulation']]
-#moments_vector = moments_vector_zero['simulation'].to_numpy()
-#ajhdsajk = moments_vector[0,1]
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
-data = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -78,12 +76,15 @@ typeSchool = np.array(data['typeschool'])
 #### PARAMETERS MODEL ####
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
-alphas = [[0.5,0.1,0.2,-0.01,0.1,0.8],
-		[0.5,0.1,0.2,-0.01,0.1,0.7]]
 
-betas = [-0.4,0.3,0.9,1]
+alphas = [[-0.03, betas_nelder[1],betas_nelder[2],betas_nelder[3],
+          0.4, 0.1],
+         [0, betas_nelder[7],betas_nelder[8],betas_nelder[9],
+         0.8, 0.3]]
 
-gammas = [-0.1,-0.2,0.8]
+betas = [-0.66, 0.8, 1.5 ,0.07]
+
+gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -127,7 +128,13 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
 
 
-w_matrix = np.identity(19)
+w_matrix = w_matrix = np.zeros((19,19))
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+
+for j in range(19):
+    w_matrix[j,j] = ses_opt[j]**(-2)
+
+
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
@@ -175,37 +182,5 @@ betas_opt_me = np.array([beta_1, beta_2,
 print(betas_opt_me)
 
 
-np.save('D:\\Git\\TeacherBranch\\betasopt_model.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy',betas_opt_me)
 
-#betas_nelder_2 = np.load("D:\\Git\\TeacherPrincipal\\betasopt_model.npy")
-
-wb = load_workbook('D:\Git\TeacherBranch\Outcomes.xlsx')
-
-sheet = wb.active
-
-sheet['G4'] = 'Betas Opt'
-sheet['G5'] = beta_1
-sheet['G6'] = beta_2
-sheet['G7'] = beta_3
-sheet['G8'] = beta_4
-sheet['G9'] = beta_5
-sheet['G10'] = beta_6
-sheet['G11'] = beta_7
-sheet['G12'] = beta_8
-sheet['G13'] = beta_9
-sheet['G14'] = beta_10
-sheet['G15'] = beta_11
-sheet['G16'] = beta_12
-sheet['G17'] = beta_13
-sheet['G18'] = beta_14
-sheet['G19'] = beta_15
-sheet['G20'] = beta_16
-sheet['G21'] = beta_17
-sheet['G22'] = beta_18
-sheet['G23'] = beta_19
-
-
-wb.save('D:\Git\TeacherBranch\Outcomes.xlsx')
-
-
-#np.save('D:\Git\TeachersBranch\beta_opt.npy',betas_opt_me)

@@ -8,15 +8,42 @@ Created on Mon Jan 25 17:33:39 2021
 This code computes fit anaylisis
 
 """
+#from __future__ import division #omit for python 3.x
+import numpy as np
+import pandas as pd
+import pickle
+import itertools
+import sys, os
+from scipy import stats
+#from scipy.optimize import minimize
+from scipy.optimize import fmin_bfgs
+from joblib import Parallel, delayed
+from scipy import interpolate
+import matplotlib.pyplot as plt
+#sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#import gridemax
+import time
+#import int_linear
+import utility as util
+import parameters as parameters
+import simdata as sd
+import estimate as est
+#import pybobyqa
+#import xlsxwriter
+from openpyxl import Workbook 
+from openpyxl import load_workbook
 
 
-betas_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/betas_v1.npy")
+np.random.seed(123)
 
-moments_vector = pd.read_excel("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/Outcomes.xlsx", header=3, usecols='C:F').values
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy")
+
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('D:\Git\TeacherPrincipal\data_python.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -84,16 +111,14 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[0.5,0.1,0.2,-0.01,0.1],
-		[0.5,0.1,0.2,-0.01,0.1]]
+alphas = [[betas_nelder[0], betas_nelder[1],betas_nelder[2],betas_nelder[3],
+          betas_nelder[4], betas_nelder[5]],
+         [betas_nelder[6], betas_nelder[7],betas_nelder[8],betas_nelder[9],
+         betas_nelder[10], betas_nelder[11]]]
 
-#betas = [100,0.9,0.9,-0.05,-0.05,20]
-#Parámetros más importantes
-#betas = [100,10,33,20]
+betas = [betas_nelder[12], betas_nelder[13], betas_nelder[14] ,betas_nelder[15]]
 
-betas = [-0.4,0.3,0.9,1]
-
-gammas = [-0.1,-0.2,0.8]
+gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -136,7 +161,15 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
 
-w_matrix = np.identity(15)
+model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+
+modelSD = sd.SimData(N,model,treatment)
+
+w_matrix = w_matrix = np.zeros((19,19))
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+
+for j in range(19):
+    w_matrix[j,j] = ses_opt[j]**(-2)
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
@@ -144,6 +177,29 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
 
 corr_data = output_ins.simulation(50,modelSD)
 print(corr_data)
+
+
+beta0 = np.array([param0.alphas[0][0],
+                          param0.alphas[0][1],
+                          param0.alphas[0][2],
+                          param0.alphas[0][3],
+                          param0.alphas[0][4],
+                          param0.alphas[0][5],
+                          param0.alphas[1][0],
+                          param0.alphas[1][1],
+                          param0.alphas[1][2],
+                          param0.alphas[1][3],
+                          param0.alphas[1][4],
+                          param0.alphas[1][5],
+                          param0.betas[0],
+                          param0.betas[1],
+                          param0.betas[2],
+                          param0.betas[3],
+                          param0.gammas[0],
+                          param0.gammas[1],
+                          param0.gammas[2]])
+
+qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
@@ -153,7 +209,7 @@ print(corr_data)
 #book = Workbook()
 #sheet = book.active
 
-wb = load_workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 sheet = wb.active
 
 sheet['C5'] = 'Mean Portfolio'
@@ -173,6 +229,8 @@ sheet['C18'] = 'corr(exp,Port)'
 sheet['C19'] = 'corr(exp,Test)'
 sheet['C20'] = '\% Intermediate control'
 sheet['C21'] = '\% adva/expert control'
+sheet['C23'] = 'Corr(Port,p)'
+sheet['C22'] = 'Corr(Test,p)'
 sheet['D4'] = 'simulation'
 sheet['E4'] = 'data'
 sheet['F4'] = 'se'
@@ -194,8 +252,38 @@ sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
 sheet['D19'] = corr_data['Estimation EXP vs Prueba']
 sheet['D20'] = corr_data['perc inter control']
 sheet['D21'] = corr_data['perc adv/exp control']
+sheet['D22'] = corr_data['Estimation Test vs p']
+sheet['D23'] = corr_data['Estimation Portfolio vs p']
 
 
-wb.save('D:\Git\TeacherPrincipal\Outcomes.xlsx')
+
+sim = np.array([corr_data['Mean Portfolio'],
+corr_data['Var Port'],
+corr_data['Mean SIMCE'],
+corr_data['Var SIMCE'],
+corr_data['Mean Test'],
+corr_data['Var Test'],
+corr_data['Mean PortTest'],
+corr_data['perc init'],
+corr_data['perc inter'],
+corr_data['perc advanced'],
+corr_data['perc expert'],
+corr_data['Estimation SIMCE vs Portfolio'],
+corr_data['Estimation SIMCE vs Prueba'],
+corr_data['Estimation EXP vs Portfolio'],
+corr_data['Estimation EXP vs Prueba'],
+corr_data['perc inter control'],
+corr_data['perc adv/exp control'],
+corr_data['Estimation Test vs p'],
+corr_data['Estimation Portfolio vs p']])
+
+x_vector = sim - moments_vector
+
+q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
+
+weight = x_vector**2/ses_opt**2
+
+
+wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
 

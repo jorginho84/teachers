@@ -31,7 +31,7 @@ from openpyxl import load_workbook
 
 #### LOAD DATA ####
 
-df = pd.read_stata('D:\Git\TeacherBranch\data_pythonpast.dta')
+df = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 pd.value_counts(df['trame'])
 
@@ -196,7 +196,7 @@ print(result)
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('D:\Git\TeacherBranch\Outcomes.xlsx')
+wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
 sheet = wb.active
 
@@ -218,8 +218,9 @@ sheet['E18'] = result['Estimation EXP vs Portfolio']
 sheet['E19'] = result['Estimation EXP vs Prueba']
 sheet['E20'] = result['perc inter control']
 sheet['E21'] = result['perc adv/exp control']
-sheet['E22'] = result['Estimation Portfolio vs p']
-sheet['E23'] = result['Estimation Test vs p']
+sheet['E22'] = result['Estimation Test vs p']
+sheet['E23'] = result['Estimation Portfolio vs p']
+
 
 
 sheet['F5'] = result['Error mean Port']
@@ -239,13 +240,58 @@ sheet['F18'] = result['Error Exp vs Portfolio']
 sheet['F19'] = result['Error Exp vs Pru']
 sheet['F20'] = result['Error inter control']
 sheet['F21'] = result['Error adv/exp control']
-sheet['F22'] = result['Error Portfolio vs p']
-sheet['F23'] = result['Error Test vs p']
+sheet['F22'] = result['Error Test vs p']
+sheet['F23'] = result['Error Portfolio vs p']
+
 
 
 #workbook.close()
 
+ses = np.array([result['Error mean Port'],
+result['Error var Portfolio'],
+result['Error SIMCE'],
+result['Error var SIMCE'],
+result['Error mean Test'],
+result['Error var Test'],
+result['Error mean Port-Test'],
+result['Error init'],
+result['Error inter'],
+result['Error advanced'],
+result['Error expert'],
+result['Error SIMCE vs Portfolio'],
+result['Error SIMCE vs Test'],
+result['Error Exp vs Portfolio'],
+result['Error Exp vs Pru'],
+result['Error inter control'],
+result['Error adv/exp control'],
+result['Error Test vs p'],
+result['Error Portfolio vs p'],
+])
 
-wb.save('D:\Git\TeacherBranch\Outcomes.xlsx')
+means = np.array([result['Mean Portfolio'],
+result['Var Portfolio'],
+result['Mean SIMCE'],
+result['Var SIMCE'],
+result['Mean Test'],
+result['Var Test'],
+result['Mean PortTest'],
+result['perc init'],
+result['perc inter'],
+result['perc advanced'],
+result['perc expert'],
+result['Estimation SIMCE vs Portfolio'],
+result['Estimation SIMCE vs Prueba'],
+result['Estimation EXP vs Portfolio'],
+result['Estimation EXP vs Prueba'],
+result['perc inter control'],
+result['perc adv/exp control'],
+result['Estimation Test vs p'],
+result['Estimation Portfolio vs p']])
+
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy',ses)
+
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy',means)
+
+wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
 
