@@ -224,6 +224,12 @@ class Utility(object):
         ATDPexpert1fixed = np.where((initial_p==4) & (self.years > 7), (Proexpert1fixed/15)*(self.HOURS/full_contract)*biennium, ATDPexpert1fixed2)
         ATDPexpert2 = np.where((initial_p==5) & (self.years > 11), (Proexpert2/15)*(self.HOURS/full_contract)*biennium, ATDPexpert22)
         ATDPexpert2fixed = np.where((initial_p==5) & (self.years > 11), (Proexpert2fixed/15)*(self.HOURS/full_contract)*biennium, ATDPexpert2fixed2)
+        
+        # " AEP (Teaching excellence)
+        
+        AcreditaTramoI = self.param.AEP[0]
+        AcreditaTramoII = self.param.AEP[1]
+        AcreditaTramoIII = self.param.AEP[2]
     
             
         # " SUM OF TOTAL SALARY "
@@ -240,18 +246,18 @@ class Utility(object):
         
         salary9 = np.where((initial_p==3) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRP,ExpTrameE,ATDPadvanced,ATDPadvancedfixed]), salary2d)
         salary10 = np.where((initial_p==3) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRP,ExpTrameS,ATDPadvanced,ATDPadvancedfixed]), salary2d)
-        salary11 = np.where((initial_p==3) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRPWithout]), salary2d)
-        salary12 = np.where((initial_p==3) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRPWithout]), salary2d)
+        salary11 = np.where((initial_p==3) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRPWithout,AcreditaTramoIII]), salary2d)
+        salary12 = np.where((initial_p==3) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRPWithout,AcreditaTramoIII]), salary2d)
         
         salary13 = np.where((initial_p==4) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRP,ExpTrameE,ATDPexpert1,ATDPexpert1fixed]), salary2d)
         salary14 = np.where((initial_p==4) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRP,ExpTrameS,ATDPexpert1,ATDPexpert1fixed]), salary2d)
-        salary15 = np.where((initial_p==4) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRPWithout]), salary2d)
-        salary16 = np.where((initial_p==4) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRPWithout]), salary2d)
+        salary15 = np.where((initial_p==4) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRPWithout,AcreditaTramoII]), salary2d)
+        salary16 = np.where((initial_p==4) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRPWithout,AcreditaTramoII]), salary2d)
         
         salary17 = np.where((initial_p==5) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRP,ExpTrameE,ATDPexpert2,ATDPexpert2fixed]), salary2d)
         salary18 = np.where((initial_p==5) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRP,ExpTrameS,ATDPexpert2,ATDPexpert2fixed]), salary2d)
-        salary19 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRPWithout]), salary2d)
-        salary20 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRPWithout]), salary2d)
+        salary19 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,ExpTrameE,BRPWithout,AcreditaTramoI]), salary2d)
+        salary20 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRPWithout,AcreditaTramoI]), salary2d)
         
         salary = sum([salary1,salary2,salary3,salary4,salary5,salary6,salary7,salary8,salary9,salary10, \
                       salary11,salary12,salary13,salary14,salary15,salary16,salary17,salary18,salary19,salary20])

@@ -32,11 +32,20 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model.npy")
+betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v3.npy")
 
 df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
 
 moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
+
+
+w_matrix = w_matrix = np.zeros((19,19))
+ses_opt = np.load('/home/jrodriguez/teachers/codes/ses_model.npy')
+
+for j in range(19):
+    w_matrix[j,j] = ses_opt[j]**(-2)
+
+
 
 def simulation(j):
     """
@@ -92,10 +101,12 @@ def simulation(j):
     progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
-    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
-    w_matrix = np.identity(17)
 
-    
+    Asig = [150000,100000,50000]
+    AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
+
+    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
+        
     output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
          typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
     
@@ -108,7 +119,7 @@ def simulation(j):
 
     return output.x
 
-boot_n = 10
+boot_n = 400
 
 alpha_00 = np.zeros(boot_n)
 alpha_01 = np.zeros(boot_n)
@@ -132,7 +143,7 @@ gamma_2 = np.zeros(boot_n)
 
 start_time = time.time()
 
-pool = ProcessPool(nodes = 10)
+pool = ProcessPool(nodes = 18)
 dics = pool.map(simulation,range(boot_n))
 pool.close()
 pool.join()
@@ -220,6 +231,6 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model.npy',betas_opt)
+np.save('/home/jrodriguez/teachers/results/se_model_v3.npy',betas_opt)
 
 

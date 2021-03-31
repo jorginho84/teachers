@@ -33,7 +33,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -77,12 +77,13 @@ typeSchool = np.array(data['typeschool'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[-0.03, betas_nelder[1],betas_nelder[2],betas_nelder[3],
-          0.4, 0.1],
-         [0, betas_nelder[7],betas_nelder[8],betas_nelder[9],
-         0.8, 0.3]]
 
-betas = [-0.66, 0.8, 1.5 ,0.07]
+alphas = [[betas_nelder[0], betas_nelder[1],betas_nelder[2],betas_nelder[3],
+          betas_nelder[4], betas_nelder[5]],
+         [betas_nelder[6], betas_nelder[7],betas_nelder[8],betas_nelder[9],
+         betas_nelder[10], betas_nelder[11]]]
+
+betas = [betas_nelder[12], betas_nelder[13], betas_nelder[14] ,betas_nelder[15]]
 
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
 
@@ -109,6 +110,9 @@ qualiPesos = [72100, 24034, 253076, 84360]
 
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
 
+Asig = [150000,100000,50000]
+AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
+
 #* Progression component by tranche *
 #* value progression initial (pesos)= 14515
 #* value progression early (pesos)= 47831
@@ -125,7 +129,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
 
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 
 w_matrix = w_matrix = np.zeros((19,19))
@@ -182,5 +186,5 @@ betas_opt_me = np.array([beta_1, beta_2,
 print(betas_opt_me)
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v3.npy',betas_opt_me)
 

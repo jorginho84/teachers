@@ -28,6 +28,8 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
+from utility_counterfactual import Count_1
+import simdata_c as sdc
 #import pybobyqa
 #import xlsxwriter
 from openpyxl import Workbook 
@@ -39,20 +41,25 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v3.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 data = data_1[data_1['d_trat']==1]
 
+N = np.array(data['experience']).shape[0]
+
+n_sim = 100
+
 simce = []
+
 
 
 for x in range(0,2):
     
 
     # TREATMENT #
-    treatment = np.ones(np.array(data['experience']).shape[0])*x
+    treatment = np.ones(N)*x
     # EXPERIENCE #
     years = np.array(data['experience'])
     # SCORE PORTFOLIO #
@@ -88,6 +95,9 @@ for x in range(0,2):
     hw = [value[0]/dolar,value[1]/dolar]
     porc = [0.0338, 0.0333]
     
+    Asig = [150000,100000,50000]
+    AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
+    
     # *** This is withouth teaching career ***
     # * value professional qualification (pesos)= 72100 *
     # * value professional mention (pesos)= 24034 *
@@ -113,30 +123,89 @@ for x in range(0,2):
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
        progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
     
-    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
+    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
     
     model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
     
     # SIMULACIÓN SIMDATA
-    modelSD = sd.SimData(N,model,treatment)
-    opt = modelSD.choice(treatment)
     
-    simce.append(opt['Opt Simce'])
+    simce_sims = np.zeros((N,n_sim))
+    
+    for j in range(n_sim):
+        modelSD = sd.SimData(N,model,treatment)
+        opt = modelSD.choice(treatment)
+        simce_sims[:,j] = opt['Opt Simce']
+    
+    simce.append(np.mean(simce_sims,axis=1))
     
  
+for j in range(1,6,1):
+    print ('')
+    print ('ATT conditional on quintile ' + str(j), np.mean(simce[1][data['Rsquare_5']==j] - simce[0][data['Rsquare_5']==j] ))
+    print ('')
+    
+
+
+
 print ('')
-print ('ATT equals ', np.mean(simce[1][data['Rsquare_5']==5] - simce[0][data['Rsquare_5']==5] ))
+print ('ATT equals ', np.mean(simce[1] - simce[0]))
 print ('')
 
 
+#For validation purposes
+att = simce[1] - simce[0]
+
+#Effects under a new system
+
+treatment = np.ones(N)
+    
+model_c = Count_1(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+count_sd = sdc.SimDataC(N,model_c,treatment)
+
+simce_c_sim = np.zeros((N,n_sim))
+
+for j in range(n_sim):
+    opt = count_sd.choice(treatment)
+    simce_c_sim[:,j] = opt['Opt Simce']
+
+simce_c = np.mean(simce_c_sim, axis=1)
+
+att_c = simce_c - simce[0]
+
+
+y = np.zeros(5)
+y_c = np.zeros(5)
+y_ses = np.zeros(5)
+x = [1,2,3,4,5]
+
+for j in range(5):
+    y[j] = np.mean(att[data['Rsquare_5']==j+1])
+    y_c[j] = np.mean(att_c[data['Rsquare_5']==j+1])
+    y_ses[j] = np.std(att[data['Rsquare_5']==j+1])/att[data['Rsquare_5']==j+1].shape[0]
+    
 
 
 
-
-
-
-
-
-
+fig, ax=plt.subplots()
+plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD')
+plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
+plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
+ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)))
+ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
+ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+ax.set_ylim(0.09,0.25)
+ax.legend(loc = 'upper left',fontsize = 13)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1.pdf', format='pdf')
 
 

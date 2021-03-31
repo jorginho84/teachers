@@ -132,6 +132,9 @@ hw = [value[0]/dolar,value[1]/dolar]
 
 porc = [0.0338, 0.0333]
 
+Asig = [150000,100000,50000]
+AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
+
 # *** This is withouth teaching career ***
 # * value professional qualification (pesos)= 72100 *
 # * value professional mention (pesos)= 24034 *
@@ -159,7 +162,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
 
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
 

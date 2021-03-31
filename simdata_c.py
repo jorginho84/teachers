@@ -1,5 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-This code simulates solves the teacher's problem and computes utility
+Created on Fri Mar 26 09:39:56 2021
+
+@author: jorge-home
+
+This class modifies SIMDATA
 
 """
 
@@ -12,8 +18,7 @@ import math
 from math import *
 from scipy.optimize import minimize
 
-
-class SimData:
+class SimDataC:
     """
     eitc: eitc function
     emax_function: interpolating instance
@@ -41,12 +46,11 @@ class SimData:
         
         placement = self.model.placement(teacher_scores)
         
-        income = self.model.income(placement)
+        income = self.model.income(placement,teacher_scores)
         
         simce = self.model.student_h(effort)
         
-        #print("Pasa por aquí")
-        
+                
         return self.model.utility(income, effort, simce)
     
     
@@ -71,7 +75,7 @@ class SimData:
         
         placement = self.model.placement(teacher_scores)
         
-        income = self.model.income(placement)
+        income = self.model.income(placement,teacher_scores)
         
         simce = self.model.student_h(effort_v1)
         
@@ -85,5 +89,4 @@ class SimData:
         
                         
         return {'Opt Effort': effort_opt, 'Opt Teacher': teacher_opt, 'Opt Simce': simce_opt,
-                'Opt Placement': placement_opt, 'Opt Income': income_opt, 'Treatment': treatment,
-                'Opt Scores': teacher_scores}
+                'Opt Placement': placement_opt, 'Opt Income': income_opt, 'Treatment': treatment}
