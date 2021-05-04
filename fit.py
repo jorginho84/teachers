@@ -37,7 +37,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v2.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v5.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -111,15 +111,14 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], betas_nelder[1],betas_nelder[2],betas_nelder[3],
-          betas_nelder[4], betas_nelder[5]],
-         [betas_nelder[6], betas_nelder[7],betas_nelder[8],betas_nelder[9],
-         betas_nelder[10], betas_nelder[11]]]
+alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+      betas_nelder[3], betas_nelder[4]],
+     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+      betas_nelder[8], betas_nelder[9]]]
 
-betas = [betas_nelder[12], betas_nelder[13], betas_nelder[14] ,betas_nelder[15]]
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
 
-gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
-
+gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -184,12 +183,10 @@ print(corr_data)
 
 beta0 = np.array([param0.alphas[0][0],
                           param0.alphas[0][1],
-                          param0.alphas[0][2],
                           param0.alphas[0][3],
                           param0.alphas[0][4],
                           param0.alphas[0][5],
                           param0.alphas[1][0],
-                          param0.alphas[1][1],
                           param0.alphas[1][2],
                           param0.alphas[1][3],
                           param0.alphas[1][4],
@@ -213,7 +210,7 @@ qw = output_ins.objfunction(beta0)
 #sheet = book.active
 
 wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
-sheet = wb.active
+sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
 sheet['C6'] = 'Variance Portfolio'

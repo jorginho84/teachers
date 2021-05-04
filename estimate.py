@@ -198,23 +198,23 @@ class estimate:
         
         self.param0.alphas[0][0] = beta[0]
         self.param0.alphas[0][1] = beta[1]
-        self.param0.alphas[0][2] = beta[2]
-        self.param0.alphas[0][3] = beta[3]
-        self.param0.alphas[0][4] = beta[4]
-        self.param0.alphas[0][5] = beta[5]
-        self.param0.alphas[1][0] = beta[6]
-        self.param0.alphas[1][1] = beta[7]
-        self.param0.alphas[1][2] = beta[8]
-        self.param0.alphas[1][3] = beta[9]
-        self.param0.alphas[1][4] = beta[10]
-        self.param0.alphas[1][5] = beta[11]
-        self.param0.betas[0] = beta[12]
-        self.param0.betas[1] = beta[13]
-        self.param0.betas[2] = beta[14]
-        self.param0.betas[3] = beta[15]
-        self.param0.gammas[0] = beta[16]
-        self.param0.gammas[1] = beta[17]
-        self.param0.gammas[2] = beta[18]
+        #self.param0.alphas[0][2] = beta[2]
+        self.param0.alphas[0][3] = beta[2]
+        self.param0.alphas[0][4] = beta[3]
+        self.param0.alphas[0][5] = beta[4]
+        self.param0.alphas[1][0] = beta[5]
+        #self.param0.alphas[1][1] = beta[7]
+        self.param0.alphas[1][2] = beta[6]
+        self.param0.alphas[1][3] = beta[7]
+        self.param0.alphas[1][4] = beta[8]
+        self.param0.alphas[1][5] = beta[9]
+        self.param0.betas[0] = beta[10]
+        self.param0.betas[1] = beta[11]
+        self.param0.betas[2] = beta[12]
+        self.param0.betas[3] = beta[13]
+        self.param0.gammas[0] = beta[14]
+        self.param0.gammas[1] = beta[15]
+        self.param0.gammas[2] = beta[16]
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
@@ -295,12 +295,12 @@ class estimate:
         
         beta0 = np.array([self.param0.alphas[0][0],
                           self.param0.alphas[0][1],
-                          self.param0.alphas[0][2],
+                          #self.param0.alphas[0][2],
                           self.param0.alphas[0][3],
                           self.param0.alphas[0][4],
                           self.param0.alphas[0][5],
                           self.param0.alphas[1][0],
-                          self.param0.alphas[1][1],
+                          #self.param0.alphas[1][1],
                           self.param0.alphas[1][2],
                           self.param0.alphas[1][3],
                           self.param0.alphas[1][4],
