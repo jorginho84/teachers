@@ -464,9 +464,9 @@ class Utility(object):
 
         """
         effort_m1 = np.zeros(effort.shape)
-        effort_m = np.where(effort==1, 1, effort_m1)
+        effort_m = np.where(effort==1, 1, np.where(effort==3,1,effort_m1))
         effort_h1 = np.zeros(effort.shape)
-        effort_h = np.where((effort==2), 1, effort_h1)
+        effort_h = np.where(effort==2, 1, np.where(effort==3,1,effort_h1))
     
         eps = np.random.randn(self.N)*self.param.betas[3]
         
@@ -506,9 +506,9 @@ class Utility(object):
         p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
         
         effort_m1 = np.zeros(effort.shape)
-        effort_m = np.where(effort==1, 1, effort_m1)
+        effort_m = np.where(effort==1, 1, np.where(effort==3,1,effort_m1))
         effort_h1 = np.zeros(effort.shape)
-        effort_h = np.where((effort==2), 1, effort_h1)
+        effort_h = np.where(effort==2, 1, np.where(effort==3,1,effort_h1))
         
         pb = []
 
@@ -537,9 +537,9 @@ class Utility(object):
         """
         
         effort_m1 = np.zeros(effort.shape)
-        effort_m = np.where(effort==1, 1, effort_m1)
+        effort_m = np.where(effort==1, 1, np.where(effort==3,1,effort_m1))
         effort_h1 = np.zeros(effort.shape)
-        effort_h = np.where((effort==2), 1, effort_h1)
+        effort_h = np.where(effort==2, 1, np.where(effort==3,1,effort_h1))
         
         U_rsl = np.log(income) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.square(h)/2
 

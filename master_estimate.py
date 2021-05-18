@@ -33,7 +33,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v4.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v5.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -77,13 +77,14 @@ typeSchool = np.array(data['typeschool'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
+alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+      betas_nelder[3], betas_nelder[4]],
+     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+      betas_nelder[8], betas_nelder[9]]]
 
-alphas = [[betas_nelder[0], 0.15, 0 , betas_nelder[3] , betas_nelder[4], betas_nelder[5]],
-         [betas_nelder[6], 0, 0.15, betas_nelder[9], betas_nelder[10], betas_nelder[11]]]
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
 
-betas = [-0.42, 0.5, 0.5 ,0.5]
-
-gammas = [-0.15,-0.15,betas_nelder[18]]
+gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -182,5 +183,5 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v5.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v6.npy',betas_opt_me)
 
