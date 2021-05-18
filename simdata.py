@@ -58,12 +58,14 @@ class SimData:
         effort0 = np.zeros(self.N)
         effort1 = np.ones(self.N)
         effort2 = np.ones(self.N)*2
+        effort3 = np.ones(self.N)*3
         
-        u_l = self.util(effort0)
-        u_m = self.util(effort1)
-        u_h = self.util(effort2)
+        u_0 = self.util(effort0)
+        u_1 = self.util(effort1)
+        u_2 = self.util(effort2)
+        u_both = self.util(effort3)
         
-        u_v2 = np.array([u_l, u_m, u_h]).T
+        u_v2 = np.array([u_0, u_1, u_2, u_both]).T
         
         effort_v1 = np.argmax(u_v2, axis=1)
         
