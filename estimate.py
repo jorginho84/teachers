@@ -314,8 +314,8 @@ class estimate:
                           self.param0.gammas[2]])
       
         #Here we go
-        opt = minimize(self.objfunction, beta0,  method='Nelder-Mead', options={'maxiter':5000, 'maxfev': 90000, 'ftol': 1e-3, 'disp': True});
-		#opt = minimize(self.ll, beta0,  method='Nelder-Mead', options={'maxiter':5000, 'gtol': 1e-3, 'disp': True});
+        opt = minimize(self.objfunction, beta0,  method='Nelder-Mead', options={'maxiter':5000, 'maxfev': 90000, 'ftol': 1e-3, 'disp': True})
+        #opt = minimize(self.objfunction, beta0,  method='BFGS', options={'maxiter':5000, 'gtol': 1e-3, 'disp': True})
 		#opt = pybobyqa.solve(self.ll, beta0)
         
         return opt

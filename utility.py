@@ -221,11 +221,11 @@ class Utility(object):
         ATDPinitial = np.where((initial_p==1) & (self.years > 1), (Proinitial/15)*(self.HOURS/full_contract)*biennium, ATDPinitial2)
         ATDPearly = np.where((initial_p==2) & (self.years > 3), (ProEarly/15)*(self.HOURS/full_contract)*biennium, ATDPearly2)
         ATDPadvanced = np.where((initial_p==3) & (self.years > 3), (Proadvanced/15)*(self.HOURS/full_contract)*biennium, ATDPadvanced2)
-        ATDPadvancedfixed = np.where((initial_p==3) & (self.years > 3), (Proadvancedfixed/15)*(self.HOURS/full_contract)*biennium, ATDPadvancedfixed2)
+        ATDPadvancedfixed = np.where((initial_p==3) & (self.years > 3), (Proadvancedfixed)*(self.HOURS/full_contract), ATDPadvancedfixed2)
         ATDPexpert1 = np.where((initial_p==4) & (self.years > 7), (Proexpert1/15)*(self.HOURS/44)*biennium, ATDPexpert12)
-        ATDPexpert1fixed = np.where((initial_p==4) & (self.years > 7), (Proexpert1fixed/15)*(self.HOURS/full_contract)*biennium, ATDPexpert1fixed2)
+        ATDPexpert1fixed = np.where((initial_p==4) & (self.years > 7), (Proexpert1fixed)*(self.HOURS/full_contract), ATDPexpert1fixed2)
         ATDPexpert2 = np.where((initial_p==5) & (self.years > 11), (Proexpert2/15)*(self.HOURS/full_contract)*biennium, ATDPexpert22)
-        ATDPexpert2fixed = np.where((initial_p==5) & (self.years > 11), (Proexpert2fixed/15)*(self.HOURS/full_contract)*biennium, ATDPexpert2fixed2)
+        ATDPexpert2fixed = np.where((initial_p==5) & (self.years > 11), (Proexpert2fixed)*(self.HOURS/full_contract), ATDPexpert2fixed2)
         
         # " AEP (Teaching excellence)
         

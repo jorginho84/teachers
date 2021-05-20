@@ -28,7 +28,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 from utility import Utility
 
 
-class Count_1(Utility):
+class Count_2(Utility):
     """ 
 
     This class modifies the economic environment of the agent
@@ -44,11 +44,89 @@ class Count_1(Utility):
         
         Utility.__init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
                  catPort, catPrueba, TrameI)
+    def placement(self,tscores):
+
+        # *I want to replicate the typecasting of the teachers to the tramo
+        # puntajeportafolio := p1
+        # Puntajepruebaconocimientosespecí := self.p2
+        # The tranche nameXY is defined how X: row nad Y:column
+        # We have {'INICIAL': 1, 'TEMPRANO': 2, 'AVANZADO': 3 , 'EXPERTO I': 4, 'EXPERTO II': 5}
+
+        # Inicializar vector initial_p
+        #initial_p = np.array(['']*(len(self.p1)))
+        placementF = np.zeros(self.p1.shape[0])
+        
+        placementF[(self.years < 4)]=1
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2 
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  (tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=1
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
+        placementF[ ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=4
+        placementF[ (tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
+        placementF[ (tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=1
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=5
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=5
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=5
+        placementF[  (tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=1
+        placementF[  (tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=1
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
+        placementF[  ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
+        placementF[  ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
+        placementF[  ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
+        placementF[  ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=4
+        np.warnings.filterwarnings('ignore')
+        
+
+        return placementF
         
     
     def income(self, initial_p,tscores):
         """
-        Defines the new budget set
+        takes treatment dummy, teach test scores, 
+        initial placement, and self.years of experience
 
         """
         # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
@@ -123,14 +201,14 @@ class Count_1(Utility):
         Proexpert2fixed = self.param.pol[7] 
         
         
-        ATDPinitial = np.where((initial_p==1) & (self.years > 1), (Proinitial/15)*(self.HOURS/full_contract)*biennium, ATDPinitial2)
-        ATDPearly = np.where((initial_p==2) & (self.years > 3), (ProEarly/15)*(self.HOURS/full_contract)*biennium, ATDPearly2)
-        ATDPadvanced = np.where((initial_p==3) & (self.years > 3), (Proadvanced/15)*(self.HOURS/full_contract)*biennium, ATDPadvanced2)
-        ATDPadvancedfixed = np.where((initial_p==3) & (self.years > 3), (Proadvancedfixed)*(self.HOURS/full_contract), ATDPadvancedfixed2)
-        ATDPexpert1 = np.where((initial_p==4) & (self.years > 7), (Proexpert1/15)*(self.HOURS/44)*biennium, ATDPexpert12)
-        ATDPexpert1fixed = np.where((initial_p==4) & (self.years > 7), (Proexpert1fixed)*(self.HOURS/full_contract), ATDPexpert1fixed2)
-        ATDPexpert2 = np.where((initial_p==5) & (self.years > 11), (Proexpert2/15)*(self.HOURS/full_contract)*biennium, ATDPexpert22)
-        ATDPexpert2fixed = np.where((initial_p==5) & (self.years > 11), (Proexpert2fixed)*(self.HOURS/full_contract), ATDPexpert2fixed2)
+        ATDPinitial = np.where((initial_p==1) , (Proinitial/15)*(self.HOURS/full_contract)*biennium, ATDPinitial2)
+        ATDPearly = np.where((initial_p==2) , (ProEarly/15)*(self.HOURS/full_contract)*biennium, ATDPearly2)
+        ATDPadvanced = np.where((initial_p==3), (Proadvanced/15)*(self.HOURS/full_contract)*biennium, ATDPadvanced2)
+        ATDPadvancedfixed = np.where((initial_p==3) , (Proadvancedfixed)*(self.HOURS/full_contract), ATDPadvancedfixed2)
+        ATDPexpert1 = np.where((initial_p==4) , (Proexpert1/15)*(self.HOURS/44)*biennium, ATDPexpert12)
+        ATDPexpert1fixed = np.where((initial_p==4) , (Proexpert1fixed)*(self.HOURS/full_contract), ATDPexpert1fixed2)
+        ATDPexpert2 = np.where((initial_p==5) , (Proexpert2/15)*(self.HOURS/full_contract)*biennium, ATDPexpert22)
+        ATDPexpert2fixed = np.where((initial_p==5) , (Proexpert2fixed)*(self.HOURS/full_contract), ATDPexpert2fixed2)
         
         # " AEP (Teaching excellence)
         
@@ -139,7 +217,7 @@ class Count_1(Utility):
         AcreditaTramoIII = self.param.AEP[2]
     
             
-         # " Asignación de perfeccionamiento
+        # " Asignación de perfeccionamiento
         # " This is the new asignment
         
         AsigElemt = np.where(((self.typeSchool==1)), RBMNElemt*0.4*(biennium/15), AsigElemt2)
@@ -177,13 +255,7 @@ class Count_1(Utility):
         
         salary = sum([salary1,salary2,salary3,salary4,salary5,salary6,salary7,salary8,salary9,salary10, \
                       salary11,salary12,salary13,salary14,salary15,salary16,salary17,salary18,salary19,salary20])
-        
-                    #taking the minimum/max salary to fit a line
-        b = (3250-1500)/3
-        #b = 5000
-        a = 1500 - b
-        
-        salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2
+
 
         return salary
 

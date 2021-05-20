@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 15 15:59:57 2021
-
-@author: pjac2
+This code produces ATTs of a policy with no experience requirement
 """
 
 
@@ -28,7 +26,7 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-from utility_counterfactual import Count_1
+from utility_counterfactual_exp import Count_2
 import simdata_c as sdc
 #import pybobyqa
 #import xlsxwriter
@@ -137,13 +135,6 @@ for x in range(0,2):
         simce_sims[:,j] = opt['Opt Simce']
     
     simce.append(np.mean(simce_sims,axis=1))
-    
- 
-for j in range(1,6,1):
-    print ('')
-    print ('ATT conditional on quintile ' + str(j), np.mean(simce[1][data['Rsquare_5']==j] - simce[0][data['Rsquare_5']==j] ))
-    print ('')
-    
 
 
 
@@ -159,7 +150,7 @@ att = simce[1] - simce[0]
 
 treatment = np.ones(N)
     
-model_c = Count_1(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+model_c = Count_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
 count_sd = sdc.SimDataC(N,model_c,treatment)
 
 simce_c_sim = np.zeros((N,n_sim))
@@ -178,11 +169,25 @@ y_c = np.zeros(5)
 y_ses = np.zeros(5)
 x = [1,2,3,4,5]
 
-for j in range(5):
-    y[j] = np.mean(att[data['Rsquare_5']==j+1])
-    y_c[j] = np.mean(att_c[data['Rsquare_5']==j+1])
-    y_ses[j] = np.std(att[data['Rsquare_5']==j+1])/att[data['Rsquare_5']==j+1].shape[0]
-    
+
+y[0] = np.mean(att[data['experience']<=10])
+y[1] = np.mean(att[(data['experience']>=11) & (data['experience']<=17)])
+y[2] = np.mean(att[(data['experience']>=18) & (data['experience']<=27)])
+y[3] = np.mean(att[(data['experience']>=28) & (data['experience']<=35)])
+y[4] = np.mean(att[data['experience']>=36])
+ 
+y_c[0] = np.mean(att_c[data['experience']<=10])
+y_c[1] = np.mean(att_c[(data['experience']>=11) & (data['experience'])<=17])
+y_c[2] = np.mean(att_c[(data['experience']>=18) & (data['experience'])<=27])
+y_c[3] = np.mean(att_c[(data['experience']>=28) & (data['experience'])<=35])
+y_c[4] = np.mean(att_c[data['experience']>=36])
+ 
+y_ses[0] = np.mean(att[data['experience']<=10])/att[data['experience']<=10].shape[0]
+y_ses[1] = np.mean(att[(data['experience']>=11) & (data['experience']<=17)])/att[(data['experience']>=11) & (data['experience']<=17)].shape[0]
+y_ses[2] = np.mean(att[(data['experience']>=18) & (data['experience']<=27)])/att[(data['experience']>=18) & (data['experience']<=27)].shape[0]
+y_ses[3] = np.mean(att[(data['experience']>=28) & (data['experience']<=35)])/att[(data['experience']>=28) & (data['experience']<=35)].shape[0]
+y_ses[4] = np.mean(att[data['experience']>=36])/att[data['experience']>=36].shape[0]
+ 
 
 
 
@@ -192,9 +197,11 @@ plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
 plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
 ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)))
-ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
+ax.text(1,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
-ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.set_xlabel(r'Baseline experience', fontsize=13)
+ax.set_xticks([1,2,3,4,5])
+ax.set_xticklabels([ r'$\leq$ 10', '11-17','18-27', '28-35', r'36$\leq$'])
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
@@ -206,6 +213,6 @@ ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1.pdf', format='pdf')
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual_exp.pdf', format='pdf')
 
 
