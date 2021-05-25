@@ -41,7 +41,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v7.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v8.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -52,6 +52,8 @@ N = np.array(data['experience']).shape[0]
 n_sim = 100
 
 simce = []
+baseline_p = [] 
+
 
 
 
@@ -130,13 +132,17 @@ for x in range(0,2):
     # SIMULACIÓN SIMDATA
     
     simce_sims = np.zeros((N,n_sim))
+    baseline_sims = np.zeros((N,n_sim,2))
     
     for j in range(n_sim):
         modelSD = sd.SimData(N,model,treatment)
         opt = modelSD.choice(treatment)
         simce_sims[:,j] = opt['Opt Simce']
+        baseline_sims[:,j,0] = opt['Potential scores'][0]
+        baseline_sims[:,j,1] = opt['Potential scores'][1]
     
     simce.append(np.mean(simce_sims,axis=1))
+    baseline_p.append(np.mean(baseline_sims,axis=1))
     
  
 for j in range(1,6,1):
@@ -207,5 +213,47 @@ ax.legend(loc = 'upper left',fontsize = 13)
 plt.tight_layout()
 plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1.pdf', format='pdf')
+
+
+##Categorías de potential (two for two measures)
+n_quant = 10
+q_potential = []
+for j in range(2):
+    q_potential.append(pd.qcut(baseline_p[0][:,j],n_quant,labels=False))
+
+
+y = np.zeros(n_quant)
+y_c = np.zeros(n_quant)
+y_ses = np.zeros(n_quant)
+x = range(n_quant)
+
+
+for j in range(n_quant):
+    y[j] = np.mean(att[q_potential[0]==j])
+    y_c[j] = np.mean(att_c[q_potential[0]==j])
+    y_ses[j] = np.std(att[q_potential[0]==j])/att[q_potential[0]==j].shape[0]
+ 
+
+fig, ax=plt.subplots()
+plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD')
+plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
+plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
+ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)))
+ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
+ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+ax.set_ylim(0.3,0.6)
+ax.legend(loc = 'best',fontsize = 13)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores.pdf', format='pdf')
 
 

@@ -44,9 +44,9 @@ class SimDataC:
         
         teacher_scores = self.model.t_test(effort)
         
-        placement = self.model.placement(teacher_scores)
+        placement = self.model.placement(teacher_scores[0])
         
-        income = self.model.income(placement,teacher_scores)
+        income = self.model.income(placement,teacher_scores[0])
         
         simce = self.model.student_h(effort)
         
@@ -75,20 +75,15 @@ class SimDataC:
         
         teacher_scores = self.model.t_test(effort_v1)
         
-        placement = self.model.placement(teacher_scores)
+        placement = self.model.placement(teacher_scores[0])
         
-        income = self.model.income(placement,teacher_scores)
+        income = self.model.income(placement,teacher_scores[0])
         
         simce = self.model.student_h(effort_v1)
         
-        #updating
-        effort_opt = effort_v1
-        teacher_opt = teacher_scores
-        simce_opt = simce
-        placement_opt = placement
-        income_opt = income
-        treatment = treatment
-        
-                        
-        return {'Opt Effort': effort_opt, 'Opt Teacher': teacher_opt, 'Opt Simce': simce_opt,
-                'Opt Placement': placement_opt, 'Opt Income': income_opt, 'Treatment': treatment}
+                              
+        return {'Opt Effort': effort_v1, 'Opt Simce': simce,
+                'Opt Placement': placement, 'Opt Income': income, 'Treatment': treatment,
+                'Opt Teacher': teacher_scores[0], 'Potential scores': teacher_scores[1]}
+    
+    

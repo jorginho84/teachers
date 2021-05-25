@@ -515,15 +515,22 @@ class Utility(object):
         effort_h1 = np.zeros(effort.shape)
         effort_h = np.where(effort==2, 1, np.where(effort==3,1,effort_h1))
         
+       
         pb = []
+        pb_potential = []
 
            
         for j in range(2):
             
+            shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
+            
             pb.append(self.param.alphas[j][0] + \
                      self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
                          self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
-                             np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)) 
+                             shock) 
+                
+            pb_potential.append(self.param.alphas[j][0] + \
+                                self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past)
         
         
         pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3
@@ -531,7 +538,7 @@ class Utility(object):
 
         p = [pv1, pv2]
                 
-        return p
+        return [p,pb_potential]
 
     def utility(self, income, effort, h):
         """
