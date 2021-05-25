@@ -52,7 +52,8 @@ N = np.array(data['experience']).shape[0]
 n_sim = 100
 
 simce = []
-baseline_p = [] 
+baseline_p = []
+income = [] 
 
 
 
@@ -132,23 +133,20 @@ for x in range(0,2):
     # SIMULACIÓN SIMDATA
     
     simce_sims = np.zeros((N,n_sim))
+    income_sims = np.zeros((N,n_sim))
     baseline_sims = np.zeros((N,n_sim,2))
     
     for j in range(n_sim):
         modelSD = sd.SimData(N,model,treatment)
         opt = modelSD.choice(treatment)
         simce_sims[:,j] = opt['Opt Simce']
+        income_sims[:,j] = opt['Opt Income']
         baseline_sims[:,j,0] = opt['Potential scores'][0]
         baseline_sims[:,j,1] = opt['Potential scores'][1]
     
     simce.append(np.mean(simce_sims,axis=1))
+    income.append(np.mean(income_sims,axis=1))
     baseline_p.append(np.mean(baseline_sims,axis=1))
-    
- 
-for j in range(1,6,1):
-    print ('')
-    print ('ATT conditional on quintile ' + str(j), np.mean(simce[1][data['Rsquare_5']==j] - simce[0][data['Rsquare_5']==j] ))
-    print ('')
     
 
 
@@ -160,23 +158,27 @@ print ('')
 
 #For validation purposes
 att = simce[1] - simce[0]
+att_cost = income[1] - income[0]
 
 #Effects under a new system
-
 treatment = np.ones(N)
     
 model_c = Count_1(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
 count_sd = sdc.SimDataC(N,model_c,treatment)
 
 simce_c_sim = np.zeros((N,n_sim))
+income_c_sim = np.zeros((N,n_sim))
 
 for j in range(n_sim):
     opt = count_sd.choice(treatment)
     simce_c_sim[:,j] = opt['Opt Simce']
+    income_c_sim[:,j] = opt['Opt Income']
 
 simce_c = np.mean(simce_c_sim, axis=1)
+income_c = np.mean(income_c_sim, axis=1)
 
 att_c = simce_c - simce[0]
+att_cost_c = income_c - income[0]
 
 
 y = np.zeros(5)
@@ -242,7 +244,7 @@ plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
 ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)))
 ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
-ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.set_xlabel(r'Deciles of baseline score', fontsize=13)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
@@ -257,3 +259,10 @@ plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores.pdf', format='pdf')
 
 
+print ('')
+print ('Cost of original reform ', np.mean(att_cost))
+print ('')
+
+print ('')
+print ('Cost of alternative ', np.mean(att_cost_c))
+print ('')

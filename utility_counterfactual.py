@@ -180,8 +180,8 @@ class Count_1(Utility):
         
                     #taking the minimum/max salary to fit a line
         #b = (3250-1500)/3
-        b = 1500
-        a = 1500 - b
+        b = 900
+        a = 200
         
         salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2
 
