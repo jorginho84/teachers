@@ -129,7 +129,9 @@ hw = [value[0]/dolar,value[1]/dolar]
 
 porc = [0.0338, 0.0333]
 
-Asig = [150000,100000,50000]
+IPC = 1.3
+
+Asig = [IPC*150000,IPC*100000,IPC*50000]
 AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 
 # *** This is withouth teaching career ***
