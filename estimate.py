@@ -116,13 +116,13 @@ class estimate:
             # Here we consider the data for treatmetn group
             datav = datadfT[datadfT['TREATMENT']==1]
             #8
-            perc_init[i] = (sum(datav['PLACEMENT']==1) / len(datav['PLACEMENT'])) 
+            perc_init[i] = np.mean(datav['PLACEMENT']==1)
             #9
-            perc_inter[i] = (sum(datav['PLACEMENT']==2) / len(datav['PLACEMENT'])) 
+            perc_inter[i] = np.mean(datav['PLACEMENT']==2) 
             #10
-            perc_advan[i] = (sum(datav['PLACEMENT']==3) / len(datav['PLACEMENT'])) 
+            perc_advan[i] = np.mean(datav['PLACEMENT']==3) 
             #11
-            perc_expert[i] = ((sum(datav['PLACEMENT']==4)+sum(datav['PLACEMENT']==5)) / len(datav['PLACEMENT'])) 
+            perc_expert[i] = np.mean((datav['PLACEMENT']==4)| (datav['PLACEMENT']==5))
             datadf = pd.DataFrame(datav, columns=['SIMCE','PORTFOLIO','TEST', 'EXP'])
             corrM = datadf.corr()
             #12 SIMCE vs Portfolio
@@ -137,8 +137,8 @@ class estimate:
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             #datav0 = datadfT[datadfT['TREATMENT']==0]
             datav_2 = datadfT[datadfT['TREATMENT']==0]
-            perc_inter_c[i] = (sum(datav_2['PLACEMENT']==2) / len(datav_2['PLACEMENT']))
-            perc_avanexpet_c[i] = (sum(datav_2['PLACEMENT']==3) / (sum(datav_2['PLACEMENT']==4)+sum(datav_2['PLACEMENT']==5))) / len(datav_2['PLACEMENT'])
+            perc_inter_c[i] = np.mean((datav_2['PLACEMENT']==2))
+            perc_avanexpet_c[i] = np.mean((datav['PLACEMENT']==3) | (datav['PLACEMENT']==4)| (datav['PLACEMENT']==5))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)
