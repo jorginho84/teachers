@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:\Git\IncomeMod")
+sys.path.append("D:\Git\TeacherSalaryv2")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -30,7 +30,7 @@ import time
 # DATA 2018
 
 
-data = pd.read_stata('D:\Git\IncomeMod\data_pythonpast.dta')
+data = pd.read_stata('D:\Git\TeacherSalaryv2\data_pythonpast.dta')
 
 
 
