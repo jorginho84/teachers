@@ -98,7 +98,7 @@ def corr_simulate(data, B):
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
         datav_2 = rev[rev['d_trat']==0]
         perc_inter_c[i] = (sum(datav_2['trame']==2) / len(datav_2['trame']))
-        perc_avanexpet_c[i] = (sum(datav_2['trame']==3) / (sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
+        perc_avanexpet_c[i] = ((sum(datav_2['trame']==3) + sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
         p1 = datav_2['score_port'].to_numpy()
         p2 = datav_2['score_test'].to_numpy()
         p1v1 = np.where(np.isnan(p1), 0, p1)
@@ -197,8 +197,7 @@ print(result)
 ##### PYTHON TO EXCEL #####
 
 wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
-
-sheet = wb.active
+sheet = wb["data"]
 
 
 sheet['E5'] = result['Mean Portfolio']
