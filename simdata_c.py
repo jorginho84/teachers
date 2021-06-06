@@ -25,13 +25,12 @@ class SimDataC:
     The rest are state variables at period 0
     """
     
-    def __init__(self,N,model,treatment):
+    def __init__(self,N,model):
         """
         model: a utility instance (with arbitrary parameters)
         """
         self.N = N
         self.model = model
-        self.treatment = treatment
         
     def util(self,effort):
         """
@@ -54,7 +53,7 @@ class SimDataC:
         return self.model.utility(income, effort, simce)
     
     
-    def choice(self,treatment):
+    def choice(self):
         """
         computes optimal effort values. Maximizes util(effort).
         """
@@ -83,7 +82,7 @@ class SimDataC:
         
                               
         return {'Opt Effort': effort_v1, 'Opt Simce': simce,
-                'Opt Placement': placement, 'Opt Income': income, 'Treatment': treatment,
+                'Opt Placement': placement, 'Opt Income': income,
                 'Opt Teacher': teacher_scores[0], 'Potential scores': teacher_scores[1]}
     
     

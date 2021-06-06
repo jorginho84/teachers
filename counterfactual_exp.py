@@ -39,7 +39,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v8.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v9.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -84,9 +84,9 @@ for x in range(0,2):
      [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
+    betas = [-0.36, betas_nelder[11], betas_nelder[12] ,0.46]
 
-    gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
+    gammas = [betas_nelder[14],betas_nelder[15],0.3]
     
     dolar= 600
     value = [14403, 15155]
@@ -130,8 +130,8 @@ for x in range(0,2):
     simce_sims = np.zeros((N,n_sim))
     
     for j in range(n_sim):
-        modelSD = sd.SimData(N,model,treatment)
-        opt = modelSD.choice(treatment)
+        modelSD = sd.SimData(N,model)
+        opt = modelSD.choice()
         simce_sims[:,j] = opt['Opt Simce']
     
     simce.append(np.mean(simce_sims,axis=1))
@@ -151,12 +151,12 @@ att = simce[1] - simce[0]
 treatment = np.ones(N)
     
 model_c = Count_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
-count_sd = sdc.SimDataC(N,model_c,treatment)
+count_sd = sdc.SimDataC(N,model_c)
 
 simce_c_sim = np.zeros((N,n_sim))
 
 for j in range(n_sim):
-    opt = count_sd.choice(treatment)
+    opt = count_sd.choice()
     simce_c_sim[:,j] = opt['Opt Simce']
 
 simce_c = np.mean(simce_c_sim, axis=1)

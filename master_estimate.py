@@ -33,7 +33,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v7.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v9.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -84,7 +84,7 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
 
-gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
+gammas = [-0.15,-0.15,betas_nelder[16]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -131,10 +131,10 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 
-w_matrix = w_matrix = np.zeros((19,19))
 ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+w_matrix = w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
-for j in range(19):
+for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
 
 
@@ -183,5 +183,5 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v8.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy',betas_opt_me)
 

@@ -97,7 +97,6 @@ def corr_simulate(data, B):
         est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
         datav_2 = rev[rev['d_trat']==0]
-        perc_inter_c[i] = (sum(datav_2['trame']==2) / len(datav_2['trame']))
         perc_avanexpet_c[i] = ((sum(datav_2['trame']==3) + sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
         p1 = datav_2['score_port'].to_numpy()
         p2 = datav_2['score_test'].to_numpy()
@@ -124,7 +123,6 @@ def corr_simulate(data, B):
     est_sim_mean_SIMCE = np.mean(est_mean_SIMCE)
     est_sim_mean_PP = np.mean(est_mean_PortTest)
     est_sim_var_SIMCE = np.mean(est_var_SIMCE)
-    est_sim_inter_c = np.mean(perc_inter_c)
     est_sim_advexp_c = np.mean(perc_avanexpet_c)
     est_sim_Testp = np.mean(est_corrTestp)
     est_sim_Portp = np.mean(est_corrPortp)
@@ -144,7 +142,6 @@ def corr_simulate(data, B):
     error_mean_SIMCE = np.std(est_mean_SIMCE)
     error_var_SIMCE = np.std(est_var_SIMCE)
     error_mean_PP = np.std(est_mean_PortTest)
-    error_inter_c_PP = np.std(perc_inter_c)
     error_advexp_c_PP = np.std(perc_avanexpet_c)
     error_Testp = np.std(est_corrTestp)
     error_Portp = np.std(est_corrPortp)
@@ -165,7 +162,6 @@ def corr_simulate(data, B):
             'Mean SIMCE': est_sim_mean_SIMCE,
             'Var SIMCE': est_sim_var_SIMCE,
             'Mean PortTest': est_sim_mean_PP,
-            'perc inter control': est_sim_inter_c,
             'perc adv/exp control': est_sim_advexp_c,
             'Estimation Portfolio vs p': est_sim_Testp,
             'Estimation Test vs p': est_sim_Portp,
@@ -184,7 +180,6 @@ def corr_simulate(data, B):
                 'Error SIMCE': error_mean_SIMCE,
                 'Error var SIMCE': error_var_SIMCE,
                 'Error mean Port-Test': error_mean_PP,
-                'Error inter control': error_inter_c_PP,
                 'Error adv/exp control': error_advexp_c_PP,
                 'Error Portfolio vs p': error_Testp,
                 'Error Test vs p': error_Portp}
@@ -215,7 +210,6 @@ sheet['E16'] = result['Estimation SIMCE vs Portfolio']
 sheet['E17'] = result['Estimation SIMCE vs Prueba']
 sheet['E18'] = result['Estimation EXP vs Portfolio']
 sheet['E19'] = result['Estimation EXP vs Prueba']
-sheet['E20'] = result['perc inter control']
 sheet['E21'] = result['perc adv/exp control']
 sheet['E22'] = result['Estimation Test vs p']
 sheet['E23'] = result['Estimation Portfolio vs p']
@@ -237,7 +231,6 @@ sheet['F16'] = result['Error SIMCE vs Portfolio']
 sheet['F17'] = result['Error SIMCE vs Test']
 sheet['F18'] = result['Error Exp vs Portfolio']
 sheet['F19'] = result['Error Exp vs Pru']
-sheet['F20'] = result['Error inter control']
 sheet['F21'] = result['Error adv/exp control']
 sheet['F22'] = result['Error Test vs p']
 sheet['F23'] = result['Error Portfolio vs p']
@@ -261,7 +254,6 @@ result['Error SIMCE vs Portfolio'],
 result['Error SIMCE vs Test'],
 result['Error Exp vs Portfolio'],
 result['Error Exp vs Pru'],
-result['Error inter control'],
 result['Error adv/exp control'],
 result['Error Test vs p'],
 result['Error Portfolio vs p'],
@@ -282,7 +274,6 @@ result['Estimation SIMCE vs Portfolio'],
 result['Estimation SIMCE vs Prueba'],
 result['Estimation EXP vs Portfolio'],
 result['Estimation EXP vs Prueba'],
-result['perc inter control'],
 result['perc adv/exp control'],
 result['Estimation Test vs p'],
 result['Estimation Portfolio vs p']])

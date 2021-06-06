@@ -37,7 +37,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v8.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v9.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -118,7 +118,7 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
 
-gammas = [betas_nelder[14],betas_nelder[15],0.3]
+gammas = [-0.15,-0.15,betas_nelder[16]]
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -159,18 +159,19 @@ progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
 
 pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
-
+    
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
 
-modelSD = sd.SimData(N,model,treatment)
+modelSD = sd.SimData(N,model)
 
-w_matrix = w_matrix = np.zeros((19,19))
+
 ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+w_matrix = w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
-for j in range(19):
+for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
@@ -250,7 +251,6 @@ sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
 sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
 sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
 sheet['D19'] = corr_data['Estimation EXP vs Prueba']
-sheet['D20'] = corr_data['perc inter control']
 sheet['D21'] = corr_data['perc adv/exp control']
 sheet['D22'] = corr_data['Estimation Test vs p']
 sheet['D23'] = corr_data['Estimation Portfolio vs p']
@@ -272,7 +272,6 @@ corr_data['Estimation SIMCE vs Portfolio'],
 corr_data['Estimation SIMCE vs Prueba'],
 corr_data['Estimation EXP vs Portfolio'],
 corr_data['Estimation EXP vs Prueba'],
-corr_data['perc inter control'],
 corr_data['perc adv/exp control'],
 corr_data['Estimation Test vs p'],
 corr_data['Estimation Portfolio vs p']])
@@ -286,4 +285,11 @@ weight = x_vector**2/ses_opt**2
 
 wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
+opt = modelSD.choice()
+print('OPt effort % no effort, control', np.mean(opt['Opt Effort'][treatment == 0] == 0))
+print('OPt effort % no effort, treatment', np.mean(opt['Opt Effort'][treatment == 1] == 0))
 
+
+"""
+
+"""

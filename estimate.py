@@ -71,20 +71,20 @@ class estimate:
         est_mean_SIMCE = np.zeros(times)
         est_var_SIMCE = np.zeros(times)
         est_mean_PortTest = np.zeros(times)
-        perc_inter_c = np.zeros(times)
         perc_avanexpet_c = np.zeros(times)
         est_corrTestp = np.zeros(times)
         est_corrPortp = np.zeros(times)
         
+
         for i in range(1,times):
-            #defino el seed como el del profe, constante para cada muestra, seed i.
+           
             np.random.seed(i+100)
-            opt = modelSD.choice(self.treatment)
+            opt = modelSD.choice()
             dataf = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 
-                     'EXP': self.years, 'TREATMENT': opt['Treatment'], 'PLACEMENT': opt['Opt Placement'], 
+                     'EXP': self.years, 'PLACEMENT': opt['Opt Placement'][0], 
                      'PORTPAST': self.p1_0, 'TESTPAST': self.p2_0}
             # Here we consider the database complete
-            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'TREATMENT', 'PLACEMENT', 'PORTPAST', 'TESTPAST'])
+            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PLACEMENT', 'PORTPAST', 'TESTPAST'])
             #1 Portfolio mean
             est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
             #2 Portfolio var
@@ -114,7 +114,7 @@ class estimate:
             est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
 
             # Here we consider the data for treatmetn group
-            datav = datadfT[datadfT['TREATMENT']==1]
+            datav = datadfT[self.treatment==1]
             #8
             perc_init[i] = np.mean(datav['PLACEMENT']==1)
             #9
@@ -136,9 +136,8 @@ class estimate:
             #15 Experience vs Test
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             #datav0 = datadfT[datadfT['TREATMENT']==0]
-            datav_2 = datadfT[datadfT['TREATMENT']==0]
-            perc_inter_c[i] = np.mean((datav_2['PLACEMENT']==2))
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']==3) | (datav_2['PLACEMENT']==4)| (datav_2['PLACEMENT']==5))
+            datav_2 = datadfT[self.treatment==0]
+            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3) & (datav_2['PLACEMENT']<=5))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)
@@ -164,7 +163,6 @@ class estimate:
         est_sim_mean_SIMCE = np.mean(est_mean_SIMCE)
         est_sim_var_SIMCE = np.mean(est_var_SIMCE)
         est_sim_mean_PP = np.mean(est_mean_PortTest)
-        est_sim_inter_c = np.mean(perc_inter_c)
         est_sim_advexp_c = np.mean(perc_avanexpet_c)
         est_sim_Testp = np.mean(est_corrTestp)
         est_sim_Portp = np.mean(est_corrPortp)
@@ -186,7 +184,6 @@ class estimate:
             'Mean SIMCE': est_sim_mean_SIMCE,
             'Var SIMCE': est_sim_var_SIMCE,
             'Mean PortTest' : est_sim_mean_PP,
-            'perc inter control': est_sim_inter_c,
             'perc adv/exp control': est_sim_advexp_c,
             'Estimation Test vs p': est_sim_Testp,
             'Estimation Portfolio vs p': est_sim_Portp}
@@ -219,11 +216,9 @@ class estimate:
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
             
-        modelSD = sd.SimData(self.N,model,self.treatment)
+        modelSD = sd.SimData(self.N,model)
             
-        #modelestimate = est.estimate(self.N,modelSD,self.years,self.treatment,self.param0)
-        
-        #result = modelestimate.simulation(50)
+
         
         result = self.simulation(50,modelSD)
         
@@ -242,7 +237,6 @@ class estimate:
         beta_spru = result['Estimation SIMCE vs Prueba']       
         beta_expport = result['Estimation EXP vs Portfolio']
         beta_exptest = result['Estimation EXP vs Prueba']
-        beta_inter_c = result['perc inter control']
         beta_advexp_c = result['perc adv/exp control']
         beta_testp = result['Estimation Test vs p']
         beta_portp = result['Estimation Portfolio vs p']
@@ -252,7 +246,7 @@ class estimate:
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
             beta_vtest.size + beta_mporttest.size + beta_pinit.size + beta_pinter.size + beta_padv.size + \
                 beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
-                    beta_inter_c.size + beta_advexp_c.size + beta_testp.size + beta_portp.size
+                    beta_advexp_c.size + beta_testp.size + beta_portp.size
         
         #Outer matrix
         x_vector=np.zeros((num_par,1))
@@ -271,10 +265,9 @@ class estimate:
         x_vector[12,0] = beta_spru - self.moments_vector[12]
         x_vector[13,0] = beta_expport - self.moments_vector[13]
         x_vector[14,0] = beta_exptest - self.moments_vector[14]
-        x_vector[15,0] = beta_inter_c - self.moments_vector[15]
-        x_vector[16,0] = beta_advexp_c - self.moments_vector[16]
-        x_vector[17,0] = beta_testp - self.moments_vector[17]
-        x_vector[18,0] = beta_portp - self.moments_vector[18]
+        x_vector[15,0] = beta_advexp_c - self.moments_vector[15]
+        x_vector[16,0] = beta_testp - self.moments_vector[16]
+        x_vector[17,0] = beta_portp - self.moments_vector[17]
         
         
         #The Q metric
