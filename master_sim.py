@@ -122,15 +122,15 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
 
-initial_p = model.initial()
-print(initial_p)
+initial_pjhg = model.initial()
+print(initial_pjhg)
 
 
 between.betweenOne()
 
 print("Random Effort")
 
-misj = len(initial_p)
+misj = len(initial_pjhg)
 effort = np.random.randint(2, size=misj)
 print(effort)
 
@@ -148,12 +148,17 @@ print("Placement")
 placement = model.placement(tscores[0])
 print(placement)
 
+print(placement[0])
+print(placement[1])
+
 between.betweenOne()
 
 print("Income")
     
 income = model.income(placement)
 print(income)
+
+print(income[1])
 
 between.betweenOne()
 
