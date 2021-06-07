@@ -39,18 +39,16 @@ class SimDataC:
         
 
         
-        initial_p = self.model.initial()
-        
         teacher_scores = self.model.t_test(effort)
         
         placement = self.model.placement(teacher_scores[0])
         
         income = self.model.income(placement,teacher_scores[0])
         
-        simce = self.model.student_h(effort)
+        student_h = self.model.student_h(effort)
         
                 
-        return self.model.utility(income, effort, simce)
+        return self.model.utility(income, effort, student_h)
     
     
     def choice(self):
@@ -78,7 +76,9 @@ class SimDataC:
         
         income = self.model.income(placement,teacher_scores[0])
         
-        simce = self.model.student_h(effort_v1)
+        student_h = self.model.student_h(effort_v1)
+        
+        simce = self.model.measure_simce(student_h)
         
                               
         return {'Opt Effort': effort_v1, 'Opt Simce': simce,

@@ -137,7 +137,7 @@ class estimate:
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             #datav0 = datadfT[datadfT['TREATMENT']==0]
             datav_2 = datadfT[self.treatment==0]
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3) & (datav_2['PLACEMENT']<=5))
+            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=8) & (datav_2['PLACEMENT']<=9))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)

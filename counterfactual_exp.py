@@ -39,7 +39,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v9.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -84,9 +84,9 @@ for x in range(0,2):
      [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
-    betas = [-0.36, betas_nelder[11], betas_nelder[12] ,0.46]
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
 
-    gammas = [betas_nelder[14],betas_nelder[15],0.3]
+    gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
     
     dolar= 600
     value = [14403, 15155]

@@ -41,7 +41,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v8.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -137,8 +137,8 @@ for x in range(0,2):
     baseline_sims = np.zeros((N,n_sim,2))
     
     for j in range(n_sim):
-        modelSD = sd.SimData(N,model,treatment)
-        opt = modelSD.choice(treatment)
+        modelSD = sd.SimData(N,model)
+        opt = modelSD.choice()
         simce_sims[:,j] = opt['Opt Simce']
         income_sims[:,j] = opt['Opt Income']
         baseline_sims[:,j,0] = opt['Potential scores'][0]
@@ -164,13 +164,13 @@ att_cost = income[1] - income[0]
 treatment = np.ones(N)
     
 model_c = Count_1(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
-count_sd = sdc.SimDataC(N,model_c,treatment)
+count_sd = sdc.SimDataC(N,model_c)
 
 simce_c_sim = np.zeros((N,n_sim))
 income_c_sim = np.zeros((N,n_sim))
 
 for j in range(n_sim):
-    opt = count_sd.choice(treatment)
+    opt = count_sd.choice()
     simce_c_sim[:,j] = opt['Opt Simce']
     income_c_sim[:,j] = opt['Opt Income']
 

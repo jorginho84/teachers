@@ -514,7 +514,7 @@ class Utility(object):
 
     def t_test(self,effort):
         """
-        takes initial scores, effort and experiencie
+        takes initial scores, effort and experience
 
         returns: test scores and portfolio
 

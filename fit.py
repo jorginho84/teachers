@@ -37,7 +37,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v9.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -118,7 +118,7 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
 
-gammas = [-0.15,-0.15,betas_nelder[16]]
+gammas = [betas_nelder[14],betas_nelder[15],0.8]
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -204,12 +204,6 @@ qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
-#workbook = xlsxwriter.Workbook('D:\Git\TeacherPrincipal\Outcomes.xlsx')
-#worksheet = workbook.add_worksheet()
-
-#book = Workbook()
-#sheet = book.active
-
 wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 sheet = wb["data"]
 
@@ -288,6 +282,9 @@ wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outco
 opt = modelSD.choice()
 print('OPt effort % no effort, control', np.mean(opt['Opt Effort'][treatment == 0] == 0))
 print('OPt effort % no effort, treatment', np.mean(opt['Opt Effort'][treatment == 1] == 0))
+
+print('Mean income, control', np.mean(opt['Opt Income'][treatment == 0]))
+print('Mean income, treatment', np.mean(opt['Opt Income'][treatment == 1]))
 
 
 """
