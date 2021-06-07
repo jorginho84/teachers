@@ -21,7 +21,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
 #import int_linear
@@ -37,13 +37,13 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy")
+betas_nelder = np.load("D:\Git\WageError/betasopt_model_v10.npy")
 
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("D:\Git\WageError/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('D:\Git\WageError/data_pythonpast.dta')
 
 
 
@@ -168,8 +168,8 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-w_matrix = w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+ses_opt = np.load("D:\Git\WageError/ses_model.npy")
+w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
@@ -180,7 +180,6 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
 
 corr_data = output_ins.simulation(50,modelSD)
 print(corr_data)
-
 
 beta0 = np.array([param0.alphas[0][0],
                           param0.alphas[0][1],
@@ -204,7 +203,7 @@ qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
+wb = load_workbook('D:\Git\WageError/Outcomes.xlsx')
 sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
@@ -277,7 +276,7 @@ q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
 weight = x_vector**2/ses_opt**2
 
 
-wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
+wb.save('D:\Git\WageError/Outcomes.xlsx')
 
 opt = modelSD.choice()
 print('OPt effort % no effort, control', np.mean(opt['Opt Effort'][treatment == 0] == 0))

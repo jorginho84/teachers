@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:\Git\TeacherSalaryv2")
+sys.path.append("D:\Git\WageError")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -30,7 +30,7 @@ import time
 # DATA 2018
 
 
-data = pd.read_stata('D:\Git\TeacherSalaryv2\data_pythonpast.dta')
+data = pd.read_stata('D:\Git\WageError\data_pythonpast.dta')
 
 
 
@@ -145,7 +145,7 @@ between.betweenOne()
 
 print("Placement")
 
-placement = model.placement(tscores)
+placement = model.placement(tscores[0])
 print(placement)
 
 between.betweenOne()
