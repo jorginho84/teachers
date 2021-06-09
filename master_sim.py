@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:\Git\WageError")
+sys.path.append("D:/Git/UpdatePlacement")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -30,7 +30,7 @@ import time
 # DATA 2018
 
 
-data = pd.read_stata('D:\Git\WageError\data_pythonpast.dta')
+data = pd.read_stata('D:/Git/UpdatePlacement\data_pythonpast.dta')
 
 
 
@@ -122,15 +122,15 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
 
-initial_pjhg = model.initial()
-print(initial_pjhg)
+initial_asim = model.initial()
+print(initial_asim)
 
 
 between.betweenOne()
 
 print("Random Effort")
 
-misj = len(initial_pjhg)
+misj = len(initial_asim)
 effort = np.random.randint(2, size=misj)
 print(effort)
 
