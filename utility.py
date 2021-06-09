@@ -173,11 +173,8 @@ class Utility(object):
         HvalueS = self.param.hw[1]
         
         initial_p_2 = initial_p[0].copy()
-        print(initial_p)
         initial_p_aep = initial_p[1].copy()
-        print(initial_p_aep)
-        
-        
+       
         RBMNElemt2 = np.zeros(initial_p_2.shape[0])
         RBMNSecond2 = np.zeros(initial_p_2.shape[0])
         ExpTrameE2 = np.zeros(initial_p_2.shape[0])
@@ -430,72 +427,7 @@ class Utility(object):
         
         return [nexttramo, distancetrame]
     
-    """
-    def distance(self, initial_pF):
-        
-        #Returns
-        #-------
-        #distancetrame : Distance to next trame
-    
-             
-        
-        concat = self.catPort +  self.catPrueba
-        concat = concat.reshape(-1)
-        concat2fg = [str(i) for i in initial_pF]
-        arr = np.array(concat2fg)
-        concatlast = arr + concat
-        
-        row = np.zeros(self.catPort.shape)
-        
-        row[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
-            (concatlast =="1.0E")]= 1
-        row[(concatlast =="1.0ED") | (concatlast =="1.0EC") | (concatlast =="1.0EB") | (concatlast =="1.0EA")]= 2
-        row[(concatlast =="2.0DA") | (concatlast =="2.0DB") | (concatlast =="2.0D") | (concatlast =="1.0DA") | \
-            (concatlast =="3.0D") | (concatlast =="2.0D") | (concatlast =="2.0ED") | (concatlast =="2.0EC") | \
-                (concatlast =="2.0EB") | (concatlast =="2.0DD") | (concatlast =="2.0DC") | (concatlast =="3.0DA") | \
-                    (concatlast =="3.0E") | (concatlast =="3.0DB") | (concatlast =="3.0EC") | (concatlast =="3.0DC") | \
-                        (concatlast =="3.0ED") | (concatlast =="3.0DD") | (concatlast =="3.0EA") | (concatlast =="3.0EB")]= 2.26
-        row[(concatlast =="3.0CA") | (concatlast =="4.0CA") | (concatlast =="4.0CB") | (concatlast =="4.0DA") | \
-            (concatlast =="4.0CC") | (concatlast =="4.0DB") | (concatlast =="4.0EA")]= 2.51
-    
-        
-        col = np.zeros(self.catPort.shape)
-        
-        col[(concatlast =="1.0A")]= 1
-        col[(concatlast =="2.0BD") | (concatlast =="1.0DD") | (concatlast =="2.0B") | (concatlast =="1.0B") | \
-            (concatlast =="2.0AD") | (concatlast =="1.0BD") | (concatlast =="3.0A") | (concatlast =="3.0AD") | \
-                (concatlast =="1.0BD")]= 1.88
-        col[(concatlast =="1.0ED") | (concatlast =="1.0EC") | (concatlast =="1.0DD") | (concatlast =="1.0DC") | \
-            (concatlast =="1.0CD") | (concatlast =="2.0CC") | (concatlast =="1.0D") | (concatlast =="3.0BC") | \
-                (concatlast =="2.0C") | (concatlast =="3.0BD") | (concatlast =="4.0AC") | (concatlast =="1.0C") | \
-                    (concatlast =="3.0B") | (concatlast =="1.0CC") | (concatlast =="2.0ED") | (concatlast =="2.0EC") | \
-                        (concatlast =="2.0DD") | (concatlast =="2.0DC") | (concatlast =="2.0CD")]= 2.75
-        col[(concatlast =="4.0AB") | (concatlast =="4.0BB") | (concatlast =="3.0CB") | (concatlast =="1.0DB") | \
-            (concatlast =="3.0CC") | (concatlast =="3.0C") | (concatlast =="3.0CD") | (concatlast =="3.0EC") | \
-                (concatlast =="3.0DB") | (concatlast =="3.0ED") | (concatlast =="3.0DC") | (concatlast =="3.0DD") | \
-                    (concatlast =="3.0EB") | (concatlast =="4.0BC") | (concatlast =="4.0CB") | (concatlast =="4.0CC") | \
-                        (concatlast =="4.0DB")]= 3.38
-        
-        susX2 = np.zeros(self.catPort.shape)
-        susX2 = susX2.reshape(-1)
-        susY2 = np.zeros(self.catPort.shape)
-        susY2 = susY2.reshape(-1)
-            
-        row = row.reshape(-1)
-        p1 = self.p1.reshape(-1)
-        susX = np.where((row != 0 ), p1 - row, susX2)
-        col = col.reshape(-1)
-        p2 = self.p2.reshape(-1)
-        susY = np.where((col != 0), p2 - col, susY2) 
-        squareX = np.square(susX)
-        squareY = np.square(susY)
-        sumsquare = squareX + squareY
-        finalsquare = np.sqrt(sumsquare)
-        
-        distancetrame = finalsquare
-        
-        return distancetrame
-    """
+
 
 
     def student_h(self, effort):
@@ -545,10 +477,12 @@ class Utility(object):
         p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
         p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
         
-        effort_m1 = np.zeros(effort.shape)
-        effort_m = np.where(effort==1, 1, np.where(effort==3,1,effort_m1))
-        effort_h1 = np.zeros(effort.shape)
-        effort_h = np.where(effort==2, 1, np.where(effort==3,1,effort_h1))
+        d_effort_t1 = effort == 1
+        d_effort_t2 = effort == 2
+        d_effort_t3 = effort == 3
+        
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
         
        
         pb = []
@@ -590,7 +524,9 @@ class Utility(object):
         effort_m = d_effort_t1 + d_effort_t3
         effort_h = d_effort_t2 + d_effort_t3
         
-        U_rsl = np.log(income) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h)
+        income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
+        
+        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h)
 
         return U_rsl
 

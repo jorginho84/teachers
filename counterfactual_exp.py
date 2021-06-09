@@ -39,7 +39,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -93,7 +93,8 @@ for x in range(0,2):
     hw = [value[0]/dolar,value[1]/dolar]
     porc = [0.0338, 0.0333]
     
-    Asig = [150000,100000,50000]
+    #inflation adjustemtn: 2012Jan-2020Jan: 1.111
+    Asig = [150000*1.111,100000*1.111,50000*1.111]
     AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
     
     # *** This is withouth teaching career ***
@@ -103,7 +104,8 @@ for x in range(0,2):
     # * value professional qualification (pesos)= 253076 *
     # * value professional mention (pesos)= 84360 *
     
-    qualiPesos = [72100, 24034, 253076, 84360]
+    #inflation adjustment: 2012Jan-2019Dec: 1.266
+    qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
     pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
     
     #* Progression component by tranche *

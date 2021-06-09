@@ -51,14 +51,13 @@ def corr_simulate(data, B):
     est_mean_Pru = np.zeros(B)
     est_var_Port = np.zeros(B)
     est_var_Pru = np.zeros(B)
-    perc_init =  np.zeros(B)
+    #perc_init =  np.zeros(B)
     perc_inter =  np.zeros(B)
     perc_advan =  np.zeros(B)
     perc_expert =  np.zeros(B)
     est_mean_SIMCE = np.zeros(B)
     est_var_SIMCE = np.zeros(B)
     est_mean_PortTest = np.zeros(B)
-    perc_inter_c = np.zeros(B)
     perc_avanexpet_c = np.zeros(B)
     est_corrTestp = np.zeros(B)
     est_corrPortp = np.zeros(B)
@@ -85,7 +84,7 @@ def corr_simulate(data, B):
         est_corrTestp[i] = corrM.iloc[0]['TEST']
         est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
         datav = rev[rev['d_trat']==1]
-        perc_init[i] = (sum(datav['trame']==1) / len(datav['trame'])) 
+        #perc_init[i] = (sum(datav['trame']==1) / len(datav['trame'])) 
         perc_inter[i] = (sum(datav['trame']==2) / len(datav['trame'])) 
         perc_advan[i] = (sum(datav['trame']==3) / len(datav['trame'])) 
         perc_expert[i] = ((sum(datav['trame']==4)+sum(datav['trame']==5)) / len(datav['trame'])) 
@@ -116,7 +115,7 @@ def corr_simulate(data, B):
     est_sim_var_Port = np.mean(est_var_Port)
     est_sim_mean_Pru = np.mean(est_mean_Pru)
     est_sim_var_Test = np.mean(est_var_Pru)
-    est_sim_perc_init = np.mean(perc_init)
+    #est_sim_perc_init = np.mean(perc_init)
     est_sim_perc_inter = np.mean(perc_inter)
     est_sim_perc_advan = np.mean(perc_advan)
     est_sim_perc_expert = np.mean(perc_expert)
@@ -135,7 +134,7 @@ def corr_simulate(data, B):
     error_var_Port = np.std(est_var_Port)
     error_mean_Pru = np.std(est_mean_Pru)
     error_var_Pru = np.std(est_var_Pru)
-    error_init = np.std(perc_init)
+    #error_init = np.std(perc_init)
     error_inter = np.std(perc_inter)
     error_advan = np.std(perc_advan)
     error_expert = np.std(perc_expert)
@@ -155,7 +154,7 @@ def corr_simulate(data, B):
             'Var Portfolio': est_sim_var_Port,
             'Mean Test': est_sim_mean_Pru,
             'Var Test': est_sim_var_Test,
-            'perc init': est_sim_perc_init,
+            #'perc init': est_sim_perc_init,
             'perc inter': est_sim_perc_inter,
             'perc advanced': est_sim_perc_advan,
             'perc expert': est_sim_perc_expert,
@@ -173,7 +172,7 @@ def corr_simulate(data, B):
                 'Error var Portfolio': error_var_Port,
                 'Error mean Test': error_mean_Pru,
                 'Error var Test': error_var_Pru,
-                'Error init': error_init,
+                #'Error init': error_init,
                 'Error inter': error_inter,
                 'Error advanced': error_advan,
                 'Error expert': error_expert,
@@ -202,17 +201,16 @@ sheet['E8'] = result['Var SIMCE']
 sheet['E9'] = result['Mean Test']
 sheet['E10'] = result['Var Test']
 sheet['E11'] = result['Mean PortTest']
-sheet['E12'] = result['perc init']
-sheet['E13'] = result['perc inter']
-sheet['E14'] = result['perc advanced']
-sheet['E15'] = result['perc expert']
-sheet['E16'] = result['Estimation SIMCE vs Portfolio']
-sheet['E17'] = result['Estimation SIMCE vs Prueba']
-sheet['E18'] = result['Estimation EXP vs Portfolio']
-sheet['E19'] = result['Estimation EXP vs Prueba']
-sheet['E21'] = result['perc adv/exp control']
-sheet['E22'] = result['Estimation Test vs p']
-sheet['E23'] = result['Estimation Portfolio vs p']
+sheet['E12'] = result['perc inter']
+sheet['E13'] = result['perc advanced']
+sheet['E14'] = result['perc expert']
+sheet['E15'] = result['Estimation SIMCE vs Portfolio']
+sheet['E16'] = result['Estimation SIMCE vs Prueba']
+sheet['E17'] = result['Estimation EXP vs Portfolio']
+sheet['E18'] = result['Estimation EXP vs Prueba']
+sheet['E19'] = result['perc adv/exp control']
+sheet['E20'] = result['Estimation Test vs p']
+sheet['E21'] = result['Estimation Portfolio vs p']
 
 
 
@@ -223,17 +221,16 @@ sheet['F8'] = result['Error var SIMCE']
 sheet['F9'] = result['Error mean Test']
 sheet['F10'] = result['Error var Test']
 sheet['F11'] = result['Error mean Port-Test']
-sheet['F12'] = result['Error init']
-sheet['F13'] = result['Error inter']
-sheet['F14'] = result['Error advanced']
-sheet['F15'] = result['Error expert']
-sheet['F16'] = result['Error SIMCE vs Portfolio']
-sheet['F17'] = result['Error SIMCE vs Test']
-sheet['F18'] = result['Error Exp vs Portfolio']
-sheet['F19'] = result['Error Exp vs Pru']
-sheet['F21'] = result['Error adv/exp control']
-sheet['F22'] = result['Error Test vs p']
-sheet['F23'] = result['Error Portfolio vs p']
+sheet['F12'] = result['Error inter']
+sheet['F13'] = result['Error advanced']
+sheet['F14'] = result['Error expert']
+sheet['F15'] = result['Error SIMCE vs Portfolio']
+sheet['F16'] = result['Error SIMCE vs Test']
+sheet['F17'] = result['Error Exp vs Portfolio']
+sheet['F18'] = result['Error Exp vs Pru']
+sheet['F19'] = result['Error adv/exp control']
+sheet['F20'] = result['Error Test vs p']
+sheet['F21'] = result['Error Portfolio vs p']
 
 
 
@@ -246,7 +243,6 @@ result['Error var SIMCE'],
 result['Error mean Test'],
 result['Error var Test'],
 result['Error mean Port-Test'],
-result['Error init'],
 result['Error inter'],
 result['Error advanced'],
 result['Error expert'],
@@ -266,7 +262,6 @@ result['Var SIMCE'],
 result['Mean Test'],
 result['Var Test'],
 result['Mean PortTest'],
-result['perc init'],
 result['perc inter'],
 result['perc advanced'],
 result['perc expert'],

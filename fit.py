@@ -20,8 +20,8 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-#sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\WageError")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
 #import int_linear
@@ -31,19 +31,18 @@ import simdata as sd
 import estimate as est
 #import pybobyqa
 #import xlsxwriter
-from openpyxl import Workbook 
 from openpyxl import load_workbook
 
 
 np.random.seed(123)
 
-betas_nelder = np.load("D:\Git\WageError/betasopt_model_v10.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
 
-moments_vector = np.load("D:\Git\WageError/moments.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('D:\Git\WageError/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -61,48 +60,30 @@ yearsOne = data[['experience']]
 years = data['experience'].to_numpy()
 
 # SCORE PORTFOLIO #
-p1_0_1 = data[['score_port']]
 p1_0 = data['score_port'].to_numpy()
 p1 = data['score_port'].to_numpy()
 
-#p1_0_1 = data[['ptj_portafolio_a2016']]
-#p1_0 = data['ptj_portafolio_a2016'].to_numpy()
-#p1 = data['ptj_portafolio_a2016'].to_numpy()
-
 # SCORE TEST #
-p2_0_1 = data[['score_test']]
 p2_0 = data['score_test'].to_numpy()
 p2 = data['score_test'].to_numpy()
 
-#p2_0_1 = data[['ptj_prueba_a2016']]
-#p2_0 = data['ptj_prueba_a2016'].to_numpy()
-#p2 = data['ptj_prueba_a2016'].to_numpy()
 
 # CATEGORY PORTFOLIO #
-categPortfolio = data[['cat_port']]
 catPort = data['cat_port'].to_numpy()
 
-#categPortfolio = data[['cat_portafolio_a2016']]
-#catPort = data['cat_portafolio_a2016'].to_numpy()
 
 # CATEGORY TEST #
-categPrueba = data[['cat_test']]
 catPrueba = data['cat_test'].to_numpy()
-
-#categPrueba = data[['cat_prueba_a2016']]
-#catPrueba = data['cat_prueba_a2016'].to_numpy()
 
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameInitial = data[['trame']]
 TrameI = data['trame'].to_numpy()
 
 #TrameInitial = data[['tramo_a2016']]
 #TrameI = data['tramo_a2016'].to_numpy()
 
 # TYPE SCHOOL #
-typeSchoolOne = data[['typeschool']]
 typeSchool = data['typeschool'].to_numpy()
 
 #### PARAMETERS MODEL ####
@@ -116,9 +97,9 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
      [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13]]
 
-gammas = [betas_nelder[14],betas_nelder[15],0.8]
+gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -131,7 +112,9 @@ hw = [value[0]/dolar,value[1]/dolar]
 
 porc = [0.0338, 0.0333]
 
-Asig = [150000,100000,50000]
+
+#inflation adjustemtn: 2012Jan-2020Jan: 1.111
+Asig = [150000*1.111,100000*1.111,50000*1.111]
 AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 
 # *** This is withouth teaching career ***
@@ -141,7 +124,8 @@ AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 # * value professional qualification (pesos)= 253076 *
 # * value professional mention (pesos)= 84360 *
 
-qualiPesos = [72100, 24034, 253076, 84360] 
+#inflation adjustment: 2012Jan-2019Dec: 1.266
+qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
 
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
 
@@ -168,7 +152,7 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
-ses_opt = np.load("D:\Git\WageError/ses_model.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
@@ -183,7 +167,7 @@ print(corr_data)
 
 beta0 = np.array([param0.alphas[0][0],
                           param0.alphas[0][1],
-                          param0.alphas[0][3],
+                          param0.alphas[0][3],  
                           param0.alphas[0][4],
                           param0.alphas[0][5],
                           param0.alphas[1][0],
@@ -203,7 +187,7 @@ qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('D:\Git\WageError/Outcomes.xlsx')
+wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
@@ -213,18 +197,16 @@ sheet['C8'] = 'Variance SIMCE'
 sheet['C9'] = 'Mean Test'
 sheet['C10'] = 'Variance Test'
 sheet['C11'] = 'Mean Portfolio-Test'
-sheet['C12'] = '\% Initial'
-sheet['C13'] = '\% Intermediate'
-sheet['C14'] = '\% Advanced'
-sheet['C15'] = '\% Expert'
-sheet['C16'] = 'corr(Port,Simce)'
-sheet['C17'] = 'corr(Test,Simce)'
-sheet['C18'] = 'corr(exp,Port)'
-sheet['C19'] = 'corr(exp,Test)'
-sheet['C20'] = '\% Intermediate control'
-sheet['C21'] = '\% adva/expert control'
-sheet['C23'] = 'Corr(Port,p)'
-sheet['C22'] = 'Corr(Test,p)'
+sheet['C12'] = '\% Intermediate'
+sheet['C13'] = '\% Advanced'
+sheet['C14'] = '\% Expert'
+sheet['C15'] = 'corr(Port,Simce)'
+sheet['C16'] = 'corr(Test,Simce)'
+sheet['C17'] = 'corr(exp,Port)'
+sheet['C18'] = 'corr(exp,Test)'
+sheet['C19'] = '\% adva/expert control'
+sheet['C20'] = 'Corr(Port,p)'
+sheet['C21'] = 'Corr(Test,p)'
 sheet['D4'] = 'simulation'
 sheet['E4'] = 'data'
 sheet['F4'] = 'se'
@@ -236,17 +218,16 @@ sheet['D8'] = corr_data['Var SIMCE']
 sheet['D9'] = corr_data['Mean Test']
 sheet['D10'] = corr_data['Var Test']
 sheet['D11'] = corr_data['Mean PortTest']
-sheet['D12'] = corr_data['perc init']
-sheet['D13'] = corr_data['perc inter']
-sheet['D14'] = corr_data['perc advanced']
-sheet['D15'] = corr_data['perc expert']
-sheet['D16'] = corr_data['Estimation SIMCE vs Portfolio']
-sheet['D17'] = corr_data['Estimation SIMCE vs Prueba']
-sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
-sheet['D19'] = corr_data['Estimation EXP vs Prueba']
-sheet['D21'] = corr_data['perc adv/exp control']
-sheet['D22'] = corr_data['Estimation Test vs p']
-sheet['D23'] = corr_data['Estimation Portfolio vs p']
+sheet['D12'] = corr_data['perc inter']
+sheet['D13'] = corr_data['perc advanced']
+sheet['D14'] = corr_data['perc expert']
+sheet['D15'] = corr_data['Estimation SIMCE vs Portfolio']
+sheet['D16'] = corr_data['Estimation SIMCE vs Prueba']
+sheet['D17'] = corr_data['Estimation EXP vs Portfolio']
+sheet['D18'] = corr_data['Estimation EXP vs Prueba']
+sheet['D19'] = corr_data['perc adv/exp control']
+sheet['D20'] = corr_data['Estimation Test vs p']
+sheet['D21'] = corr_data['Estimation Portfolio vs p']
 
 
 
@@ -257,7 +238,6 @@ corr_data['Var SIMCE'],
 corr_data['Mean Test'],
 corr_data['Var Test'],
 corr_data['Mean PortTest'],
-corr_data['perc init'],
 corr_data['perc inter'],
 corr_data['perc advanced'],
 corr_data['perc expert'],
@@ -276,16 +256,16 @@ q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
 weight = x_vector**2/ses_opt**2
 
 
-wb.save('D:\Git\WageError/Outcomes.xlsx')
+wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
+
+
+
+"""
 opt = modelSD.choice()
 print('OPt effort % no effort, control', np.mean(opt['Opt Effort'][treatment == 0] == 0))
 print('OPt effort % no effort, treatment', np.mean(opt['Opt Effort'][treatment == 1] == 0))
 
-print('Mean income, control', np.mean(opt['Opt Income'][treatment == 0]))
-print('Mean income, treatment', np.mean(opt['Opt Income'][treatment == 1]))
-
-
-"""
-
+print('Mean income, control', np.mean(opt['Opt Income'][1][treatment == 0]))
+print('Mean income, treatment', np.mean(opt['Opt Income'][0][treatment == 1]))
 """

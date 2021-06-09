@@ -41,7 +41,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v10.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -98,7 +98,8 @@ for x in range(0,2):
     hw = [value[0]/dolar,value[1]/dolar]
     porc = [0.0338, 0.0333]
     
-    Asig = [150000,100000,50000]
+    #inflation adjustemtn: 2012Jan-2020Jan: 1.111
+    Asig = [150000*1.111,100000*1.111,50000*1.111]
     AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
     
     # *** This is withouth teaching career ***
@@ -108,6 +109,8 @@ for x in range(0,2):
     # * value professional qualification (pesos)= 253076 *
     # * value professional mention (pesos)= 84360 *
     
+    #inflation adjustment: 2012Jan-2019Dec: 1.266
+    qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
     qualiPesos = [72100, 24034, 253076, 84360]
     pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
     
@@ -140,7 +143,7 @@ for x in range(0,2):
         modelSD = sd.SimData(N,model)
         opt = modelSD.choice()
         simce_sims[:,j] = opt['Opt Simce']
-        income_sims[:,j] = opt['Opt Income']
+        income_sims[:,j] = opt['Opt Income'][1-x]
         baseline_sims[:,j,0] = opt['Potential scores'][0]
         baseline_sims[:,j,1] = opt['Potential scores'][1]
     
@@ -171,8 +174,8 @@ income_c_sim = np.zeros((N,n_sim))
 
 for j in range(n_sim):
     opt = count_sd.choice()
-    simce_c_sim[:,j] = opt['Opt Simce']
-    income_c_sim[:,j] = opt['Opt Income']
+    simce_c_sim[:,j] = opt['Opt Simce'][1]
+    income_c_sim[:,j] = opt['Opt Income'][0]
 
 simce_c = np.mean(simce_c_sim, axis=1)
 income_c = np.mean(income_c_sim, axis=1)
@@ -180,6 +183,11 @@ income_c = np.mean(income_c_sim, axis=1)
 att_c = simce_c - simce[0]
 att_cost_c = income_c - income[0]
 
+
+
+#---------------------------------------------------------------#
+#Effects by distance to nearest cutoff (distance based on previous test scores)
+#---------------------------------------------------------------#
 
 y = np.zeros(5)
 y_c = np.zeros(5)
@@ -216,6 +224,10 @@ plt.tight_layout()
 plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1.pdf', format='pdf')
 
+
+#---------------------------------------------------------------#
+#Effects by distance to potential test score (distance based on previous test scores)
+#---------------------------------------------------------------#
 
 ##Categorías de potential (two for two measures)
 n_quant = 10
@@ -259,6 +271,13 @@ plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores.pdf', format='pdf')
 
 
+#---------------------------------------------------------------#
+#Effects by distance to nearest cutoff (distance based on potential test scores)
+#---------------------------------------------------------------#
+
+
+#baseline_p - cutoff
+
 print ('')
 print ('Cost of original reform ', np.mean(att_cost))
 print ('')
@@ -266,3 +285,5 @@ print ('')
 print ('')
 print ('Cost of alternative ', np.mean(att_cost_c))
 print ('')
+
+

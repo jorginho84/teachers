@@ -41,6 +41,7 @@ class SimData:
         
         income = self.model.income(placement)
         
+        
         student_h = self.model.student_h(effort)
         
         

@@ -62,7 +62,7 @@ class estimate:
         est_mean_Pru = np.zeros(times)
         est_var_Port = np.zeros(times)
         est_var_Pru = np.zeros(times)
-        perc_init =  np.zeros(times)
+        #perc_init =  np.zeros(times)
         perc_inter =  np.zeros(times)
         perc_advan =  np.zeros(times)
         perc_expert =  np.zeros(times)
@@ -81,10 +81,10 @@ class estimate:
             np.random.seed(i+100)
             opt = modelSD.choice()
             dataf = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 
-                     'EXP': self.years, 'PLACEMENT': opt['Opt Placement'][0], 
+                     'EXP': self.years, 'PLACEMENT': opt['Opt Placement'][0], 'PLACEMENT_AEP': opt['Opt Placement'][1],
                      'PORTPAST': self.p1_0, 'TESTPAST': self.p2_0}
             # Here we consider the database complete
-            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PLACEMENT', 'PORTPAST', 'TESTPAST'])
+            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PLACEMENT', 'PORTPAST', 'TESTPAST','PLACEMENT_AEP'])
             #1 Portfolio mean
             est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
             #2 Portfolio var
@@ -116,7 +116,7 @@ class estimate:
             # Here we consider the data for treatmetn group
             datav = datadfT[self.treatment==1]
             #8
-            perc_init[i] = np.mean(datav['PLACEMENT']==1)
+            #perc_init[i] = np.mean(datav['PLACEMENT']==1)
             #9
             perc_inter[i] = np.mean(datav['PLACEMENT']==2) 
             #10
@@ -137,7 +137,7 @@ class estimate:
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             #datav0 = datadfT[datadfT['TREATMENT']==0]
             datav_2 = datadfT[self.treatment==0]
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=8) & (datav_2['PLACEMENT']<=9))
+            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3) & (datav_2['PLACEMENT']<=5))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)
@@ -154,7 +154,7 @@ class estimate:
         est_sim_var_Port = np.mean(est_var_Port)
         est_sim_mean_Pru = np.mean(est_mean_Pru)
         est_sim_var_Test = np.mean(est_var_Pru)
-        est_sim_perc_init = np.mean(perc_init)
+        #est_sim_perc_init = np.mean(perc_init)
         est_sim_EXPPort = np.mean(est_corr_EXPPort)
         est_sim_EXPPru = np.mean(est_corr_EXPPru)
         est_sim_perc_inter = np.mean(perc_inter)
@@ -177,7 +177,7 @@ class estimate:
             'Var Port': est_sim_var_Port,
             'Mean Test': est_sim_mean_Pru,
             'Var Test': est_sim_var_Test,
-            'perc init': est_sim_perc_init,
+            #'perc init': est_sim_perc_init,
             'perc inter': est_sim_perc_inter,
             'perc advanced': est_sim_perc_advan,
             'perc expert': est_sim_perc_expert,
@@ -215,6 +215,7 @@ class estimate:
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
+
             
         modelSD = sd.SimData(self.N,model)
             
@@ -229,7 +230,7 @@ class estimate:
         beta_mtest = result['Mean Test']
         beta_vtest = result['Var Test']
         beta_mporttest = result['Mean PortTest']
-        beta_pinit = result['perc init']
+        #beta_pinit = result['perc init']
         beta_pinter = result['perc inter']
         beta_padv = result['perc advanced']
         beta_pexpert = result['perc expert']
@@ -241,10 +242,11 @@ class estimate:
         beta_testp = result['Estimation Test vs p']
         beta_portp = result['Estimation Portfolio vs p']
         
-        
+   
+         
         #Number of moments to match
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
-            beta_vtest.size + beta_mporttest.size + beta_pinit.size + beta_pinter.size + beta_padv.size + \
+            beta_vtest.size + beta_mporttest.size  + beta_pinter.size + beta_padv.size + \
                 beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
                     beta_advexp_c.size + beta_testp.size + beta_portp.size
         
@@ -257,17 +259,17 @@ class estimate:
         x_vector[4,0] = beta_mtest - self.moments_vector[4]
         x_vector[5,0] = beta_vtest - self.moments_vector[5]
         x_vector[6,0] = beta_mporttest - self.moments_vector[6]
-        x_vector[7,0] = beta_pinit - self.moments_vector[7]
-        x_vector[8,0] = beta_pinter - self.moments_vector[8]
-        x_vector[9,0] = beta_padv - self.moments_vector[9]
-        x_vector[10,0] = beta_pexpert - self.moments_vector[10]
-        x_vector[11,0] = beta_sport - self.moments_vector[11]
-        x_vector[12,0] = beta_spru - self.moments_vector[12]
-        x_vector[13,0] = beta_expport - self.moments_vector[13]
-        x_vector[14,0] = beta_exptest - self.moments_vector[14]
-        x_vector[15,0] = beta_advexp_c - self.moments_vector[15]
-        x_vector[16,0] = beta_testp - self.moments_vector[16]
-        x_vector[17,0] = beta_portp - self.moments_vector[17]
+        #x_vector[7,0] = beta_pinit - self.moments_vector[7]
+        x_vector[7,0] = beta_pinter - self.moments_vector[7]
+        x_vector[8,0] = beta_padv - self.moments_vector[8]
+        x_vector[9,0] = beta_pexpert - self.moments_vector[9]
+        x_vector[10,0] = beta_sport - self.moments_vector[10]
+        x_vector[11,0] = beta_spru - self.moments_vector[11]
+        x_vector[12,0] = beta_expport - self.moments_vector[12]
+        x_vector[13,0] = beta_exptest - self.moments_vector[13]
+        x_vector[14,0] = beta_advexp_c - self.moments_vector[14]
+        x_vector[15,0] = beta_testp - self.moments_vector[15]
+        x_vector[16,0] = beta_portp - self.moments_vector[16]
         
         
         #The Q metric
