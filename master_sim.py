@@ -164,9 +164,12 @@ between.betweenOne()
 
 print("Distance")
 
-nextT, distancetrame = model.distance(placement)
+nextT, distancetrame, susX, susY = model.distance(initial_asim,tscores[1])
 print(nextT)
 print(distancetrame)
+print(susX)
+print(susY)
+
 
 
 between.betweenOne()

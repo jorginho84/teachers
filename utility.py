@@ -322,7 +322,7 @@ class Utility(object):
         return [salary, salary_pr]
     
     
-    def distance(self, initial_pF):
+    def distance(self, initial_pF,tscores):
         """
         Take the evaluation in portfolio and test.
             
@@ -420,10 +420,10 @@ class Utility(object):
         susY2 = susY2.reshape(-1)
             
         row = row.reshape(-1)
-        p1 = self.p1.reshape(-1)
+        p1 = tscores[0].reshape(-1)
         susX = np.where((row != 0 ), p1 - row, susX2)
         col = col.reshape(-1)
-        p2 = self.p2.reshape(-1)
+        p2 = tscores[1].reshape(-1)
         susY = np.where((col != 0), p2 - col, susY2) 
         squareX = np.square(susX)
         squareY = np.square(susY)
@@ -432,7 +432,7 @@ class Utility(object):
         
         distancetrame = finalsquare
         
-        return [nexttramo, distancetrame]
+        return [nexttramo, distancetrame, susX, susY]
     
 
 
@@ -513,8 +513,13 @@ class Utility(object):
         pv2 = ((1/(1+np.exp(-pb[1]))) + (1/3))*3
 
         p = [pv1, pv2]
+        
+        pv1_pot = ((1/(1+np.exp(-pb_potential[0]))) + (1/3))*3
+        pv2_pot = ((1/(1+np.exp(-pb_potential[1]))) + (1/3))*3
+        
+        pb_pot = [pv1_pot,pv2_pot]
                 
-        return [p,pb_potential]
+        return [p,pb_pot]
 
     def utility(self, income, effort, h):
         """
