@@ -37,9 +37,12 @@ import time
 import openpyxl
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
+
+np.random.seed(100)
+
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -50,6 +53,7 @@ N = np.array(data['experience']).shape[0]
 n_sim = 100
 
 simce = []
+income = []
 
 
 
@@ -130,13 +134,16 @@ for x in range(0,2):
     # SIMULACIÓN SIMDATA
     
     simce_sims = np.zeros((N,n_sim))
+    income_sims = np.zeros((N,n_sim))
     
     for j in range(n_sim):
         modelSD = sd.SimData(N,model)
         opt = modelSD.choice()
         simce_sims[:,j] = opt['Opt Simce']
+        income_sims[:,j] = opt['Opt Income'][1-x]
     
     simce.append(np.mean(simce_sims,axis=1))
+    income.append(np.mean(income_sims,axis=1))
 
 
 
@@ -147,6 +154,7 @@ print ('')
 
 #For validation purposes
 att = simce[1] - simce[0]
+att_cost = income[1] - income[0]
 
 #Effects under a new system
 
@@ -156,14 +164,18 @@ model_c = Count_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catP
 count_sd = sdc.SimDataC(N,model_c)
 
 simce_c_sim = np.zeros((N,n_sim))
+income_c_sim = np.zeros((N,n_sim))
 
 for j in range(n_sim):
     opt = count_sd.choice()
     simce_c_sim[:,j] = opt['Opt Simce']
+    income_c_sim[:,j] = opt['Opt Income'][0]
 
 simce_c = np.mean(simce_c_sim, axis=1)
+income_c = np.mean(income_c_sim, axis=1)
 
 att_c = simce_c - simce[0]
+att_cost_c = income_c - income[0]
 
 
 y = np.zeros(5)
@@ -194,12 +206,18 @@ y_ses[4] = np.mean(att[data['experience']>=36])/att[data['experience']>=36].shap
 
 
 fig, ax=plt.subplots()
-plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD')
+
+cost_original = np.mean(att_cost)/np.mean(income[0])
+cost_alternative = np.mean(att_cost_c)/np.mean(income[0])
+
 plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
-plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
+plot1 = ax.bar(x,y,color='b' ,alpha=.5, label = 'ATT original STPD')
 plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
-ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)))
-ax.text(1,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
+ax.text(0.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)) + 
+        ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
+ax.text(0.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
+        ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
 ax.set_xlabel(r'Baseline experience', fontsize=13)
 ax.set_xticks([1,2,3,4,5])
@@ -211,10 +229,18 @@ ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
 plt.xticks(fontsize=12)
 #ax.set_ylim(0,0.12)
-ax.legend(loc = 'upper left',fontsize = 13)
+ax.legend(loc = 'center right',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual_exp.pdf', format='pdf')
+
+print ('')
+print ('Cost of original reform ', np.mean(att_cost))
+print ('')
+
+print ('')
+print ('Cost of alternative ', np.mean(att_cost_c))
+print ('')
 
 

@@ -25,57 +25,41 @@ import openpyxl
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 #Betas and var-cov matrix
-se_vector = np.load("//Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_model_v3.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v3.npy")
+se_vector = np.load("//Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_model_v4.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
 
 #Utility function
-gamma_0 = betas_nelder[16]
-gamma_1 = betas_nelder[17]
-gamma_2 = betas_nelder[18]
-mu_c = -0.56
-mu_theta = 0.5
+gamma_0 = betas_nelder[14]
+gamma_1 = betas_nelder[15]
+gamma_2 = betas_nelder[16]
 
 
-se_gamma_0 =se_vector[16]
-se_gamma_1 =se_vector[17]
-se_gamma_2 =se_vector[18]
+se_gamma_0 =se_vector[14]
+se_gamma_1 =se_vector[15]
+se_gamma_2 =se_vector[16]
 
 
 #Effort Student (this is t_student function in utility class)
-betas_opt_t = np.array([betas_nelder[12],betas_nelder[13],betas_nelder[14],
-	betas_nelder[15]]).reshape((4,1))
+betas_opt_t = np.array([betas_nelder[10],betas_nelder[11],betas_nelder[12],
+	betas_nelder[13]]).reshape((4,1))
 
-se_betas_opt_t=np.array([se_vector[12],se_vector[13],se_vector[14],se_vector[15]]).reshape((4,1))
+se_betas_opt_t=np.array([se_vector[10],se_vector[11],se_vector[12],se_vector[13]]).reshape((4,1))
 
 #Effort teachers (this is t_test function in utility class)
 #portfolio
 alphas_port = np.array([betas_nelder[0],betas_nelder[1],betas_nelder[2],
-               betas_nelder[3],betas_nelder[4],betas_nelder[5]]).reshape((6,1))
+               betas_nelder[3],betas_nelder[4]]).reshape((6,1))
 
 se_alphas_port = np.array([se_vector[0],se_vector[1],se_vector[2],
-               se_vector[3],se_vector[4],se_vector[5]]).reshape((6,1))
+               se_vector[3],se_vector[4]]).reshape((6,1))
 
 
-alphas_test = np.array([betas_nelder[6],betas_nelder[7],betas_nelder[8],
-               betas_nelder[9],betas_nelder[10],betas_nelder[11]]).reshape((6,1))
+alphas_test = np.array([betas_nelder[5],betas_nelder[6],betas_nelder[7],
+               betas_nelder[8],betas_nelder[9]]).reshape((6,1))
 
-se_alphas_test = np.array([se_vector[6],se_vector[7],se_vector[8],
-               se_vector[9],se_vector[10],se_vector[11]]).reshape((6,1))
+se_alphas_test = np.array([se_vector[5],se_vector[6],se_vector[7],
+               se_vector[8],se_vector[9]]).reshape((6,1))
 
-
-
-kappas = [0,0]
-
-sigma_z  = [0,0]
-
-#rho_theta_epsilon = betas_nelder[20]
-#se_rho_theta_epsilon = se_vector[20]
-
-#qprob = betas_nelder[21]
-#se_qprob = se_vector[21]
-
-#First measure is normalized. starting arbitrary values
-lambdas=[1,1]
 
 
 
@@ -83,22 +67,21 @@ lambdas=[1,1]
 
 utility_list_beta = [gamma_0,gamma_1,gamma_2]
 utility_list_se = [se_gamma_0,se_gamma_1,se_gamma_2]
-utility_names = [r'Medium effort',r'High effort',r'Preference for SIMCE']
+utility_names = [r'Portfolio effort',r'PKT effort',r'Preference for student performance']
 
 beta_list_beta = [betas_opt_t[0,0],betas_opt_t[1,0],betas_opt_t[2,0],betas_opt_t[3,0]]
 beta_list_se = [se_betas_opt_t[0,0],se_betas_opt_t[1,0],
 se_betas_opt_t[2,0],se_betas_opt_t[3,0]]
-wage_names = ['Constant', 'Medium effort productivity','High effort productivity','SD of unobserved productivity']
+wage_names = ['Constant', 'Portfolio effort','PKT effort','Measurement error']
 
 
-alphas_port_list= [alphas_port[0,0],alphas_port[1,0],alphas_port[2,0],alphas_port[3,0],alphas_port[4,0]]
-se_alphas_port_list = [se_alphas_port[0,0],se_alphas_port[1,0],se_alphas_port[2,0],se_alphas_port[3,0],se_alphas_port[4,0]]
-prod_names_young = ['Constant', 'Medium effort productivity','High effort productivity',
-                    'Experience', r'Variance of shock', r'Past performance']
+alphas_port_list= [alphas_port[0,0],alphas_port[1,0],alphas_port[2,0],alphas_port[3,0]]
+se_alphas_port_list = [se_alphas_port[0,0],se_alphas_port[1,0],se_alphas_port[2,0],se_alphas_port[3,0]]
+prod_names_young = ['Constant', 'Effort','Experience', r'Variance of shock', r'Past performance']
 
-alphas_test_list = [alphas_test[0,0],alphas_test[1,0],alphas_test[2,0],alphas_test[3,0],alphas_test[4,0]]
-se_alphas_test = [se_alphas_test[0,0],se_alphas_test[1,0],se_alphas_test[2,0],se_alphas_test[3,0],se_alphas_test[4,0]]
-prod_names_old = ['Constant', 'Medium effort productivity','High effort productivity',
+alphas_test_list = [alphas_test[0,0],alphas_test[1,0],alphas_test[2,0],alphas_test[3,0]]
+se_alphas_test = [se_alphas_test[0,0],se_alphas_test[1,0],se_alphas_test[2,0],se_alphas_test[3,0]]
+prod_names_old = ['Constant', 'Effort',
                     'Experience', r'Variance of shock', r'Past performance']
 
 

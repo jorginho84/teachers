@@ -506,7 +506,8 @@ class Utility(object):
                              shock) 
                 
             pb_potential.append(self.param.alphas[j][0] + \
-                                self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past)
+                                self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past + \
+                                    shock)
         
         
         pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3

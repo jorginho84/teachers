@@ -54,6 +54,8 @@ class Count_1(Utility):
         """
         # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
         # " Values in dolars "
+        # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
+        # " Values in dolars "
         HvalueE = self.param.hw[0]
         HvalueS = self.param.hw[1]
         

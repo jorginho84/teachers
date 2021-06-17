@@ -33,7 +33,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v12.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v14.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -77,9 +77,9 @@ typeSchool = np.array(data['typeschool'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], 0.15,0,betas_nelder[2],
+alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
       betas_nelder[3], betas_nelder[4]],
-     [betas_nelder[5], 0,0.17,betas_nelder[7],
+     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
@@ -105,12 +105,15 @@ porc = [0.0338, 0.0333]
 # * value professional qualification (pesos)= 253076 *
 # * value professional mention (pesos)= 84360 *
 
-qualiPesos = [72100, 24034, 253076, 84360] 
+#inflation adjustment: 2012Jan-2019Dec: 1.266
+qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
+ 
 
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
 
-Asig = [150000,100000,50000]
-AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
+#inflation adjustemtn: 2012Jan-2020Jan: 1.111
+Asig = [150000*1.111,100000*1.111,50000*1.111]
+AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 
 #* Progression component by tranche *
 #* value progression initial (pesos)= 14515
@@ -183,5 +186,5 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy',betas_opt_me)
 

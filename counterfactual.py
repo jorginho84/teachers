@@ -39,9 +39,10 @@ import time
 import openpyxl
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
-#Betas and var-cov matrix
+np.random.seed(100)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
+#Betas and var-cov matrix
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -236,27 +237,106 @@ for j in range(2):
     q_potential.append(pd.qcut(baseline_p[0][:,j],n_quant,labels=False))
 
 
+
+cost_original = np.mean(att_cost)/np.mean(income[0])
+cost_alternative = np.mean(att_cost_c)/np.mean(income[0])
+
+
+name_list = ['portfolio','rueba']
+for k in range(2):
+    y = np.zeros(n_quant)
+    y_c = np.zeros(n_quant)
+    y_ses = np.zeros(n_quant)
+    
+    x = list(range(1,n_quant+1))
+    
+    for j in range(n_quant):
+        y[j] = np.mean(att[q_potential[k]==j])
+        y_c[j] = np.mean(att_c[q_potential[k]==j])
+        y_ses[j] = np.std(att[q_potential[k]==j])/att[q_potential[0]==j].shape[0]
+     
+    
+    fig, ax=plt.subplots()
+    
+    plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
+    plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
+    plot1 = ax.bar(x,y,color='b' ,alpha=.5, label = 'ATT original STPD')
+    plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
+    ax.text(2,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att))+
+            ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
+    ax.text(2,np.mean(att_c) - 2*0.008,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
+            ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
+    ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
+    ax.set_xlabel(r'Deciles of baseline score', fontsize=13)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    plt.yticks(fontsize=12)
+    plt.xticks(fontsize=12)
+    #ax.set_ylim(0.3,0.6)
+    ax.legend(loc = 'best',fontsize = 13)
+    #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+    plt.tight_layout()
+    plt.show()
+    fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores_' + name_list[k] +'.pdf', format='pdf')
+
+
+#---------------------------------------------------------------#
+#Effects by distance to nearest cutoff (distance based on potential test scores)
+#arreglar: susX da muchos 0s!
+#---------------------------------------------------------------#
+
+#Initial placement
+initial_asim = model.initial()
+potential_scores_list = [np.mean(baseline_sims[:,:,0],axis=1),np.mean(baseline_sims[:,:,1],axis=1)]
+nextT, distancetrame, susX, susY = model.distance(initial_asim,potential_scores_list)
+
+#histograms
+plt.hist(susX, bins = 30)
+plt.show()
+
+plt.hist(susY, bins = 20)
+plt.show()
+
+##Categorías de distance (two for two measures)
+n_quant = 10
+q_distance = []
+q_distance.append(pd.qcut(susX,n_quant,labels=False,duplicates='drop'))
+q_distance.append(pd.qcut(susY,n_quant,labels=False,duplicates='drop'))
+
+
+
 y = np.zeros(n_quant)
 y_c = np.zeros(n_quant)
 y_ses = np.zeros(n_quant)
 x = range(n_quant)
-
-
 for j in range(n_quant):
-    y[j] = np.mean(att[q_potential[0]==j])
-    y_c[j] = np.mean(att_c[q_potential[0]==j])
-    y_ses[j] = np.std(att[q_potential[0]==j])/att[q_potential[0]==j].shape[0]
- 
+    y[j] = np.mean(att[q_distance[1]==j])
+    y_c[j] = np.mean(att_c[q_distance[1]==j])
+    y_ses[j] = np.std(att[q_distance[1]==j])/att[q_distance[1]==j].shape[0]
+    
 
+"""
+y[0] = np.mean(att[susY<=-1])
+y[1] = np.mean(att[(susY>-1) & (susY<=-0.5)] )
+y[2] = np.mean(att[(susY>-0.5) & (susY<=0)] )
+y[3] = np.mean(att[(susY>-0.5) & (susY<=0)] )
+y[4] = np.mean(att[susY>0.25] )
+"""
+
+    
 fig, ax=plt.subplots()
 plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD')
 plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
 plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
-ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)))
-ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red')
+ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att))+
+        ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
+ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
+        ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
-ax.set_xlabel(r'Deciles of baseline score', fontsize=13)
+ax.set_xlabel(r'Deciles of distance to nearest cutoff', fontsize=13)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
@@ -268,15 +348,9 @@ ax.legend(loc = 'best',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores.pdf', format='pdf')
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_distance.pdf', format='pdf')
 
 
-#---------------------------------------------------------------#
-#Effects by distance to nearest cutoff (distance based on potential test scores)
-#---------------------------------------------------------------#
-
-
-#baseline_p - cutoff
 
 print ('')
 print ('Cost of original reform ', np.mean(att_cost))

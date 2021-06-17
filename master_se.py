@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 25 17:33:39 2021
-
-@author: jorge-home
-
-This code computes fit anaylisis
-
+computing SES
 """
+
+
 #from __future__ import division #omit for python 3.x
 import numpy as np
 import pandas as pd
@@ -29,6 +26,7 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
+import se_asym as se
 #import pybobyqa
 #import xlsxwriter
 from openpyxl import load_workbook
@@ -36,7 +34,8 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
+var_cov = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
@@ -147,11 +146,6 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
-model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
-
-modelSD = sd.SimData(N,model)
-
-
 ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
@@ -162,110 +156,11 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
 
 
-corr_data = output_ins.simulation(50,modelSD)
-print(corr_data)
+se_ins = se.SEs(output_ins,var_cov,betas_nelder)
+npar = betas_nelder.shape[0]
+nmom = moments_vector.shape[0]
 
-beta0 = np.array([param0.alphas[0][0],
-                          param0.alphas[0][1],
-                          param0.alphas[0][3],  
-                          param0.alphas[0][4],
-                          param0.alphas[0][5],
-                          param0.alphas[1][0],
-                          param0.alphas[1][2],
-                          param0.alphas[1][3],
-                          param0.alphas[1][4],
-                          param0.alphas[1][5],
-                          param0.betas[0],
-                          param0.betas[1],
-                          param0.betas[2],
-                          param0.betas[3],
-                          param0.gammas[0],
-                          param0.gammas[1],
-                          param0.gammas[2]])
-
-qw = output_ins.objfunction(beta0)
-
-##### PYTHON TO EXCEL #####
-
-wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
-sheet = wb["data"]
-
-sheet['C5'] = 'Mean Portfolio'
-sheet['C6'] = 'Variance Portfolio'
-sheet['C7'] = 'Mean SIMCE'
-sheet['C8'] = 'Variance SIMCE'
-sheet['C9'] = 'Mean Test'
-sheet['C10'] = 'Variance Test'
-sheet['C11'] = 'Mean Portfolio-Test'
-sheet['C12'] = '\% Intermediate'
-sheet['C13'] = '\% Advanced'
-sheet['C14'] = '\% Expert'
-sheet['C15'] = 'corr(Port,Simce)'
-sheet['C16'] = 'corr(Test,Simce)'
-sheet['C17'] = 'corr(exp,Port)'
-sheet['C18'] = 'corr(exp,Test)'
-sheet['C19'] = '\% adva/expert control'
-sheet['C20'] = 'Corr(Port,p)'
-sheet['C21'] = 'Corr(Test,p)'
-sheet['D4'] = 'simulation'
-sheet['E4'] = 'data'
-sheet['F4'] = 'se'
-
-sheet['D5'] = corr_data['Mean Portfolio']
-sheet['D6'] = corr_data['Var Port']
-sheet['D7'] = corr_data['Mean SIMCE']
-sheet['D8'] = corr_data['Var SIMCE']
-sheet['D9'] = corr_data['Mean Test']
-sheet['D10'] = corr_data['Var Test']
-sheet['D11'] = corr_data['Mean PortTest']
-sheet['D12'] = corr_data['perc inter']
-sheet['D13'] = corr_data['perc advanced']
-sheet['D14'] = corr_data['perc expert']
-sheet['D15'] = corr_data['Estimation SIMCE vs Portfolio']
-sheet['D16'] = corr_data['Estimation SIMCE vs Prueba']
-sheet['D17'] = corr_data['Estimation EXP vs Portfolio']
-sheet['D18'] = corr_data['Estimation EXP vs Prueba']
-sheet['D19'] = corr_data['perc adv/exp control']
-sheet['D20'] = corr_data['Estimation Test vs p']
-sheet['D21'] = corr_data['Estimation Portfolio vs p']
+ses = se_ins.big_sand(0.025,nmom,npar)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/sesv3_modelv13.npy',ses*(1+1/50)*(1/N))
 
 
-
-sim = np.array([corr_data['Mean Portfolio'],
-corr_data['Var Port'],
-corr_data['Mean SIMCE'],
-corr_data['Var SIMCE'],
-corr_data['Mean Test'],
-corr_data['Var Test'],
-corr_data['Mean PortTest'],
-corr_data['perc inter'],
-corr_data['perc advanced'],
-corr_data['perc expert'],
-corr_data['Estimation SIMCE vs Portfolio'],
-corr_data['Estimation SIMCE vs Prueba'],
-corr_data['Estimation EXP vs Portfolio'],
-corr_data['Estimation EXP vs Prueba'],
-corr_data['perc adv/exp control'],
-corr_data['Estimation Test vs p'],
-corr_data['Estimation Portfolio vs p']])
-
-x_vector = sim - moments_vector
-
-q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
-
-weight = x_vector**2/ses_opt**2
-
-
-wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
-
-
-
-
-"""
-opt = modelSD.choice()
-print('OPt effort % no effort, control', np.mean(opt['Opt Effort'][treatment == 0] == 0))
-print('OPt effort % no effort, treatment', np.mean(opt['Opt Effort'][treatment == 1] == 0))
-
-print('Mean income, control', np.mean(opt['Opt Income'][1][treatment == 0]))
-print('Mean income, treatment', np.mean(opt['Opt Income'][0][treatment == 1]))
-"""

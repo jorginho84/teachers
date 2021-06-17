@@ -120,8 +120,8 @@ def corr_simulate(data, B):
     est_sim_perc_advan = np.mean(perc_advan)
     est_sim_perc_expert = np.mean(perc_expert)
     est_sim_mean_SIMCE = np.mean(est_mean_SIMCE)
-    est_sim_mean_PP = np.mean(est_mean_PortTest)
     est_sim_var_SIMCE = np.mean(est_var_SIMCE)
+    est_sim_mean_PP = np.mean(est_mean_PortTest)
     est_sim_advexp_c = np.mean(perc_avanexpet_c)
     est_sim_Testp = np.mean(est_corrTestp)
     est_sim_Portp = np.mean(est_corrPortp)
@@ -145,6 +145,15 @@ def corr_simulate(data, B):
     error_Testp = np.std(est_corrTestp)
     error_Portp = np.std(est_corrPortp)
     
+    
+    #var-cov matrix
+    samples = np.array([est_corrSPort,est_corrSPrue,est_corr_EXPPort,est_corr_EXPPru,est_mean_Port,
+                     est_var_Port,est_mean_Pru,est_var_Pru,
+                     perc_inter,perc_advan,perc_expert,
+                     est_mean_SIMCE,est_var_SIMCE,
+                     est_mean_PortTest,perc_avanexpet_c,est_corrTestp,est_corrPortp])
+    
+    varcov = np.cov(samples)
 
     return {'Estimation SIMCE vs Portfolio': est_sim_SPort,
             'Estimation SIMCE vs Prueba': est_sim_Prue,
@@ -181,12 +190,14 @@ def corr_simulate(data, B):
                 'Error mean Port-Test': error_mean_PP,
                 'Error adv/exp control': error_advexp_c_PP,
                 'Error Portfolio vs p': error_Testp,
-                'Error Test vs p': error_Portp}
+                'Error Test vs p': error_Portp,
+                'Var Cov Matrix': varcov}
 
 
 result = corr_simulate(df,1000)
 print(result)
 
+varcov = result['Var Cov Matrix']
 
 ##### PYTHON TO EXCEL #####
 
@@ -276,6 +287,8 @@ result['Estimation Portfolio vs p']])
 np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy',ses)
 
 np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy',means)
+
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy',varcov)
 
 wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 

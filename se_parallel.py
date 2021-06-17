@@ -32,17 +32,18 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
-betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v3.npy")
+betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v15.npy")
+npar = betas_nelder.shape[0]
 
 df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
 
 moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
 
 
-w_matrix = w_matrix = np.zeros((19,19))
+w_matrix = w_matrix = np.zeros((npar, npar))
 ses_opt = np.load('/home/jrodriguez/teachers/codes/ses_model.npy')
 
-for j in range(19):
+for j in range(npar):
     w_matrix[j,j] = ses_opt[j]**(-2)
 
 
@@ -84,25 +85,26 @@ def simulation(j):
     #### PARAMETERS MODEL ####
     N = np.size(p1_0)
     HOURS = np.array([44]*N)
-    alphas = [[betas_nelder[0], betas_nelder[1],betas_nelder[2],betas_nelder[3],
-          betas_nelder[4], betas_nelder[5]],
-         [betas_nelder[6], betas_nelder[7],betas_nelder[8],betas_nelder[9],
-         betas_nelder[10], betas_nelder[11]]]
+    alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+          betas_nelder[3], betas_nelder[4]],
+         [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+          betas_nelder[8], betas_nelder[9]]]
 
-    betas = [betas_nelder[12], betas_nelder[13], betas_nelder[14] ,betas_nelder[15]]
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13]]
 
-    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+    gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
     porc = [0.0338, 0.0333]
-    qualiPesos = [72100, 24034, 253076, 84360]
+    #inflation adjustment: 2012Jan-2019Dec: 1.266
+    qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
     pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
     progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
 
-    Asig = [150000,100000,50000]
+    Asig = [150000*1.111,100000*1.111,50000*1.111]
     AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
 
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
@@ -123,12 +125,10 @@ boot_n = 400
 
 alpha_00 = np.zeros(boot_n)
 alpha_01 = np.zeros(boot_n)
-alpha_02 = np.zeros(boot_n)
 alpha_03 = np.zeros(boot_n)
 alpha_04 = np.zeros(boot_n)
 alpha_05 = np.zeros(boot_n)
 alpha_10 = np.zeros(boot_n)
-alpha_11 = np.zeros(boot_n)
 alpha_12 =  np.zeros(boot_n)
 alpha_13 =  np.zeros(boot_n)
 alpha_14 =  np.zeros(boot_n)
@@ -160,34 +160,30 @@ for j in range(boot_n):
 
     alpha_00[j] = dics[j][0]
     alpha_01[j] = dics[j][1]
-    alpha_02[j] = dics[j][2]
-    alpha_03[j] = dics[j][3]
-    alpha_04[j] = dics[j][4]
-    alpha_05[j] = dics[j][5]
-    alpha_10[j] = dics[j][6]
-    alpha_11[j] = dics[j][7]
-    alpha_12[j] = dics[j][8]
-    alpha_13[j] = dics[j][9]
-    alpha_14[j] = dics[j][10]
-    alpha_15[j] = dics[j][11]
-    beta_0[j] = dics[j][12]
-    beta_1[j] = dics[j][13]
-    beta_2[j] = dics[j][14]
-    beta_3[j] = dics[j][15]
-    gamma_0[j] = dics[j][16]
-    gamma_1[j] = dics[j][17]
-    gamma_2[j] = dics[j][18]
+    alpha_03[j] = dics[j][2]
+    alpha_04[j] = dics[j][3]
+    alpha_05[j] = dics[j][4]
+    alpha_10[j] = dics[j][5]
+    alpha_12[j] = dics[j][6]
+    alpha_13[j] = dics[j][7]
+    alpha_14[j] = dics[j][8]
+    alpha_15[j] = dics[j][9]
+    beta_0[j] = dics[j][10]
+    beta_1[j] = dics[j][11]
+    beta_2[j] = dics[j][12]
+    beta_3[j] = dics[j][13]
+    gamma_0[j] = dics[j][14]
+    gamma_1[j] = dics[j][15]
+    gamma_2[j] = dics[j][16]
 
 
 
 est_alpha_00 = np.std(alpha_00)
 est_alpha_01 = np.std(alpha_01)
-est_alpha_02 = np.std(alpha_02)
 est_alpha_03 = np.std(alpha_03)
 est_alpha_04 = np.std(alpha_04)
 est_alpha_05 = np.std(alpha_05)
 est_alpha_10 = np.std(alpha_10)
-est_alpha_11 = np.std(alpha_11)
 est_alpha_12 = np.std(alpha_12)
 est_alpha_13 = np.std(alpha_13)
 est_alpha_14 = np.std(alpha_14)
@@ -202,12 +198,10 @@ est_gamma_2 = np.std(gamma_2)
 
 dics_se = {'SE alpha_00': est_alpha_00,
                 'SE alpha_01': est_alpha_01,
-                'SE alpha_02': est_alpha_02,
                 'SE alpha_03': est_alpha_03,
                 'SE alpha_04': est_alpha_04,
                 'SE alpha_05': est_alpha_05,
                 'SE alpha_10': est_alpha_10,
-                'SE alpha_11': est_alpha_11,
                 'SE alpha_12': est_alpha_12,
                 'SE alpha_13': est_alpha_13,
                 'SE alpha_14': est_alpha_14,
@@ -221,9 +215,8 @@ dics_se = {'SE alpha_00': est_alpha_00,
                 'SE gamma_2': est_gamma_2}
     
 betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'], 
-                              dics_se['SE alpha_02'],dics_se['SE alpha_03'],dics_se['SE alpha_04'],
-                              dics_se['SE alpha_05'],
-                              dics_se['SE alpha_10'],dics_se['SE alpha_11'],dics_se['SE alpha_12'], 
+                              dics_se['SE alpha_03'],dics_se['SE alpha_04'],
+                              dics_se['SE alpha_05'],dics_se['SE alpha_12'], 
                                   dics_se['SE alpha_13'],dics_se['SE alpha_14'],dics_se['SE alpha_15'],
                                   dics_se['SE beta_0'],
                                   dics_se['SE beta_1'],dics_se['SE beta_2'], 
@@ -231,6 +224,6 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model_v3.npy',betas_opt)
+np.save('/home/jrodriguez/teachers/results/se_model_v4.npy',betas_opt)
 
 
