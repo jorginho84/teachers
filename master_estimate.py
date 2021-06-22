@@ -18,7 +18,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("D:\Git\FitError")
 #import gridemax
 import time
 #import int_linear
@@ -33,11 +33,11 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v14.npy")
+betas_nelder = np.load("D:\Git\FitError/betasopt_model_v15.npy")
 
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("D:\Git\FitError/moments.npy")
 
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('D:\Git\FitError/data_pythonpast.dta')
 
 
 
@@ -134,8 +134,8 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-w_matrix = w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+ses_opt = np.load("D:\Git\FitError/ses_model.npy")
+w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)

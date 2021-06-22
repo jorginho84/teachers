@@ -279,9 +279,6 @@ class estimate:
         print ('The objetive function value equals ', q_w)
         print ('')
 
-        
-    
-                 
     
         return q_w
     
