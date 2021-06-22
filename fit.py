@@ -36,14 +36,14 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("D:\Git\FitError/betasopt_model_v15.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
 #betas_nelder15 = np.load("D:\Git\FitError/betasopt_model_v15.npy")
 
-moments_vector = np.load("D:\Git\FitError/moments.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('D:\Git\FitError/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -148,7 +148,7 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
-ses_opt = np.load("D:\Git\FitError/ses_model.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):

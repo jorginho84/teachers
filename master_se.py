@@ -34,7 +34,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v13.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
 var_cov = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy")
 
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
@@ -51,39 +51,37 @@ data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/t
 #print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
-treatmentOne = data[['d_trat']]
-treatment = data['d_trat'].to_numpy()
+treatment = np.array(data['d_trat'])
+
 
 # EXPERIENCE #
-yearsOne = data[['experience']]
-years = data['experience'].to_numpy()
+years = np.array(data['experience'])
 
 # SCORE PORTFOLIO #
-p1_0 = data['score_port'].to_numpy()
-p1 = data['score_port'].to_numpy()
+p1_0 = np.array(data['score_port_past'])
+p1 = np.array(data['score_port'])
 
 # SCORE TEST #
-p2_0 = data['score_test'].to_numpy()
-p2 = data['score_test'].to_numpy()
-
+p2_0 = np.array(data['score_port_past'])
+p2 = np.array(data['score_test'])
 
 # CATEGORY PORTFOLIO #
-catPort = data['cat_port'].to_numpy()
+catPort = np.array(data['cat_port'])
 
 
 # CATEGORY TEST #
-catPrueba = data['cat_test'].to_numpy()
+catPrueba = np.array(data['cat_test'])
 
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameI = data['trame'].to_numpy()
+TrameI = np.array(data['trame'])
 
 #TrameInitial = data[['tramo_a2016']]
 #TrameI = data['tramo_a2016'].to_numpy()
 
 # TYPE SCHOOL #
-typeSchool = data['typeschool'].to_numpy()
+typeSchool = np.array(data['typeschool'])
 
 #### PARAMETERS MODEL ####
 
@@ -161,6 +159,6 @@ npar = betas_nelder.shape[0]
 nmom = moments_vector.shape[0]
 
 ses = se_ins.big_sand(0.025,nmom,npar)
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/sesv3_modelv13.npy',ses*(1+1/50)*(1/N))
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/sesv3_modelv15.npy',ses*(1+1/50)*(1/N))
 
 
