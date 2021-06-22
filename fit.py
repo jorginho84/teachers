@@ -20,7 +20,7 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("D:\Git\FitError")
 #sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
@@ -36,13 +36,14 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
+betas_nelder = np.load("D:\Git\FitError/betasopt_model_v15.npy")
+#betas_nelder15 = np.load("D:\Git\FitError/betasopt_model_v15.npy")
 
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("D:\Git\FitError/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('D:\Git\FitError/data_pythonpast.dta')
 
 
 
@@ -52,39 +53,34 @@ data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/t
 #print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
-treatmentOne = data[['d_trat']]
-treatment = data['d_trat'].to_numpy()
+treatment = np.array(data['d_trat'])
 
 # EXPERIENCE #
-yearsOne = data[['experience']]
-years = data['experience'].to_numpy()
+years = np.array(data['experience'])
 
 # SCORE PORTFOLIO #
-p1_0 = data['score_port'].to_numpy()
-p1 = data['score_port'].to_numpy()
+p1_0 = np.array(data['score_port_past'])
+p1 = np.array(data['score_port'])
 
 # SCORE TEST #
-p2_0 = data['score_test'].to_numpy()
-p2 = data['score_test'].to_numpy()
-
+p2_0 = np.array(data['score_port_past'])
+p2 = np.array(data['score_test'])
 
 # CATEGORY PORTFOLIO #
-catPort = data['cat_port'].to_numpy()
-
+catPort = np.array(data['cat_port'])
 
 # CATEGORY TEST #
-catPrueba = data['cat_test'].to_numpy()
-
+catPrueba = np.array(data['cat_test'])
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameI = data['trame'].to_numpy()
+TrameI = np.array(data['trame'])
 
 #TrameInitial = data[['tramo_a2016']]
 #TrameI = data['tramo_a2016'].to_numpy()
 
 # TYPE SCHOOL #
-typeSchool = data['typeschool'].to_numpy()
+typeSchool = np.array(data['typeschool'])
 
 #### PARAMETERS MODEL ####
 
@@ -152,7 +148,7 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+ses_opt = np.load("D:\Git\FitError/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
@@ -182,6 +178,8 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.gammas[0],
                           param0.gammas[1],
                           param0.gammas[2]])
+
+print(beta0)
 
 qw = output_ins.objfunction(beta0)
 
@@ -231,29 +229,29 @@ sheet['D21'] = corr_data['Estimation Portfolio vs p']
 
 
 
-sim = np.array([corr_data['Mean Portfolio'],
-corr_data['Var Port'],
-corr_data['Mean SIMCE'],
-corr_data['Var SIMCE'],
-corr_data['Mean Test'],
-corr_data['Var Test'],
-corr_data['Mean PortTest'],
-corr_data['perc inter'],
-corr_data['perc advanced'],
-corr_data['perc expert'],
-corr_data['Estimation SIMCE vs Portfolio'],
-corr_data['Estimation SIMCE vs Prueba'],
-corr_data['Estimation EXP vs Portfolio'],
-corr_data['Estimation EXP vs Prueba'],
-corr_data['perc adv/exp control'],
-corr_data['Estimation Test vs p'],
-corr_data['Estimation Portfolio vs p']])
+#sim = np.array([corr_data['Mean Portfolio'],
+#corr_data['Var Port'],
+#corr_data['Mean SIMCE'],
+#corr_data['Var SIMCE'],
+#corr_data['Mean Test'],
+#corr_data['Var Test'],
+#corr_data['Mean PortTest'],
+#corr_data['perc inter'],
+#corr_data['perc advanced'],
+#corr_data['perc expert'],
+#corr_data['Estimation SIMCE vs Portfolio'],
+#corr_data['Estimation SIMCE vs Prueba'],
+#corr_data['Estimation EXP vs Portfolio'],
+#corr_data['Estimation EXP vs Prueba'],
+#corr_data['perc adv/exp control'],
+#corr_data['Estimation Test vs p'],
+#corr_data['Estimation Portfolio vs p']])
 
-x_vector = sim - moments_vector
+#x_vector = sim - moments_vector
 
-q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
+#q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
 
-weight = x_vector**2/ses_opt**2
+#weight = x_vector**2/ses_opt**2
 
 
 wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
