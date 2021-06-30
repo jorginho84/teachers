@@ -57,6 +57,7 @@ class estimate:
         
         est_corrSPort = np.zeros(times)
         est_corrSPrue = np.zeros(times)
+        est_corrSExp = np.zeros(times)
         #est_corrPP = np.zeros(times)
         est_mean_Port = np.zeros(times)
         est_mean_Pru = np.zeros(times)
@@ -129,6 +130,7 @@ class estimate:
             est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
             #13 SIMCE vs Test
             est_corrSPrue[i] = corrM.iloc[0]['TEST']
+            est_corrSExp[i] = corrM.iloc[0]['EXP']
             # We don't calculate this corr   
             #est_corrPP[i] = corrM.iloc[1]['TEST']
             #14 Experience vs Portfolio 
@@ -150,6 +152,7 @@ class estimate:
         
         est_bootsSPort = np.mean(est_corrSPort)
         est_bootsSPrue = np.mean(est_corrSPrue)
+        est_bootsSExp = np.mean(est_corrSExp)
         est_sim_mean_Port = np.mean(est_mean_Port)
         est_sim_var_Port = np.mean(est_var_Port)
         est_sim_mean_Pru = np.mean(est_mean_Pru)
@@ -186,7 +189,8 @@ class estimate:
             'Mean PortTest' : est_sim_mean_PP,
             'perc adv/exp control': est_sim_advexp_c,
             'Estimation Test vs p': est_sim_Testp,
-            'Estimation Portfolio vs p': est_sim_Portp}
+            'Estimation Portfolio vs p': est_sim_Portp,
+            'Estimation SIMCE vs Experience': est_bootsSExp}
     
     
     def objfunction(self,beta):
@@ -209,9 +213,10 @@ class estimate:
         self.param0.betas[1] = beta[11]
         self.param0.betas[2] = beta[12]
         self.param0.betas[3] = beta[13]
-        self.param0.gammas[0] = beta[14]
-        self.param0.gammas[1] = beta[15]
-        self.param0.gammas[2] = beta[16]
+        self.param0.betas[4] = beta[14]
+        self.param0.gammas[0] = beta[15]
+        self.param0.gammas[1] = beta[16]
+        self.param0.gammas[2] = beta[17]
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
@@ -238,9 +243,11 @@ class estimate:
         beta_spru = result['Estimation SIMCE vs Prueba']       
         beta_expport = result['Estimation EXP vs Portfolio']
         beta_exptest = result['Estimation EXP vs Prueba']
+        beta_sexp = result['Estimation SIMCE vs Experience']
         beta_advexp_c = result['perc adv/exp control']
         beta_testp = result['Estimation Test vs p']
         beta_portp = result['Estimation Portfolio vs p']
+        
         
    
          
@@ -248,7 +255,7 @@ class estimate:
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
             beta_vtest.size + beta_mporttest.size  + beta_pinter.size + beta_padv.size + \
                 beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
-                    beta_advexp_c.size + beta_testp.size + beta_portp.size
+                    beta_advexp_c.size + beta_testp.size + beta_portp.size + beta_sexp.size
         
         #Outer matrix
         x_vector=np.zeros((num_par,1))
@@ -267,9 +274,11 @@ class estimate:
         x_vector[11,0] = beta_spru - self.moments_vector[11]
         x_vector[12,0] = beta_expport - self.moments_vector[12]
         x_vector[13,0] = beta_exptest - self.moments_vector[13]
-        x_vector[14,0] = beta_advexp_c - self.moments_vector[14]
-        x_vector[15,0] = beta_testp - self.moments_vector[15]
-        x_vector[16,0] = beta_portp - self.moments_vector[16]
+        x_vector[14,0] = beta_sexp - self.moments_vector[14]
+        x_vector[15,0] = beta_advexp_c - self.moments_vector[15]
+        x_vector[16,0] = beta_testp - self.moments_vector[16]
+        x_vector[17,0] = beta_portp - self.moments_vector[17]
+        
         
         
         #The Q metric
@@ -301,6 +310,7 @@ class estimate:
                           self.param0.betas[1],
                           self.param0.betas[2],
                           self.param0.betas[3],
+                          self.param0.betas[4],
                           self.param0.gammas[0],
                           self.param0.gammas[1],
                           self.param0.gammas[2]])

@@ -18,7 +18,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\FitError")
+sys.path.append("D:\Git\ExpSIMCE")
 #import gridemax
 import time
 #import int_linear
@@ -33,11 +33,11 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("D:\Git\FitError/betasopt_model_v15.npy")
+betas_nelder = np.load("D:\Git\ExpSIMCE/betasopt_model_RA2.npy")
 
-moments_vector = np.load("D:\Git\FitError/moments.npy")
+moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 
-data = pd.read_stata('D:\Git\FitError/data_pythonpast.dta')
+data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 
 
 
@@ -82,9 +82,9 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
      [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
 
-gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
+gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -134,7 +134,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 
-ses_opt = np.load("D:\Git\FitError/ses_model.npy")
+ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
@@ -174,6 +174,8 @@ beta_14 = output_me.x[13]
 beta_15 = output_me.x[14]
 beta_16 = output_me.x[15]
 beta_17 = output_me.x[16]
+beta_18 = output_me.x[17]
+
 
 
 
@@ -182,9 +184,9 @@ betas_opt_me = np.array([beta_1, beta_2,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
-	beta_16,beta_17])
+	beta_16,beta_17,beta_18])
                         
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy',betas_opt_me)
+np.save('D:\Git\ExpSIMCE/betasopt_model_RA3.npy',betas_opt_me)
 
