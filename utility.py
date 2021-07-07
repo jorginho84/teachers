@@ -453,7 +453,8 @@ class Utility(object):
     
         eps = np.random.randn(self.N)*self.param.betas[3]
         
-        h =  self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + eps
+        h =  self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
+            self.param.betas[4]*self.years + eps
         
 
         return np.exp(h)

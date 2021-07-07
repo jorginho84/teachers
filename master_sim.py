@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:/Git/UpdatePlacement")
+sys.path.append("D:\Git\ExpSIMCE")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -30,7 +30,7 @@ import time
 # DATA 2018
 
 
-data = pd.read_stata('D:/Git/UpdatePlacement\data_pythonpast.dta')
+data = pd.read_stata('D:\Git\ExpSIMCE\data_pythonpast.dta')
 
 
 
@@ -72,7 +72,7 @@ HOURS = np.array([44]*N)
 alphas = [[0.5,0.1,0.2,-0.01,0.1,0.8],
 		[0.5,0.1,0.2,-0.01,0.1,0.7]]
 
-betas = [-0.4,0.3,0.9,1]
+betas = [-0.4,0.3,0.9,1,0.2]
 
 gammas = [-0.1,-0.2,0.8]
 
@@ -192,7 +192,7 @@ between.betweenOne()
 
 print("Utility simdata")
 
-modelSD = sd.SimData(N,model,treatment)
+modelSD = sd.SimData(N,model)
 
 utilitySD = modelSD.util(effort)
 print(utilitySD)
@@ -205,7 +205,7 @@ between.betweenOne()
 
 print("SIMDATA")
 
-opt = modelSD.choice(treatment)
+opt = modelSD.choice()
 print(opt)
 
 jashdkjhsa = opt['Opt Teacher'][0]
@@ -274,7 +274,7 @@ print(corr_data)
 #book = Workbook()
 #sheet = book.active
 
-wb = load_workbook('D:\Git\TeacherBranch\Outcomes.xlsx')
+wb = load_workbook('D:\Git\ExpSIMCE\Outcomes.xlsx')
 sheet = wb.active
 
 sheet['C5'] = 'Mean Portfolio'
@@ -325,7 +325,7 @@ sheet['D23'] = corr_data['Estimation Portfolio vs p']
 
 
 
-wb.save('D:\Git\TeacherBranch\Outcomes.xlsx')
+wb.save('D:\Git\ExpSIMCE\Outcomes.xlsx')
 
 
 

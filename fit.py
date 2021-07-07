@@ -20,7 +20,7 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:\Git\FitError")
+sys.path.append("D:\Git\ExpSIMCE")
 #sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
@@ -36,14 +36,14 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
+betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder15 = np.load("D:\Git\FitError/betasopt_model_v15.npy")
 
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 
 
 
@@ -93,9 +93,9 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
      [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13]]
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
 
-gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
+gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -148,7 +148,7 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
@@ -175,6 +175,7 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.betas[1],
                           param0.betas[2],
                           param0.betas[3],
+                          param0.betas[4],
                           param0.gammas[0],
                           param0.gammas[1],
                           param0.gammas[2]])
@@ -185,7 +186,7 @@ qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
+wb = load_workbook('D:\Git\ExpSIMCE/Outcomes.xlsx')
 sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
@@ -205,6 +206,7 @@ sheet['C18'] = 'corr(exp,Test)'
 sheet['C19'] = '\% adva/expert control'
 sheet['C20'] = 'Corr(Port,p)'
 sheet['C21'] = 'Corr(Test,p)'
+sheet['C22'] = 'Corr(Simce,Exp)'
 sheet['D4'] = 'simulation'
 sheet['E4'] = 'data'
 sheet['F4'] = 'se'
@@ -226,6 +228,7 @@ sheet['D18'] = corr_data['Estimation EXP vs Prueba']
 sheet['D19'] = corr_data['perc adv/exp control']
 sheet['D20'] = corr_data['Estimation Test vs p']
 sheet['D21'] = corr_data['Estimation Portfolio vs p']
+sheet['D22'] = corr_data['Estimation SIMCE vs Experience']
 
 
 
@@ -254,7 +257,7 @@ sheet['D21'] = corr_data['Estimation Portfolio vs p']
 #weight = x_vector**2/ses_opt**2
 
 
-wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
+wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
 
 
 
