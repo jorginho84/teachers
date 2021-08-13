@@ -114,7 +114,7 @@ class estimate:
             est_corrTestp[i] = corrM.iloc[0]['TEST']
             est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
 
-            # Here we consider the data for treatmetn group
+            # Data for treatment group
             datav = datadfT[self.treatment==1]
             #8
             #perc_init[i] = np.mean(datav['PLACEMENT']==1)
@@ -138,8 +138,11 @@ class estimate:
             #15 Experience vs Test
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             #datav0 = datadfT[datadfT['TREATMENT']==0]
+            
+            
+            # Data for control group
             datav_2 = datadfT[self.treatment==0]
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3) & (datav_2['PLACEMENT']<=5))
+            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)
@@ -173,14 +176,12 @@ class estimate:
         
         return {'Estimation SIMCE vs Portfolio': est_bootsSPort,
             'Estimation SIMCE vs Prueba': est_bootsSPrue,
-            #'Estimation Portfolio vs Prueba': est_sim_PP,
             'Estimation EXP vs Portfolio': est_sim_EXPPort,
             'Estimation EXP vs Prueba': est_sim_EXPPru,
             'Mean Portfolio': est_sim_mean_Port,
             'Var Port': est_sim_var_Port,
             'Mean Test': est_sim_mean_Pru,
             'Var Test': est_sim_var_Test,
-            #'perc init': est_sim_perc_init,
             'perc inter': est_sim_perc_inter,
             'perc advanced': est_sim_perc_advan,
             'perc expert': est_sim_perc_expert,

@@ -17,27 +17,25 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-#sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\ExpSIMCE")
-#import gridemax
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("D:\Git\ExpSIMCE")
 import time
-#import int_linear
 import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-#import pybobyqa
-#import xlsxwriter
 from openpyxl import Workbook 
 from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder = np.load("D:\Git\ExpSIMCE/betasopt_model_RA2.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v16.npy")
 
-moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
+#moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
-data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
+#data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -134,7 +132,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
 
 
-ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
@@ -188,5 +186,5 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('D:\Git\ExpSIMCE/betasopt_model_RA3.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v17.npy',betas_opt_me)
 

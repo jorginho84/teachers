@@ -540,8 +540,11 @@ class Utility(object):
         
         income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
         
-        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h)
-
+        #U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h)
+        
+        mu_c = -0.5
+        ut_h = self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h
+        U_rsl = np.exp(ut_h)*((income_aux)**mu_c)/(mu_c) + self.param.gammas[2]*np.log(h)
         return U_rsl
 
 

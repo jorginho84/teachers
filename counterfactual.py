@@ -42,7 +42,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 np.random.seed(100)
 
 #Betas and var-cov matrix
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v17.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -86,13 +86,13 @@ for x in range(0,2):
     HOURS = np.array([44]*N)
     
     alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-      betas_nelder[3], betas_nelder[4]],
-     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-      betas_nelder[8], betas_nelder[9]]]
+          betas_nelder[3], betas_nelder[4]],
+         [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+          betas_nelder[8], betas_nelder[9]]]
+        
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
 
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13]]
-
-    gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
+    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
     
     dolar= 600
     value = [14403, 15155]
@@ -242,7 +242,7 @@ cost_original = np.mean(att_cost)/np.mean(income[0])
 cost_alternative = np.mean(att_cost_c)/np.mean(income[0])
 
 
-name_list = ['portfolio','rueba']
+name_list = ['portfolio','PKT']
 for k in range(2):
     y = np.zeros(n_quant)
     y_c = np.zeros(n_quant)
@@ -267,7 +267,7 @@ for k in range(2):
     ax.text(2,np.mean(att_c) - 2*0.008,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
             ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
     ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
-    ax.set_xlabel(r'Deciles of baseline score', fontsize=13)
+    ax.set_xlabel(r'Deciles of baseline score (' + name_list[k] + ')', fontsize=13)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')

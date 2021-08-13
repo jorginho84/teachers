@@ -36,14 +36,16 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-#betas_nelder15 = np.load("D:\Git\FitError/betasopt_model_v15.npy")
+#betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v16.npy")
 
-moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
+#moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
-data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
+#data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -148,7 +150,8 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
-ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
+#ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
@@ -186,7 +189,8 @@ qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('D:\Git\ExpSIMCE/Outcomes.xlsx')
+#wb = load_workbook('D:\Git\ExpSIMCE/Outcomes.xlsx')
+wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
@@ -257,7 +261,8 @@ sheet['D22'] = corr_data['Estimation SIMCE vs Experience']
 #weight = x_vector**2/ses_opt**2
 
 
-wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
+#wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
+wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
 
 
