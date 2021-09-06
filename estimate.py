@@ -16,6 +16,7 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from scipy.optimize import fmin_bfgs
+import statsmodels.api as sm
 #from pathos.multiprocessing import ProcessPool
 import utility as util
 import parameters as parameters
@@ -110,7 +111,7 @@ class estimate:
             p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
             dataf_past = {'TEST': opt['Opt Teacher'][1], 'PORTFOLIO': opt['Opt Teacher'][0], 'P_past': p0_past}
             datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO'])
-            corrM = datadf_past.corr()
+            corrM = datadf_past[self.treatment==1].corr()
             est_corrTestp[i] = corrM.iloc[0]['TEST']
             est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
 
@@ -138,6 +139,7 @@ class estimate:
             #15 Experience vs Test
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             #datav0 = datadfT[datadfT['TREATMENT']==0]
+
             
             
             # Data for control group

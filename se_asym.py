@@ -74,9 +74,9 @@ class SEs:
              [bs[5], 0,bs[6],bs[7],
               bs[8], bs[9]]]
         
-        betas = [bs[10], bs[11], bs[12],bs[13]]
+        betas = [bs[10], bs[11], bs[12],bs[13],bs[14]]
         
-        gammas = [bs[14],bs[15],bs[16]]
+        gammas = [bs[15],bs[16],bs[17]]
 
 
 		#Re-defines the instance with parameters
@@ -105,15 +105,17 @@ class SEs:
         beta_spru = result['Estimation SIMCE vs Prueba']       
         beta_expport = result['Estimation EXP vs Portfolio']
         beta_exptest = result['Estimation EXP vs Prueba']
+        beta_sexp = result['Estimation SIMCE vs Experience']
         beta_advexp_c = result['perc adv/exp control']
         beta_testp = result['Estimation Test vs p']
+        beta_portp = result['Estimation Portfolio vs p']
         beta_portp = result['Estimation Portfolio vs p']
         
         
         return [beta_mport,beta_vport,beta_msimce,beta_vsimce,beta_mtest,
                 beta_vtest,beta_mporttest,beta_pinter,beta_padv,beta_pexpert,
-                beta_sport,beta_spru,beta_expport,beta_exptest,beta_advexp_c,
-                beta_testp,beta_portp]
+                beta_sport,beta_spru,beta_expport,beta_exptest,beta_sexp,
+                beta_advexp_c,beta_testp,beta_portp]
     
     def binding(self,psi):
         

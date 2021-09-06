@@ -89,10 +89,10 @@ def simulation(j):
           betas_nelder[3], betas_nelder[4]],
          [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
           betas_nelder[8], betas_nelder[9]]]
-
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13]]
-
-    gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
+    
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
+    
+    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
@@ -121,6 +121,12 @@ def simulation(j):
 
     return output.x
 
+
+#simulation(1)
+
+
+
+
 boot_n = 400
 
 alpha_00 = np.zeros(boot_n)
@@ -137,6 +143,7 @@ beta_0 =  np.zeros(boot_n)
 beta_1 = np.zeros(boot_n)
 beta_2 = np.zeros(boot_n)
 beta_3 = np.zeros(boot_n)
+beta_4 = np.zeros(boot_n)
 gamma_0 = np.zeros(boot_n)
 gamma_1 = np.zeros(boot_n)
 gamma_2 = np.zeros(boot_n)
@@ -172,9 +179,10 @@ for j in range(boot_n):
     beta_1[j] = dics[j][11]
     beta_2[j] = dics[j][12]
     beta_3[j] = dics[j][13]
-    gamma_0[j] = dics[j][14]
-    gamma_1[j] = dics[j][15]
-    gamma_2[j] = dics[j][16]
+    beta_4[j] = dics[j][14]
+    gamma_0[j] = dics[j][15]
+    gamma_1[j] = dics[j][16]
+    gamma_2[j] = dics[j][17]
 
 
 
@@ -192,6 +200,7 @@ est_beta_0 = np.std(beta_0)
 est_beta_1 = np.std(beta_1)
 est_beta_2 = np.std(beta_2)
 est_beta_3 = np.std(beta_3)
+est_beta_4 = np.std(beta_4)
 est_gamma_0 = np.std(gamma_0)
 est_gamma_1 = np.std(gamma_1)
 est_gamma_2 = np.std(gamma_2)
@@ -210,17 +219,19 @@ dics_se = {'SE alpha_00': est_alpha_00,
                 'SE beta_1': est_beta_1,
                 'SE beta_2': est_beta_2,
                 'SE beta_3': est_beta_3,
+                'SE beta_4': est_beta_4,
                 'SE gamma_0': est_gamma_0,
                 'SE gamma_1': est_gamma_1,
                 'SE gamma_2': est_gamma_2}
     
 betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'], 
                               dics_se['SE alpha_03'],dics_se['SE alpha_04'],
-                              dics_se['SE alpha_05'],dics_se['SE alpha_12'], 
+                              dics_se['SE alpha_05'],dics_se['SE alpha_10'], dics_se['SE alpha_12'], 
                                   dics_se['SE alpha_13'],dics_se['SE alpha_14'],dics_se['SE alpha_15'],
                                   dics_se['SE beta_0'],
                                   dics_se['SE beta_1'],dics_se['SE beta_2'], 
-                                      dics_se['SE beta_3'],dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2']])
+                                      dics_se['SE beta_3'],dics_se['SE beta_4'],
+                                      dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2']])
 
 
 

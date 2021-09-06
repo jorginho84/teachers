@@ -30,26 +30,33 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import time
 
-betas_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/betas_v1.npy")
+betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betas_v15.npy")
 
-ses = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/model/se_v1.npy")
+ses_betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_v1.npy")
 
 
 #Estimated parameters
-alphas = [[0.5,0.1,0.2,-0.01,0.1],
-		[0.5,0.1,0.2,-0.01,0.1]]
+alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+      betas_nelder[3], betas_nelder[4]],
+     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+      betas_nelder[8], betas_nelder[9]]]
 
-se_alphas = [[0.5,0.1,0.2,-0.01,0.1],
-		[0.5,0.1,0.2,-0.01,0.1]]
+
+ses_alphas = [[ses_betas_nelder[0], ses_betas_nelder[1],0,ses_betas_nelder[2],
+      ses_betas_nelder[3], ses_betas_nelder[4]],
+     [ses_betas_nelder[5], 0,ses_betas_nelder[6],ses_betas_nelder[7],
+      ses_betas_nelder[8], ses_betas_nelder[9]]]
+
 
 #betas = [100,0.9,0.9,-0.05,-0.05,20]
 #Parámetros más importantes
 #betas = [100,10,33,20]
 
-betas = [-0.4,0.3,0.9,1]
-se_betas = [-0.4,0.3,0.9,1]
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
+ses_betas = [ses_betas_nelder[10], ses_betas_nelder[11], 
+             ses_betas_nelder[12] ,ses_betas_nelder[13],ses_betas_nelder[14]]
 
-gammas = [-0.1,-0.2,0.8]
+gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
 se_gammas = [-0.1,-0.2,0.8]
 
 

@@ -531,6 +531,16 @@ class Utility(object):
 
         """
         
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
+     
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        
         d_effort_t1 = effort == 1
         d_effort_t2 = effort == 2
         d_effort_t3 = effort == 3
@@ -539,6 +549,8 @@ class Utility(object):
         effort_h = d_effort_t2 + d_effort_t3
         
         income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
+        
+        past_int = effort_m*p0_past*(0.05) + effort_m*p0_past*(-0.01) + effort_h*p0_past*(0.1) + effort_h*p0_past*(-0.01) 
         
         U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h)
         

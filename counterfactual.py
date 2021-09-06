@@ -264,7 +264,7 @@ for k in range(2):
     plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
     ax.text(2,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att))+
             ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
-    ax.text(2,np.mean(att_c) - 2*0.008,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
+    ax.text(2,np.mean(att_c) - 4*0.008,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
             ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
     ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
     ax.set_xlabel(r'Deciles of baseline score (' + name_list[k] + ')', fontsize=13)
@@ -274,7 +274,7 @@ for k in range(2):
     ax.xaxis.set_ticks_position('bottom')
     plt.yticks(fontsize=12)
     plt.xticks(fontsize=12)
-    #ax.set_ylim(0.3,0.6)
+    ax.set_ylim(0,0.35)
     ax.legend(loc = 'best',fontsize = 13)
     #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
     plt.tight_layout()
