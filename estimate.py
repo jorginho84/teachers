@@ -76,6 +76,8 @@ class estimate:
         perc_avanexpet_c = np.zeros(times)
         est_corrTestp = np.zeros(times)
         est_corrPortp = np.zeros(times)
+        est_past = np.zeros(times)
+        est_corrPortp = np.zeros(times)
         
 
         for i in range(1,times):
@@ -144,7 +146,7 @@ class estimate:
             
             # Data for control group
             datav_2 = datadfT[self.treatment==0]
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3))
+            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT_AEP']>=7))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)

@@ -95,9 +95,9 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
      [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
       betas_nelder[8], betas_nelder[9]]]
 
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
+betas = [-0.57, betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
 
-gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+gammas = [-0.1,-0.3,betas_nelder[17]]
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *

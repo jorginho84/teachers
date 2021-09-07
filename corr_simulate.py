@@ -84,6 +84,7 @@ def corr_simulate(data, B):
         corrM = datadf_past.corr()
         est_corrTestp[i] = corrM.iloc[0]['TEST']
         est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
+        
         datav = rev[rev['d_trat']==1]
         #perc_init[i] = (sum(datav['trame']==1) / len(datav['trame'])) 
         perc_inter[i] = (sum(datav['trame']==2) / len(datav['trame'])) 
@@ -97,6 +98,7 @@ def corr_simulate(data, B):
         est_corrSEXP[i] = corrM.iloc[0]['EXP']
         est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
+        
         datav_2 = rev[rev['d_trat']==0]
         perc_avanexpet_c[i] = ((sum(datav_2['trame']==3) + sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
         p1 = datav_2['score_port'].to_numpy()
