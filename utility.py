@@ -450,6 +450,8 @@ class Utility(object):
         
         effort_m = d_effort_t1 + d_effort_t3
         effort_h = d_effort_t2 + d_effort_t3
+        
+
     
         eps = np.random.randn(self.N)*self.param.betas[3]
         

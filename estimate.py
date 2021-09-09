@@ -87,21 +87,18 @@ class estimate:
             dataf = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 
                      'EXP': self.years, 'PLACEMENT': opt['Opt Placement'][0], 'PLACEMENT_AEP': opt['Opt Placement'][1],
                      'PORTPAST': self.p1_0, 'TESTPAST': self.p2_0}
-            # Here we consider the database complete
+            
+            
+            #### Complete database###
             datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PLACEMENT', 'PORTPAST', 'TESTPAST','PLACEMENT_AEP'])
-            #1 Portfolio mean
-            est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
-            #2 Portfolio var
-            est_var_Port[i] = np.var(np.array(datadfT['PORTFOLIO']))
+
             #3 SIMCE mean
             est_mean_SIMCE[i] = np.mean(np.array(datadfT['SIMCE']))
             #4 SIMCE var
             est_var_SIMCE[i] = np.var(np.array(datadfT['SIMCE']))
-            #5 Test mean
-            est_mean_Pru[i] = np.mean(np.array(datadfT['TEST']))
-            #6 Test var
-            est_var_Pru[i] = np.var(np.array(datadfT['TEST']))
-            #7 Portfolio-Test mean
+            
+            corrM = datadfT.corr()
+            est_corrSExp[i] = corrM.iloc[0]['EXP']
 
             p1_past = np.array(datadfT['PORTPAST'])
             p2_past = np.array(datadfT['TESTPAST'])
@@ -113,12 +110,28 @@ class estimate:
             p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
             dataf_past = {'TEST': opt['Opt Teacher'][1], 'PORTFOLIO': opt['Opt Teacher'][0], 'P_past': p0_past}
             datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO'])
+
+
+            #### Treatment group####
+            
             corrM = datadf_past[self.treatment==1].corr()
             est_corrTestp[i] = corrM.iloc[0]['TEST']
             est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
-
-            # Data for treatment group
+            
+            
             datav = datadfT[self.treatment==1]
+                       
+            #1 Portfolio mean
+            est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
+            #2 Portfolio var
+            est_var_Port[i] = np.var(np.array(datadfT['PORTFOLIO']))
+            
+            #5 Test mean
+            est_mean_Pru[i] = np.mean(np.array(datadfT['TEST']))
+            #6 Test var
+            est_var_Pru[i] = np.var(np.array(datadfT['TEST']))
+            
+                    
             #8
             #perc_init[i] = np.mean(datav['PLACEMENT']==1)
             #9
@@ -133,7 +146,7 @@ class estimate:
             est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
             #13 SIMCE vs Test
             est_corrSPrue[i] = corrM.iloc[0]['TEST']
-            est_corrSExp[i] = corrM.iloc[0]['EXP']
+            
             # We don't calculate this corr   
             #est_corrPP[i] = corrM.iloc[1]['TEST']
             #14 Experience vs Portfolio 
@@ -144,9 +157,9 @@ class estimate:
 
             
             
-            # Data for control group
+            ####Data for control group###
             datav_2 = datadfT[self.treatment==0]
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT_AEP']>=7))
+            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3))
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
             p1v1 = np.where(np.isnan(p1), 0, p1)

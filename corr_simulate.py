@@ -31,7 +31,8 @@ from openpyxl import load_workbook
 
 #### LOAD DATA ####
 
-df = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
+#df = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
+df = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 pd.value_counts(df['trame'])
 
@@ -65,12 +66,10 @@ def corr_simulate(data, B):
     
     for i in range(1,B):
         rev = data.sample(n, replace=True)
-        est_mean_Port[i] = np.mean(rev['score_port'])
-        est_var_Port[i] = np.var(rev['score_port'])
+
         est_mean_SIMCE[i] = np.mean(rev['stdsimce_m'])
         est_var_SIMCE[i] = np.var(rev['stdsimce_m'])
-        est_mean_Pru[i] = np.mean(rev['score_test'])
-        est_var_Pru[i] = np.var(rev['score_test'])
+
         p1_past = np.array(rev['score_port_past'])
         p2_past = np.array(rev['score_test_past'])
         p1v1 = np.where(np.isnan(p1_past), 0, p1_past)
@@ -79,30 +78,41 @@ def corr_simulate(data, B):
         p0_past = np.where((p1v1 == 0),p2v1, p0_past)
         p0_past = np.where((p2v1 == 0),p1v1, p0_past)
         p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
-        dataf_past = {'TEST': rev['score_port'], 'PORTFOLIO': rev['score_test'], 'P_past': p0_past}
-        datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO'])
+        dataf_past = {'TEST': rev['score_port'], 'PORTFOLIO': rev['score_test'], 'P_past': p0_past, 'SIMCE': rev['stdsimce_m'],
+                      'EXP': rev['experience']}
+        datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO','SIMCE','EXP'])
+        
         corrM = datadf_past.corr()
+        est_corrSEXP[i] = corrM.iloc[3]['EXP']
+
+        
+        datav = rev[rev['d_trat']==1]
+        
+        corrM = datadf_past[rev['d_trat']==1].corr()
         est_corrTestp[i] = corrM.iloc[0]['TEST']
         est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
         
-        datav = rev[rev['d_trat']==1]
+        est_mean_Port[i] = np.mean(datav['score_port'])
+        est_var_Port[i] = np.var(datav['score_port'])
+        est_mean_Pru[i] = np.mean(datav['score_test'])
+        est_var_Pru[i] = np.var(datav['score_test'])
         #perc_init[i] = (sum(datav['trame']==1) / len(datav['trame'])) 
         perc_inter[i] = (sum(datav['trame']==2) / len(datav['trame'])) 
         perc_advan[i] = (sum(datav['trame']==3) / len(datav['trame'])) 
         perc_expert[i] = ((sum(datav['trame']==4)+sum(datav['trame']==5)) / len(datav['trame'])) 
-        datav1 = {'SIMCE': datav['stdsimce_m'], 'PORTFOLIO': datav['zpjeport'], 'TEST': datav['zpjeprue'], 'EXP': datav['experience']}
+        datav1 = {'SIMCE': datav['stdsimce_m'], 'PORTFOLIO': datav['score_port'], 'TEST': datav['score_test'], 'EXP': datav['experience']}
         datadf = pd.DataFrame(datav1, columns=['SIMCE','PORTFOLIO','TEST', 'EXP'])
         corrM = datadf.corr()
         est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
         est_corrSPrue[i] = corrM.iloc[0]['TEST']
-        est_corrSEXP[i] = corrM.iloc[0]['EXP']
+
         est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
         
         datav_2 = rev[rev['d_trat']==0]
         perc_avanexpet_c[i] = ((sum(datav_2['trame']==3) + sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
-        p1 = datav_2['score_port'].to_numpy()
-        p2 = datav_2['score_test'].to_numpy()
+        p1 = datav_2['score_port_past'].to_numpy()
+        p2 = datav_2['score_test_past'].to_numpy()
         p1v1 = np.where(np.isnan(p1), 0, p1)
         p2v1 = np.where(np.isnan(p2), 0, p2)
         p0 = np.zeros(p1.shape)
@@ -209,7 +219,7 @@ varcov = result['Var Cov Matrix']
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('D:\Git\ExpSIMCE\Outcomes.xlsx')
+wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 sheet = wb["data"]
 
 
@@ -295,12 +305,12 @@ result['perc adv/exp control'],
 result['Estimation Test vs p'],
 result['Estimation Portfolio vs p']])
 
-np.save('D:\Git\ExpSIMCE/ses_model.npy',ses)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy',ses)
 
-np.save('D:\Git\ExpSIMCE/moments.npy',means)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy',means)
 
-np.save('D:\Git\ExpSIMCE/var_cov.npy',varcov)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy',varcov)
 
-wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
+wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
 
 
