@@ -112,16 +112,14 @@ def corr_simulate(data, B):
         est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
         Y = (datav['trame'] == 4) | (datav['trame'] == 5)
-        X = datav['score_port_past']
-        X = sm.add_constant(X)
-        reg_w         = sm.OLS(endog = Y, exog=X, missing='drop').fit()
-        est_pastPort_expert[i]     = reg_w[1]
+        data_corr = {'% Expert': Y, 'Past portfolio': datav['score_port_past'], 
+                       'Past test':datav['score_test_past']}
+        data_corr = pd.DataFrame(data_corr, columns=['% Expert','Past portfolio','Past test'])
+        corrM = data_corr.corr()
+        est_pastTest_expert[i] = corrM.iloc[0]['Past test']
+        est_pastPort_expert[i] = corrM.iloc[0]['Past portfolio']
         
-        X = datav['score_test_past']
-        X = sm.add_constant(X)
-        reg_w         = sm.OLS(endog = Y, exog=X, missing='drop').fit()
-        est_pastTest_expert[i]     = reg_w[1]
-        
+         
         datav_2 = rev[rev['d_trat']==0]
         perc_avanexpet_c[i] = ((sum(datav_2['trame']==3) + sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
         p1 = datav_2['score_port_past'].to_numpy()

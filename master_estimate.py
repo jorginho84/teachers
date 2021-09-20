@@ -29,7 +29,7 @@ from openpyxl import load_workbook
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v18.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v19.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
@@ -81,7 +81,7 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
       betas_nelder[8], betas_nelder[9]]]
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
-gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17],0.01,0.01]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -172,6 +172,8 @@ beta_15 = output_me.x[14]
 beta_16 = output_me.x[15]
 beta_17 = output_me.x[16]
 beta_18 = output_me.x[17]
+beta_19 = output_me.x[18]
+beta_20 = output_me.x[19]
 
 
 
@@ -181,9 +183,9 @@ betas_opt_me = np.array([beta_1, beta_2,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
-	beta_16,beta_17,beta_18])
+	beta_16,beta_17,beta_18,beta_19,beta_20])
                         
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v19.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v20.npy',betas_opt_me)
 

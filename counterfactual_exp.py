@@ -42,7 +42,7 @@ np.random.seed(123)
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v19.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v20.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -90,7 +90,7 @@ for x in range(0,2):
         
     betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
 
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17],betas_nelder[18],betas_nelder[19]]
     
     dolar= 600
     value = [14403, 15155]
@@ -214,10 +214,12 @@ plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
 plot1 = ax.bar(x,y,color='b' ,alpha=.5, label = 'ATT original STPD')
 plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
-ax.text(0.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)) + 
-        ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
-ax.text(0.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
-        ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
+#ax.text(0.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)) + 
+ #       ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
+#ax.text(0.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
+ #       ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
+ax.text(0.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)),fontsize=13)
+ax.text(0.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red',fontsize=13)
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
 ax.set_xlabel(r'Baseline experience', fontsize=13)
 ax.set_xticks([1,2,3,4,5])

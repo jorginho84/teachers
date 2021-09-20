@@ -37,7 +37,7 @@ from openpyxl import load_workbook
 np.random.seed(123)
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v19.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v20.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
@@ -65,7 +65,7 @@ p1_0 = np.array(data['score_port_past'])
 p1 = np.array(data['score_port'])
 
 # SCORE TEST #
-p2_0 = np.array(data['score_port_past'])
+p2_0 = np.array(data['score_test_past'])
 p2 = np.array(data['score_test'])
 
 # CATEGORY PORTFOLIO #
@@ -96,7 +96,9 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
       betas_nelder[8], betas_nelder[9]]]
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
-gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17],betas_nelder[18],betas_nelder[19]]
+
+
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -180,7 +182,9 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.betas[4],
                           param0.gammas[0],
                           param0.gammas[1],
-                          param0.gammas[2]])
+                          param0.gammas[2],
+                          param0.gammas[3],
+                          param0.gammas[4]])
 
 print(beta0)
 
@@ -232,6 +236,8 @@ sheet['D19'] = corr_data['perc adv/exp control']
 sheet['D20'] = corr_data['Estimation Test vs p']
 sheet['D21'] = corr_data['Estimation Portfolio vs p']
 sheet['D22'] = corr_data['Estimation SIMCE vs Experience']
+sheet['D23'] = corr_data['Estimation Past port vs % expert']
+sheet['D24'] = corr_data['Estimation Past test vs % expert']
 
 
 

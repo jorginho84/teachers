@@ -25,18 +25,23 @@ import openpyxl
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 #Betas and var-cov matrix
-se_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_model_v4.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
+se_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_model_v20.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v20.npy")
 
 #Utility function
 gamma_0 = betas_nelder[15]
 gamma_1 = betas_nelder[16]
 gamma_2 = betas_nelder[17]
+gamma_3 = betas_nelder[18]
+gamma_4 = betas_nelder[19]
 
 
 se_gamma_0 =se_vector[15]
 se_gamma_1 =se_vector[16]
 se_gamma_2 =se_vector[17]
+se_gamma_3 =se_vector[18]
+se_gamma_4 =se_vector[19]
+
 
 
 #Effort Student (this is t_student function in utility class)
@@ -66,9 +71,11 @@ se_alphas_test = np.array([se_vector[5],se_vector[6],se_vector[7],
 
 ###########.TEX table##################
 
-utility_list_beta = [gamma_0,gamma_1,gamma_2]
-utility_list_se = [se_gamma_0,se_gamma_1,se_gamma_2]
-utility_names = [r'Portfolio effort',r'PKT effort',r'Preference for student performance']
+utility_list_beta = [gamma_0,gamma_1,gamma_2,gamma_3,gamma_4]
+utility_list_se = [se_gamma_0,se_gamma_1,se_gamma_2,se_gamma_3,se_gamma_4]
+utility_names = [r'Portfolio effort',r'PKT effort',r'Preference for student performance',
+                 r'Portfolio effort$\times$past performance',
+                 r'PKT effort$\times$past performance']
 
 beta_list_beta = [betas_opt_t[0,0],betas_opt_t[1,0],betas_opt_t[2,0],betas_opt_t[4,0],betas_opt_t[3,0]]
 beta_list_se = [se_betas_opt_t[0,0],se_betas_opt_t[1,0],

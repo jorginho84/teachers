@@ -510,7 +510,7 @@ class Utility(object):
 
                 
             pb_potential.append(self.param.alphas[j][0] + \
-                                self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past + \
+                                self.param.alphas[j][5]*p0_past + \
                                     shock)
             
 
@@ -554,9 +554,10 @@ class Utility(object):
         
         income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
         
-        past_int = effort_m*p0_past*(0.04) + effort_h*p0_past*(0.1)
+        past_int = effort_m*p0_past*self.param.gammas[3] + effort_h*p0_past*self.param.gammas[4]
         
-        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h)
+        
+        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h) + past_int 
         
         #mu_c = -0.5
         #ut_h = self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h

@@ -32,7 +32,7 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
-betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v15.npy")
+betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v20.npy")
 npar = betas_nelder.shape[0]
 
 df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
@@ -92,7 +92,7 @@ def simulation(j):
     
     betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
     
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17],betas_nelder[18],betas_nelder[19]]
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
@@ -147,6 +147,8 @@ beta_4 = np.zeros(boot_n)
 gamma_0 = np.zeros(boot_n)
 gamma_1 = np.zeros(boot_n)
 gamma_2 = np.zeros(boot_n)
+gamma_3 = np.zeros(boot_n)
+gamma_4 = np.zeros(boot_n)
 
 start_time = time.time()
 
@@ -183,6 +185,8 @@ for j in range(boot_n):
     gamma_0[j] = dics[j][15]
     gamma_1[j] = dics[j][16]
     gamma_2[j] = dics[j][17]
+    gamma_3[j] = dics[j][18]
+    gamma_4[j] = dics[j][19]
 
 
 
@@ -204,6 +208,8 @@ est_beta_4 = np.std(beta_4)
 est_gamma_0 = np.std(gamma_0)
 est_gamma_1 = np.std(gamma_1)
 est_gamma_2 = np.std(gamma_2)
+est_gamma_3 = np.std(gamma_3)
+est_gamma_4 = np.std(gamma_4)
 
 dics_se = {'SE alpha_00': est_alpha_00,
                 'SE alpha_01': est_alpha_01,
@@ -222,7 +228,9 @@ dics_se = {'SE alpha_00': est_alpha_00,
                 'SE beta_4': est_beta_4,
                 'SE gamma_0': est_gamma_0,
                 'SE gamma_1': est_gamma_1,
-                'SE gamma_2': est_gamma_2}
+                'SE gamma_2': est_gamma_2,
+                'SE gamma_3': est_gamma_3,
+                'SE gamma_4': est_gamma_4}
     
 betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'], 
                               dics_se['SE alpha_03'],dics_se['SE alpha_04'],
@@ -231,10 +239,11 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
                                   dics_se['SE beta_0'],
                                   dics_se['SE beta_1'],dics_se['SE beta_2'], 
                                       dics_se['SE beta_3'],dics_se['SE beta_4'],
-                                      dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2']])
+                                      dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2'],
+                                      dics_se['SE gamma_3'],dics_se['SE gamma_4']])
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model_v4.npy',betas_opt)
+np.save('/home/jrodriguez/teachers/results/se_model_v20.npy',betas_opt)
 
 

@@ -16,7 +16,6 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from scipy.optimize import fmin_bfgs
-import statsmodels.api as sm
 #from pathos.multiprocessing import ProcessPool
 import utility as util
 import parameters as parameters
@@ -76,99 +75,87 @@ class estimate:
         perc_avanexpet_c = np.zeros(times)
         est_corrTestp = np.zeros(times)
         est_corrPortp = np.zeros(times)
-        est_past = np.zeros(times)
-        est_corrPortp = np.zeros(times)
+        est_pastPort_exp = np.zeros(times)
+        est_pastTest_exp = np.zeros(times)
         
 
         for i in range(1,times):
            
             np.random.seed(i+100)
             opt = modelSD.choice()
+            
+            expert = (opt['Opt Placement'][0] >= 4)
+            adv_expert = (opt['Opt Placement'][0] >= 3)
+            
+            
+            p1v1 = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+            p2v1 = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+            p0_past = np.zeros(self.p1_0.shape)
+            p0_past = np.where((p1v1 == 0),p2v1, p0_past)
+            p0_past = np.where((p2v1 == 0),p1v1, p0_past)
+            p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+            
             dataf = {'SIMCE': opt['Opt Simce'], 'PORTFOLIO': opt['Opt Teacher'][0], 'TEST': opt['Opt Teacher'][1], 
                      'EXP': self.years, 'PLACEMENT': opt['Opt Placement'][0], 'PLACEMENT_AEP': opt['Opt Placement'][1],
-                     'PORTPAST': self.p1_0, 'TESTPAST': self.p2_0}
+                     'PORTPAST': self.p1_0, 'TESTPAST': self.p2_0, '% Expert': expert, '% Advanced or expert': adv_expert,
+                     'P_past': p0_past}
             
             
             #### Complete database###
-            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PLACEMENT', 'PORTPAST', 'TESTPAST','PLACEMENT_AEP'])
+            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PLACEMENT', 'PORTPAST', 
+                                                   'TESTPAST','PLACEMENT_AEP', '% Expert','% Advanced or expert',
+                                                   'P_past'])
 
-            #3 SIMCE mean
             est_mean_SIMCE[i] = np.mean(np.array(datadfT['SIMCE']))
-            #4 SIMCE var
+
             est_var_SIMCE[i] = np.var(np.array(datadfT['SIMCE']))
             
-            corrM = datadfT.corr()
+            datadf_aux = pd.DataFrame(datadfT, columns=['SIMCE','EXP'])
+            corrM = datadf_aux.corr()
             est_corrSExp[i] = corrM.iloc[0]['EXP']
-
-            p1_past = np.array(datadfT['PORTPAST'])
-            p2_past = np.array(datadfT['TESTPAST'])
-            p1v1 = np.where(np.isnan(p1_past), 0, p1_past)
-            p2v1 = np.where(np.isnan(p2_past), 0, p2_past)
-            p0_past = np.zeros(p1_past.shape)
-            p0_past = np.where((p1v1 == 0),p2v1, p0_past)
-            p0_past = np.where((p2v1 == 0),p1v1, p0_past)
-            p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
-            dataf_past = {'TEST': opt['Opt Teacher'][1], 'PORTFOLIO': opt['Opt Teacher'][0], 'P_past': p0_past}
-            datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO'])
 
 
             #### Treatment group####
-            
-            corrM = datadf_past[self.treatment==1].corr()
-            est_corrTestp[i] = corrM.iloc[0]['TEST']
-            est_corrPortp[i] = corrM.iloc[0]['PORTFOLIO']
-            
-            
             datav = datadfT[self.treatment==1]
                        
-            #1 Portfolio mean
             est_mean_Port[i] = np.mean(np.array(datadfT['PORTFOLIO']))
-            #2 Portfolio var
+
             est_var_Port[i] = np.var(np.array(datadfT['PORTFOLIO']))
             
-            #5 Test mean
             est_mean_Pru[i] = np.mean(np.array(datadfT['TEST']))
-            #6 Test var
+
             est_var_Pru[i] = np.var(np.array(datadfT['TEST']))
             
-                    
-            #8
-            #perc_init[i] = np.mean(datav['PLACEMENT']==1)
-            #9
             perc_inter[i] = np.mean(datav['PLACEMENT']==2) 
-            #10
-            perc_advan[i] = np.mean(datav['PLACEMENT']==3) 
-            #11
-            perc_expert[i] = np.mean((datav['PLACEMENT']==4)| (datav['PLACEMENT']==5))
-            datadf = pd.DataFrame(datav, columns=['SIMCE','PORTFOLIO','TEST', 'EXP'])
-            corrM = datadf.corr()
-            #12 SIMCE vs Portfolio
-            est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
-            #13 SIMCE vs Test
-            est_corrSPrue[i] = corrM.iloc[0]['TEST']
-            
-            # We don't calculate this corr   
-            #est_corrPP[i] = corrM.iloc[1]['TEST']
-            #14 Experience vs Portfolio 
-            est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
-            #15 Experience vs Test
-            est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
-            #datav0 = datadfT[datadfT['TREATMENT']==0]
 
+            perc_advan[i] = np.mean(datav['PLACEMENT']==3) 
+
+            perc_expert[i] = np.mean((datav['PLACEMENT']==4)| (datav['PLACEMENT']==5))
             
+            datadf = pd.DataFrame(datav, columns=['SIMCE','PORTFOLIO','TEST', 'EXP', 'PORTPAST', 
+                                                  'TESTPAST','% Expert','P_past'])
+            corrM = datadf.corr()
+
+            est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
+
+            est_corrSPrue[i] = corrM.iloc[0]['TEST']
+            est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
+            est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
+            
+            est_pastPort_exp[i] = corrM.iloc[6]['PORTPAST']
+            est_pastTest_exp[i] = corrM.iloc[6]['TESTPAST']
+            
+            est_corrTestp[i] = corrM.iloc[7]['TEST']
+            est_corrPortp[i] = corrM.iloc[7]['PORTFOLIO']
+
+
             
             ####Data for control group###
             datav_2 = datadfT[self.treatment==0]
-            perc_avanexpet_c[i] = np.mean((datav_2['PLACEMENT']>=3))
+            perc_avanexpet_c[i] = np.mean(datav_2['% Advanced or expert'])
             p1 = np.array(datav_2['PORTFOLIO'])
             p2 = np.array(datav_2['TEST'])
-            p1v1 = np.where(np.isnan(p1), 0, p1)
-            p2v1 = np.where(np.isnan(p2), 0, p2)
-            p0 = np.zeros(p1.shape)
-            p0 = np.where((p1v1 == 0),p2v1, p0)
-            p0 = np.where((p2v1 == 0),p1v1, p0)
-            p0 = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1 + p2)/2, p0)
-            est_mean_PortTest[i] = np.mean(p0)
+            est_mean_PortTest[i] = np.mean((p1 + p2)/2)
         
         est_bootsSPort = np.mean(est_corrSPort)
         est_bootsSPrue = np.mean(est_corrSPrue)
@@ -189,6 +176,8 @@ class estimate:
         est_sim_advexp_c = np.mean(perc_avanexpet_c)
         est_sim_Testp = np.mean(est_corrTestp)
         est_sim_Portp = np.mean(est_corrPortp)
+        est_sim_pastPort_exp = np.mean(est_pastPort_exp)
+        est_sim_pastTest_exp = np.mean(est_pastTest_exp)
 
         
         return {'Estimation SIMCE vs Portfolio': est_bootsSPort,
@@ -208,7 +197,9 @@ class estimate:
             'perc adv/exp control': est_sim_advexp_c,
             'Estimation Test vs p': est_sim_Testp,
             'Estimation Portfolio vs p': est_sim_Portp,
-            'Estimation SIMCE vs Experience': est_bootsSExp}
+            'Estimation SIMCE vs Experience': est_bootsSExp,
+            'Estimation Past port vs % expert': est_sim_pastPort_exp,
+            'Estimation Past test vs % expert': est_sim_pastTest_exp}
     
     
     def objfunction(self,beta):
@@ -235,6 +226,8 @@ class estimate:
         self.param0.gammas[0] = beta[15]
         self.param0.gammas[1] = beta[16]
         self.param0.gammas[2] = beta[17]
+        self.param0.gammas[3] = beta[18]
+        self.param0.gammas[4] = beta[19]
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
@@ -265,6 +258,8 @@ class estimate:
         beta_advexp_c = result['perc adv/exp control']
         beta_testp = result['Estimation Test vs p']
         beta_portp = result['Estimation Portfolio vs p']
+        beta_pastPort_exp = result['Estimation Past port vs % expert']
+        beta_pastTest_exp = result['Estimation Past test vs % expert']
         
         
    
@@ -273,7 +268,8 @@ class estimate:
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
             beta_vtest.size + beta_mporttest.size  + beta_pinter.size + beta_padv.size + \
                 beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
-                    beta_advexp_c.size + beta_testp.size + beta_portp.size + beta_sexp.size
+                    beta_advexp_c.size + beta_testp.size + beta_portp.size + beta_sexp.size + \
+                        beta_pastPort_exp.size + beta_pastTest_exp.size
         
         #Outer matrix
         x_vector=np.zeros((num_par,1))
@@ -296,6 +292,8 @@ class estimate:
         x_vector[15,0] = beta_advexp_c - self.moments_vector[15]
         x_vector[16,0] = beta_testp - self.moments_vector[16]
         x_vector[17,0] = beta_portp - self.moments_vector[17]
+        x_vector[18,0] = beta_pastPort_exp - self.moments_vector[18]
+        x_vector[19,0] = beta_pastTest_exp - self.moments_vector[19]
         
         
         
@@ -331,7 +329,9 @@ class estimate:
                           self.param0.betas[4],
                           self.param0.gammas[0],
                           self.param0.gammas[1],
-                          self.param0.gammas[2]])
+                          self.param0.gammas[2],
+                          self.param0.gammas[3],
+                          self.param0.gammas[4]])
       
         #Here we go
         opt = minimize(self.objfunction, beta0,  method='Nelder-Mead', options={'maxiter':5000, 'maxfev': 90000, 'ftol': 1e-3, 'disp': True})
