@@ -29,12 +29,12 @@ import time
 
 # DATA 2018
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v18.npy")
+betas_nelder  = np.load("D:\Git\Wagenewcomponent/betasopt_model_v18.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("D:\Git\Wagenewcomponent/moments.npy")
 
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('D:\Git\Wagenewcomponent/data_pythonpast.dta')
 
 
 
@@ -72,6 +72,14 @@ TrameI = np.array(data['trame'])
 
 # TYPE SCHOOL #
 typeSchool = np.array(data['typeschool'])
+
+# Priority #
+priotity = np.array(data['por_priority'])
+
+rural_rbd = np.array(data['rural_rbd'])
+
+locality = np.array(data['AsignacionZona'])
+
 
 #### PARAMETERS MODEL ####
 
@@ -130,11 +138,39 @@ progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
 
 pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
+
+pri = [47872,113561]
+priori = [pri[0]/dolar, pri[1]/dolar]
     
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
-model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality)
+
+print("Random Effort")
+
+initial_p = model.initial()
+print(initial_p)
+misj = len(initial_p)
+effort = np.random.randint(2, size=misj)
+print(effort)
+
+print("Effort Teachers")
+
+tscores = model.t_test(effort)
+print(tscores)
+
+between.betweenOne()
+
+print("Placement")
+
+placement = model.placement(tscores[0])
+print(placement)
+
+income = model.income(placement)
+print(income)
+
+#data.describe(include='all')  
 
 modelSD = sd.SimData(N,model)
 
