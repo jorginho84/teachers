@@ -29,7 +29,8 @@ class estimate:
     "This class generate descriptive statiscals"
     
     def __init__(self,N, years,param0, p1_0,p2_0,treatment, \
-                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector):
+                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priority,rural_rbd,locality, \
+                 w_matrix,moments_vector):
         "Initial class"
         
         self.N = N
@@ -49,6 +50,9 @@ class estimate:
         self.moments_vector,self.w_matrix=moments_vector,w_matrix
         self.p1_0 = p1_0
         self.p2_0 = p2_0
+        self.priority = priority
+        self.rural_rbd = rural_rbd
+        self.locality = locality
         
         
     
@@ -230,7 +234,8 @@ class estimate:
         self.param0.gammas[4] = beta[19]
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
-                             self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI)
+                             self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI, \
+                             self.priority,self.rural_rbd,self.locality)
 
             
         modelSD = sd.SimData(self.N,model)

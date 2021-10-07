@@ -24,7 +24,8 @@ class Utility(object):
 
     """
 
-    def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, catPort, catPrueba, TrameI, priotity, rural_rbd, locality):
+    def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, catPort, catPrueba, 
+                 TrameI, priotity, rural_rbd, locality):
         """
         Set up model's data and paramaters
 
