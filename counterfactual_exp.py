@@ -42,7 +42,7 @@ np.random.seed(123)
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v20.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -79,6 +79,14 @@ for x in range(0,2):
     TrameI = np.array(data['trame'])
     # TYPE SCHOOL #
     typeSchool = np.array(data['typeschool'])
+    
+    # Priority #
+    priotity = np.array(data['por_priority'])
+    
+    rural_rbd = np.array(data['rural_rbd'])
+    
+    locality = np.array(data['AsignacionZona'])
+    
     #### PARAMETERS MODEL ####
     N = np.size(p1_0)
     HOURS = np.array([44]*N)
@@ -90,7 +98,7 @@ for x in range(0,2):
         
     betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
 
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17],betas_nelder[18],betas_nelder[19]]
+    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
     
     dolar= 600
     value = [14403, 15155]
@@ -127,9 +135,13 @@ for x in range(0,2):
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
        progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
     
-    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
+    pri = [47872,113561]
+    priori = [pri[0]/dolar, pri[1]/dolar]
     
-    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+    
+    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+                         priotity,rural_rbd,locality)
     
     # SIMULACIÓN SIMDATA
     
@@ -160,7 +172,8 @@ att_cost = income[1] - income[0]
 
 treatment = np.ones(N)
     
-model_c = Count_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+model_c = Count_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+                  priotity,rural_rbd,locality)
 count_sd = sdc.SimDataC(N,model_c)
 
 simce_c_sim = np.zeros((N,n_sim))
