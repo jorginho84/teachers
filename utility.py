@@ -594,11 +594,8 @@ class Utility(object):
         effort_h = d_effort_t2 + d_effort_t3
         
         income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
-        
-        past_int = effort_m*p0_past*self.param.gammas[3] + effort_h*p0_past*self.param.gammas[4]
-        
-        
-        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h) + past_int 
+         
+        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h) 
         
         #mu_c = -0.5
         #ut_h = self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h

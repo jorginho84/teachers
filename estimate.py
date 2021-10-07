@@ -79,8 +79,7 @@ class estimate:
         perc_avanexpet_c = np.zeros(times)
         est_corrTestp = np.zeros(times)
         est_corrPortp = np.zeros(times)
-        est_pastPort_exp = np.zeros(times)
-        est_pastTest_exp = np.zeros(times)
+
         
 
         for i in range(1,times):
@@ -146,9 +145,7 @@ class estimate:
             est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             
-            est_pastPort_exp[i] = corrM.iloc[6]['PORTPAST']
-            est_pastTest_exp[i] = corrM.iloc[6]['TESTPAST']
-            
+           
             est_corrTestp[i] = corrM.iloc[7]['TEST']
             est_corrPortp[i] = corrM.iloc[7]['PORTFOLIO']
 
@@ -180,8 +177,7 @@ class estimate:
         est_sim_advexp_c = np.mean(perc_avanexpet_c)
         est_sim_Testp = np.mean(est_corrTestp)
         est_sim_Portp = np.mean(est_corrPortp)
-        est_sim_pastPort_exp = np.mean(est_pastPort_exp)
-        est_sim_pastTest_exp = np.mean(est_pastTest_exp)
+
 
         
         return {'Estimation SIMCE vs Portfolio': est_bootsSPort,
@@ -201,9 +197,7 @@ class estimate:
             'perc adv/exp control': est_sim_advexp_c,
             'Estimation Test vs p': est_sim_Testp,
             'Estimation Portfolio vs p': est_sim_Portp,
-            'Estimation SIMCE vs Experience': est_bootsSExp,
-            'Estimation Past port vs % expert': est_sim_pastPort_exp,
-            'Estimation Past test vs % expert': est_sim_pastTest_exp}
+            'Estimation SIMCE vs Experience': est_bootsSExp}
     
     
     def objfunction(self,beta):
@@ -230,8 +224,7 @@ class estimate:
         self.param0.gammas[0] = beta[15]
         self.param0.gammas[1] = beta[16]
         self.param0.gammas[2] = beta[17]
-        self.param0.gammas[3] = beta[18]
-        self.param0.gammas[4] = beta[19]
+
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI, \
@@ -263,8 +256,7 @@ class estimate:
         beta_advexp_c = result['perc adv/exp control']
         beta_testp = result['Estimation Test vs p']
         beta_portp = result['Estimation Portfolio vs p']
-        beta_pastPort_exp = result['Estimation Past port vs % expert']
-        beta_pastTest_exp = result['Estimation Past test vs % expert']
+
         
         
    
@@ -273,8 +265,7 @@ class estimate:
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
             beta_vtest.size + beta_mporttest.size  + beta_pinter.size + beta_padv.size + \
                 beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
-                    beta_advexp_c.size + beta_testp.size + beta_portp.size + beta_sexp.size + \
-                        beta_pastPort_exp.size + beta_pastTest_exp.size
+                    beta_advexp_c.size + beta_testp.size + beta_portp.size + beta_sexp.size
         
         #Outer matrix
         x_vector=np.zeros((num_par,1))
@@ -285,7 +276,6 @@ class estimate:
         x_vector[4,0] = beta_mtest - self.moments_vector[4]
         x_vector[5,0] = beta_vtest - self.moments_vector[5]
         x_vector[6,0] = beta_mporttest - self.moments_vector[6]
-        #x_vector[7,0] = beta_pinit - self.moments_vector[7]
         x_vector[7,0] = beta_pinter - self.moments_vector[7]
         x_vector[8,0] = beta_padv - self.moments_vector[8]
         x_vector[9,0] = beta_pexpert - self.moments_vector[9]
@@ -297,8 +287,6 @@ class estimate:
         x_vector[15,0] = beta_advexp_c - self.moments_vector[15]
         x_vector[16,0] = beta_testp - self.moments_vector[16]
         x_vector[17,0] = beta_portp - self.moments_vector[17]
-        x_vector[18,0] = beta_pastPort_exp - self.moments_vector[18]
-        x_vector[19,0] = beta_pastTest_exp - self.moments_vector[19]
         
         
         
@@ -334,9 +322,7 @@ class estimate:
                           self.param0.betas[4],
                           self.param0.gammas[0],
                           self.param0.gammas[1],
-                          self.param0.gammas[2],
-                          self.param0.gammas[3],
-                          self.param0.gammas[4]])
+                          self.param0.gammas[2]])
       
         #Here we go
         opt = minimize(self.objfunction, beta0,  method='Nelder-Mead', options={'maxiter':5000, 'maxfev': 90000, 'ftol': 1e-3, 'disp': True})

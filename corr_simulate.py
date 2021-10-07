@@ -64,8 +64,7 @@ def corr_simulate(data, B):
     perc_avanexpet_c = np.zeros(B)
     est_corrTestp = np.zeros(B)
     est_corrPortp = np.zeros(B)
-    est_pastPort_expert = np.zeros(B)
-    est_pastTest_expert = np.zeros(B)
+
     
     for i in range(1,B):
         rev = data.sample(n, replace=True)
@@ -111,14 +110,7 @@ def corr_simulate(data, B):
 
         est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
-        Y = (datav['trame'] == 4) | (datav['trame'] == 5)
-        data_corr = {'% Expert': Y, 'Past portfolio': datav['score_port_past'], 
-                       'Past test':datav['score_test_past']}
-        data_corr = pd.DataFrame(data_corr, columns=['% Expert','Past portfolio','Past test'])
-        corrM = data_corr.corr()
-        est_pastTest_expert[i] = corrM.iloc[0]['Past test']
-        est_pastPort_expert[i] = corrM.iloc[0]['Past portfolio']
-        
+       
          
         datav_2 = rev[rev['d_trat']==0]
         perc_avanexpet_c[i] = ((sum(datav_2['trame']==3) + sum(datav_2['trame']==4)+sum(datav_2['trame']==5))) / len(datav_2['trame'])
@@ -151,8 +143,7 @@ def corr_simulate(data, B):
     est_sim_advexp_c = np.mean(perc_avanexpet_c)
     est_sim_Testp = np.mean(est_corrTestp)
     est_sim_Portp = np.mean(est_corrPortp)
-    est_sim_pastPort_exp = np.mean(est_pastPort_expert)
-    est_sim_pastTest_exp = np.mean(est_pastTest_expert)
+
     
     error_SPort = np.std(est_corrSPort)
     error_SPru = np.std(est_corrSPrue)
@@ -173,8 +164,7 @@ def corr_simulate(data, B):
     error_advexp_c_PP = np.std(perc_avanexpet_c)
     error_Testp = np.std(est_corrTestp)
     error_Portp = np.std(est_corrPortp)
-    error_pastPort_exp = np.std(est_pastPort_expert)
-    error_pastTest_exp = np.std(est_pastTest_expert)
+
     
     
     #var-cov matrix
@@ -182,8 +172,7 @@ def corr_simulate(data, B):
                      est_var_Port,est_mean_Pru,est_var_Pru,
                      perc_inter,perc_advan,perc_expert,
                      est_mean_SIMCE,est_var_SIMCE,
-                     est_mean_PortTest,perc_avanexpet_c,est_corrTestp,est_corrPortp,
-                     est_pastPort_expert,est_pastTest_expert])
+                     est_mean_PortTest,perc_avanexpet_c,est_corrTestp,est_corrPortp])
     
     varcov = np.cov(samples)
 
@@ -206,8 +195,6 @@ def corr_simulate(data, B):
             'perc adv/exp control': est_sim_advexp_c,
             'Estimation Portfolio vs p': est_sim_Testp,
             'Estimation Test vs p': est_sim_Portp,
-            'Past portfolio and % expert':est_sim_pastPort_exp,
-            'Past test and % expert':est_sim_pastTest_exp,
                 'Error SIMCE vs Portfolio': error_SPort,
                 'Error SIMCE vs Test': error_SPru,
                 'Error SIMCE vs Experience': error_SEXP,
@@ -227,8 +214,6 @@ def corr_simulate(data, B):
                 'Error adv/exp control': error_advexp_c_PP,
                 'Error Portfolio vs p': error_Testp,
                 'Error Test vs p': error_Portp,
-                'Error Past portfolio expert': error_pastPort_exp,
-                'Error Past test expert': error_pastTest_exp,
                 'Var Cov Matrix': varcov}
 
 
@@ -261,8 +246,7 @@ sheet['E19'] = result['perc adv/exp control']
 sheet['E20'] = result['Estimation Test vs p']
 sheet['E21'] = result['Estimation Portfolio vs p']
 sheet['E22'] = result['Estimation SIMCE vs Experience']
-sheet['E23'] = result['Past portfolio and % expert']
-sheet['E24'] = result['Past test and % expert']
+
 
 
 
@@ -284,8 +268,7 @@ sheet['F19'] = result['Error adv/exp control']
 sheet['F20'] = result['Error Test vs p']
 sheet['F21'] = result['Error Portfolio vs p']
 sheet['F22'] = result['Error SIMCE vs Experience']
-sheet['F23'] = result['Error Past portfolio expert']
-sheet['F24'] = result['Error Past test expert']
+
 
 
 
@@ -308,9 +291,7 @@ result['Error Exp vs Pru'],
 result['Error SIMCE vs Experience'],
 result['Error adv/exp control'],
 result['Error Test vs p'],
-result['Error Portfolio vs p'],
-result['Error Past portfolio expert'],
-result['Error Past test expert']])
+result['Error Portfolio vs p']])
 
 means = np.array([result['Mean Portfolio'],
 result['Var Portfolio'],
@@ -329,9 +310,7 @@ result['Estimation EXP vs Prueba'],
 result['Estimation SIMCE vs Experience'],
 result['perc adv/exp control'],
 result['Estimation Test vs p'],
-result['Estimation Portfolio vs p'],
-result['Past portfolio and % expert'],
-result['Past test and % expert']])
+result['Estimation Portfolio vs p']])
 
 np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy',ses)
 
