@@ -551,9 +551,8 @@ class Utility(object):
 
                 
             pb_potential.append(self.param.alphas[j][0] + \
-                                self.param.alphas[j][5]*p0_past + \
-                                self.param.alphas[j][3]*self.years/10 + \
-                                    shock)
+                                self.param.alphas[j][5]*p0_past + 
+                                self.param.alphas[j][3]*self.years/10)
             
 
         
@@ -577,16 +576,7 @@ class Utility(object):
 
         """
         
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
+       
         d_effort_t1 = effort == 1
         d_effort_t2 = effort == 2
         d_effort_t3 = effort == 3

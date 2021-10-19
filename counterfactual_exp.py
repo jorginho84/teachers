@@ -216,13 +216,12 @@ y_ses[3] = np.mean(att[(data['experience']>=28) & (data['experience']<=35)])/att
 y_ses[4] = np.mean(att[data['experience']>=36])/att[data['experience']>=36].shape[0]
  
 
-#equivalent figure from reduced-form estimate
-
-fig, ax=plt.subplots()
-
 cost_original = np.mean(att_cost)/np.mean(income[0])
 cost_alternative = np.mean(att_cost_c)/np.mean(income[0])
 
+#equivalent figure from reduced-form estimate
+
+fig, ax=plt.subplots()
 plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
 plot1 = ax.bar(x,y,color='b' ,alpha=.5, label = 'ATT original STPD')
@@ -258,4 +257,41 @@ print ('')
 print ('Cost of alternative ', np.mean(att_cost_c))
 print ('')
 
- 
+
+#Scatter-Line graph.
+cat_max = 40
+start_year = 5
+
+y = np.zeros(cat_max - start_year + 1)
+y_c = np.zeros(cat_max - start_year + 1)
+y_ses = np.zeros(cat_max - start_year + 1)
+x = np.array(range(start_year,cat_max + 1))
+
+for j in range(start_year,cat_max + 1):
+    y[j - start_year] = np.mean(att[data['experience']== j])
+    y_c[j - start_year] = np.mean(att_c[data['experience']== j])
+
+    
+    
+fig, ax=plt.subplots()
+plot3 = ax.plot(x,y_c,'--o',alpha = .8, color='sandybrown',label = 'ATT modified STPD (' 
+                +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$s)')
+plot1 = ax.plot(x,y,'-o' ,alpha=.5, color = 'blue', label = 'ATT original STPD (' 
+                +'{:04.2f}'.format(np.mean(att)) + r'$\sigma$s)')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
+ax.set_xlabel(r'Baseline experience', fontsize=13)
+#ax.set_xticks([1,2,3,4,5])
+#ax.set_xticklabels([ r'$\leq$ 10', '11-17','18-27', '28-35', r'36$\leq$'])
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.12)
+ax.legend(loc = 'center right',fontsize = 13)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual_exp_lines.pdf', format='pdf')
+

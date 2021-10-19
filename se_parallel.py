@@ -32,7 +32,7 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
-betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v20.npy")
+betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v22.npy")
 npar = betas_nelder.shape[0]
 
 df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
@@ -82,6 +82,16 @@ def simulation(j):
     # TYPE SCHOOL #
     #typeSchoolOne = rev[['typeschool']]
     typeSchool = np.array(rev['typeschool'])
+    
+    
+    # Priority #
+    priotity = np.array(rev['por_priority'])
+    
+    rural_rbd = np.array(rev['rural_rbd'])
+    
+    locality = np.array(rev['AsignacionZona'])
+    
+
     #### PARAMETERS MODEL ####
     N = np.size(p1_0)
     HOURS = np.array([44]*N)
@@ -92,7 +102,7 @@ def simulation(j):
     
     betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
     
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17],betas_nelder[18],betas_nelder[19]]
+    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
@@ -103,14 +113,18 @@ def simulation(j):
     progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
+    
+    pri = [47872,113561]
+    priori = [pri[0]/dolar, pri[1]/dolar]
 
     Asig = [150000*1.111,100000*1.111,50000*1.111]
     AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
 
-    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
+    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
         
     output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
-         typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
+         typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, priotity,rural_rbd,locality, \
+         w_matrix,moments_vector)
     
     start_time = time.time()
     output = output_ins.optimizer()
@@ -147,8 +161,7 @@ beta_4 = np.zeros(boot_n)
 gamma_0 = np.zeros(boot_n)
 gamma_1 = np.zeros(boot_n)
 gamma_2 = np.zeros(boot_n)
-gamma_3 = np.zeros(boot_n)
-gamma_4 = np.zeros(boot_n)
+
 
 start_time = time.time()
 
@@ -185,8 +198,7 @@ for j in range(boot_n):
     gamma_0[j] = dics[j][15]
     gamma_1[j] = dics[j][16]
     gamma_2[j] = dics[j][17]
-    gamma_3[j] = dics[j][18]
-    gamma_4[j] = dics[j][19]
+
 
 
 
@@ -208,8 +220,7 @@ est_beta_4 = np.std(beta_4)
 est_gamma_0 = np.std(gamma_0)
 est_gamma_1 = np.std(gamma_1)
 est_gamma_2 = np.std(gamma_2)
-est_gamma_3 = np.std(gamma_3)
-est_gamma_4 = np.std(gamma_4)
+
 
 dics_se = {'SE alpha_00': est_alpha_00,
                 'SE alpha_01': est_alpha_01,
@@ -228,9 +239,7 @@ dics_se = {'SE alpha_00': est_alpha_00,
                 'SE beta_4': est_beta_4,
                 'SE gamma_0': est_gamma_0,
                 'SE gamma_1': est_gamma_1,
-                'SE gamma_2': est_gamma_2,
-                'SE gamma_3': est_gamma_3,
-                'SE gamma_4': est_gamma_4}
+                'SE gamma_2': est_gamma_2}
     
 betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'], 
                               dics_se['SE alpha_03'],dics_se['SE alpha_04'],
@@ -239,11 +248,10 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
                                   dics_se['SE beta_0'],
                                   dics_se['SE beta_1'],dics_se['SE beta_2'], 
                                       dics_se['SE beta_3'],dics_se['SE beta_4'],
-                                      dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2'],
-                                      dics_se['SE gamma_3'],dics_se['SE gamma_4']])
+                                      dics_se['SE gamma_0'],dics_se['SE gamma_1'], dics_se['SE gamma_2']])
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model_v20.npy',betas_opt)
+np.save('/home/jrodriguez/teachers/results/se_model_v22.npy',betas_opt)
 
 

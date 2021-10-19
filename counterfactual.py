@@ -258,7 +258,7 @@ for j in range(2):
 
 
 
-cost_original = np.mean(att_cost)/np.mean(income[0])
+cost_original = np.nanmean(att_cost)/np.mean(income[0])
 cost_alternative = np.mean(att_cost_c)/np.mean(income[0])
 
 
@@ -302,27 +302,19 @@ for k in range(2):
     fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores_' + name_list[k] +'.pdf', format='pdf')
 
 ##Across deciles of average baseline score
-n_quant = 4
+n_quant = 100
 y = np.zeros(n_quant)
 y_c = np.zeros(n_quant)
 y_ses = np.zeros(n_quant)
     
-x = list(range(4))
+x = np.array(range(n_quant))
     
-#for j in range(n_quant):
- #   y[j] = np.mean(att[q_potential_av==j])
- #   y_c[j] = np.mean(att_c[q_potential_av==j])
+q_potential_av = pd.qcut(baseline_av,n_quant,labels=False,duplicates='drop')
 
-y[0] = np.mean(att[(baseline_av>=1) & (baseline_av<2)])
-y[2] = np.mean(att[(baseline_av>=2) & (baseline_av<2.5)])
-y[3] = np.mean(att[(baseline_av>=2.5) & (baseline_av<3)])
+for j in range(n_quant):
+    y[j] = np.mean(att[q_potential_av==j])
+    y_c[j] = np.mean(att_c[q_potential_av==j])
 
-
-y_c[0] = np.mean(att_c[(baseline_av>=1) & (baseline_av<2)])
-y_c[1] = np.mean(att_c[(baseline_av>=1.5) & (baseline_av<2)])
-y_c[2] = np.mean(att_c[(baseline_av>=2) & (baseline_av<2.5)])
-y_c[3] = np.mean(att_c[(baseline_av>=2.5) & (baseline_av<3)])
- 
 
 fig, ax=plt.subplots()
 
@@ -349,11 +341,38 @@ plt.tight_layout()
 plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores_av.pdf', format='pdf')
 
+
+#Lines
+fig, ax=plt.subplots()
+
+plot3 = ax.plot(x[(x>=4) & (x <=94)],y_c[(x>=4) & (x <=94)],'--o',alpha = .8, color='sandybrown',label = 'ATT modified STPD (' 
+                +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$s)')
+plot1 = ax.plot(x[(x>=4) & (x <=94)],y[(x>=4) & (x <=94)],'-o' ,alpha=.5, color = 'blue', label = 'ATT original STPD (' 
+                +'{:04.2f}'.format(np.mean(att)) + r'$\sigma$s)')
+
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
+ax.set_xlabel(r'Baseline average score (percentiles)', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.35)
+ax.legend(loc = 'best',fontsize = 13)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_potscores_av.pdf', format='pdf')
+
+
 #---------------------------------------------------------------#
 #Effects by distance to nearest cutoff (distance based on potential test scores)
 #arreglar: susX da muchos 0s!
 #---------------------------------------------------------------#
 
+
+"""
 #Initial placement
 initial_asim = model.initial()
 potential_scores_list = [np.mean(baseline_sims[:,:,0],axis=1),np.mean(baseline_sims[:,:,1],axis=1)]
@@ -374,23 +393,18 @@ q_distance.append(pd.qcut(susY,n_quant,labels=False,duplicates='drop'))
 
 
 
+boo_sample = (att >= .41) & (att <= -.40)
+
 y = np.zeros(n_quant)
 y_c = np.zeros(n_quant)
 y_ses = np.zeros(n_quant)
 x = range(n_quant)
 for j in range(n_quant):
-    y[j] = np.mean(att[q_distance[1]==j])
-    y_c[j] = np.mean(att_c[q_distance[1]==j])
-    y_ses[j] = np.std(att[q_distance[1]==j])/att[q_distance[1]==j].shape[0]
+    y[j] = np.mean(att[(q_distance[0]==j) ])
+    y_c[j] = np.mean(att_c[(q_distance[0]==j) ])
     
 
-"""
-y[0] = np.mean(att[susY<=-1])
-y[1] = np.mean(att[(susY>-1) & (susY<=-0.5)] )
-y[2] = np.mean(att[(susY>-0.5) & (susY<=0)] )
-y[3] = np.mean(att[(susY>-0.5) & (susY<=0)] )
-y[4] = np.mean(att[susY>0.25] )
-"""
+
 
     
 fig, ax=plt.subplots()
@@ -398,10 +412,8 @@ plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD')
 plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
 plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
-ax.text(3.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att))+
-        ' (cost=' + '{:04.1f}'.format(cost_original*100) + '%)',fontsize=13)
-ax.text(3.5,np.mean(att_c) + 0.005,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c))+
-        ' (cost=' + '{:04.1f}'.format(cost_alternative*100) + '%)',color = 'red',fontsize=13)
+ax.text(-0.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)),fontsize=13)
+ax.text(3.5,np.mean(att_c) - 0.015,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red',fontsize=13)
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
 ax.set_xlabel(r'Deciles of distance to nearest cutoff', fontsize=13)
 ax.spines['right'].set_visible(False)
@@ -427,4 +439,4 @@ print ('')
 print ('Cost of alternative ', np.mean(att_cost_c))
 print ('')
 
-
+"""
