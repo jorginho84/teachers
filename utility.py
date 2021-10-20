@@ -384,8 +384,8 @@ class Utility(object):
         tramolet = np.zeros(self.catPort.shape)
         
         #** Initial **
-        tramolet[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
-                 (concatlast =="0.0E")]= 154 #"INICIALED"
+        #tramolet[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
+                 #(concatlast =="0.0E")]= 154 #"INICIALED"
         #** Early **
         tramolet[(concatlast =="1.0EA") | (concatlast =="1.0DB")]= 241 #"TEMPRANODA"    
         tramolet[(concatlast =="1.0EB") | (concatlast =="1.0DC") | (concatlast =="1.0D")]= 242 #"TEMPRANODB"
@@ -426,8 +426,8 @@ class Utility(object):
         
         row = np.zeros(self.catPort.shape)
         
-        row[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
-            (concatlast =="1.0E")]= 1
+        #row[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
+            #(concatlast =="1.0E")]= 1
         row[(concatlast =="1.0ED") | (concatlast =="1.0EC") | (concatlast =="1.0EB") | (concatlast =="1.0EA")]= 2
         row[(concatlast =="2.0DA") | (concatlast =="2.0DB") | (concatlast =="2.0D") | (concatlast =="1.0DA") | \
             (concatlast =="3.0D") | (concatlast =="2.0D") | (concatlast =="2.0ED") | (concatlast =="2.0EC") | \
@@ -435,12 +435,14 @@ class Utility(object):
                     (concatlast =="3.0E") | (concatlast =="3.0DB") | (concatlast =="3.0EC") | (concatlast =="3.0DC") | \
                         (concatlast =="3.0ED") | (concatlast =="3.0DD") | (concatlast =="3.0EA") | (concatlast =="3.0EB")]= 2.26
         row[(concatlast =="3.0CA") | (concatlast =="4.0CA") | (concatlast =="4.0CB") | (concatlast =="4.0DA") | \
-            (concatlast =="4.0CC") | (concatlast =="4.0DB") | (concatlast =="4.0EA")]= 2.51
+            (concatlast =="4.0CC") | (concatlast =="4.0DB") | (concatlast =="4.0EA") | (concatlast =="2.0CC") | \
+                (concatlast =="3.0CB")]= 2.51
+        row[(concatlast =="3.0BC") | (concatlast =="4.0BB")]= 3.01
     
         
         col = np.zeros(self.catPort.shape)
         
-        col[(concatlast =="1.0A")]= 1
+        #col[(concatlast =="1.0A")]= 1
         col[(concatlast =="2.0BD") | (concatlast =="1.0DD") | (concatlast =="2.0B") | (concatlast =="1.0B") | \
             (concatlast =="2.0AD") | (concatlast =="1.0BD") | (concatlast =="3.0A") | (concatlast =="3.0AD") | \
                 (concatlast =="1.0BD")]= 1.88
@@ -466,14 +468,20 @@ class Utility(object):
         col = col.reshape(-1)
         p2 = tscores[1].reshape(-1)
         susY = np.where((col != 0), p2 - col, susY2) 
-        squareX = np.square(susX)
-        squareY = np.square(susY)
-        sumsquare = squareX + squareY
-        finalsquare = np.sqrt(sumsquare)
+        #squareX = np.square(susX)
+        #squareY = np.square(susY)
+        XY_distance2 = np.zeros(self.catPort.shape)
+        XY_distance = np.where((susX != 0) & (susY != 0), (susX+susY)/2, np.where(susX != 0, susX, np.where(susY != 0, susY, XY_distance2))) 
+        #sumsquare = squareX + squareY
+        #finalsquare = np.sqrt(sumsquare)
         
-        distancetrame = finalsquare
+        Rsquare = np.empty(self.catPort.shape)
+        Rsquare[:] = np.nan
+        Rsquare2 = np.where(tramolet != 6, XY_distance, Rsquare)
         
-        return [nexttramo, distancetrame, susX, susY]
+        #Rsquare_5 = pd.qcut(Rsquare2, 5, labels = False)
+        
+        return [nexttramo, Rsquare2, susX, susY]
     
 
 

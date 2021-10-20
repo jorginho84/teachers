@@ -37,6 +37,7 @@ from openpyxl import load_workbook
 from scipy import interpolate
 import time
 import openpyxl
+from localreg import *
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 np.random.seed(100)
@@ -258,7 +259,7 @@ for j in range(2):
 
 
 
-cost_original = np.nanmean(att_cost)/np.mean(income[0])
+cost_original = np.mean(att_cost)/np.mean(income[0])
 cost_alternative = np.mean(att_cost_c)/np.mean(income[0])
 
 
@@ -370,52 +371,31 @@ fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results
 #Effects by distance to nearest cutoff (distance based on potential test scores)
 #arreglar: susX da muchos 0s!
 #---------------------------------------------------------------#
-
-
-"""
-#Initial placement
+potential_scores_list = [baseline_p[0][:,0],baseline_p[0][:,1]]
 initial_asim = model.initial()
-potential_scores_list = [np.mean(baseline_sims[:,:,0],axis=1),np.mean(baseline_sims[:,:,1],axis=1)]
-nextT, distancetrame, susX, susY = model.distance(initial_asim,potential_scores_list)
+nextT, distance, susX, susY = model.distance(initial_asim,potential_scores_list)
 
-#histograms
-plt.hist(susX, bins = 30)
-plt.show()
-
-plt.hist(susY, bins = 20)
-plt.show()
-
-##Categorías de distance (two for two measures)
-n_quant = 10
+##Categorías de distance
+n_quant = 5
 q_distance = []
-q_distance.append(pd.qcut(susX,n_quant,labels=False,duplicates='drop'))
-q_distance.append(pd.qcut(susY,n_quant,labels=False,duplicates='drop'))
+q_distance= pd.qcut(distance,n_quant,labels=False,duplicates='drop')
 
-
-
-boo_sample = (att >= .41) & (att <= -.40)
 
 y = np.zeros(n_quant)
 y_c = np.zeros(n_quant)
 y_ses = np.zeros(n_quant)
-x = range(n_quant)
+x = np.array(range(n_quant))+1
 for j in range(n_quant):
-    y[j] = np.mean(att[(q_distance[0]==j) ])
-    y_c[j] = np.mean(att_c[(q_distance[0]==j) ])
+    y[j] = np.mean(att[(q_distance==j) ])
+    y_c[j] = np.mean(att_c[(q_distance==j) ])
     
-
-
 
     
 fig, ax=plt.subplots()
-plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD')
-plot2 = ax.axhline(np.mean(att),color='k', ls = '--')
-plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'red',ls = '--', lw = 1.5,label = 'ATT modified STPD')
-plot4 = ax.axhline(np.mean(att_c),color='r', ls = '--')
-ax.text(-0.5,np.mean(att) + 0.005,'ATT original STPD = '+'{:04.2f}'.format(np.mean(att)),fontsize=13)
-ax.text(3.5,np.mean(att_c) - 0.015,'ATT modified STPD = '+'{:04.2f}'.format(np.mean(att_c)),color = 'red',fontsize=13)
+plot1 = ax.bar(x,y,color='b' ,alpha=.5, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att)) + r'$\sigma$s)')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.3, ec = 'sandybrown',ls = '--', lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$s)')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
-ax.set_xlabel(r'Deciles of distance to nearest cutoff', fontsize=13)
+ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
@@ -427,16 +407,5 @@ ax.legend(loc = 'best',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_distance.pdf', format='pdf')
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual_distance.pdf', format='pdf')
 
-
-
-print ('')
-print ('Cost of original reform ', np.mean(att_cost))
-print ('')
-
-print ('')
-print ('Cost of alternative ', np.mean(att_cost_c))
-print ('')
-
-"""
