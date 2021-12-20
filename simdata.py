@@ -77,8 +77,11 @@ class SimData:
         
         simce = self.model.measure_simce(student_h)
         
+        utility_max = self.model.utility(income, effort_v1, student_h)
+        
 
                                 
-        return {'Opt Effort': effort_v1, 'Opt Simce': simce,
+        return {'Opt Effort': effort_v1, 'Opt Simce': simce, 'Opt Student H': student_h,
                 'Opt Placement': placement, 'Opt Income': income,
-                'Opt Teacher': teacher_scores[0], 'Potential scores': teacher_scores[1]}
+                'Opt Teacher': teacher_scores[0], 'Potential scores': teacher_scores[1],
+                'Opt Utility': utility_max}

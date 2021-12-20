@@ -3,6 +3,9 @@
 Created on Wed Dec  9 11:28:07 2020
 
 @author: pjac2
+
+exec(open("/home/jrodriguez/teachers/codes/master_estimate.py").read())
+
 """
 
 #from __future__ import division #omit for python 3.x
@@ -17,26 +20,28 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\ExpSIMCE")
+sys.path.append("/home/jrodriguez/teachers/codes/")
 import time
 import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-from openpyxl import Workbook 
-from openpyxl import load_workbook
+
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v21.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
+betas_nelder  = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v22.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+#moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
-
+#data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('/home/jrodriguez/teachers/codes/data_pythonpast.dta')
 
 
 #count_nan = data['zpjeport'].isnull().sum()
@@ -141,11 +146,16 @@ priori = [pri[0]/dolar, pri[1]/dolar]
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+#ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+#ses_opt = np.load("/home/jrodriguez/teachers/codes/ses_model.npy")
 
-for j in range(ses_opt.shape[0]):
-    w_matrix[j,j] = ses_opt[j]**(-2)
+
+var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
+w_matrix = np.linalg.inv(var_cov) 
+
+#w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+#for j in range(ses_opt.shape[0]):
+ #   w_matrix[j,j] = ses_opt[j]**(-2)
 
 
 
@@ -197,5 +207,6 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy',betas_opt_me)
+#np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy',betas_opt_me)
+np.save('/home/jrodriguez/teachers/codes/betasopt_model_v23.npy',betas_opt_me)
 

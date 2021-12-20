@@ -33,17 +33,12 @@ from pathos.multiprocessing import ProcessPool
 
 
 betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v22.npy")
-npar = betas_nelder.shape[0]
-
 df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
-
 moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
-
-
-w_matrix = w_matrix = np.zeros((npar, npar))
 ses_opt = np.load('/home/jrodriguez/teachers/codes/ses_model.npy')
 
-for j in range(npar):
+w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
 
 

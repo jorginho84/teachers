@@ -38,11 +38,11 @@ import openpyxl
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 
-np.random.seed(123)
+np.random.seed(100)
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -50,7 +50,7 @@ data = data_1[data_1['d_trat']==1]
 
 N = np.array(data['experience']).shape[0]
 
-n_sim = 100
+n_sim = 500
 
 simce = []
 income = []
@@ -277,8 +277,8 @@ fig, ax=plt.subplots()
 plot3 = ax.plot(x,y_c,'--o',alpha = .8, color='sandybrown',label = 'ATT modified STPD (' 
                 +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$s)')
 plot1 = ax.plot(x,y,'-o' ,alpha=.5, color = 'blue', label = 'ATT original STPD (' 
-                +'{:04.2f}'.format(np.mean(att)) + r'$\sigma$s)')
-ax.set_ylabel(r'Effect on SIMCE (in $\sigma$s)', fontsize=13)
+                +'{:04.2f}'.format(np.mean(att)) + r'$\sigma$)')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
 ax.set_xlabel(r'Baseline experience', fontsize=13)
 #ax.set_xticks([1,2,3,4,5])
 #ax.set_xticklabels([ r'$\leq$ 10', '11-17','18-27', '28-35', r'36$\leq$'])

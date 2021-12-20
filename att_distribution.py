@@ -246,7 +246,7 @@ plt.annotate("Simulated ATT" "\n" + "("   +'{:04.2f}'.format(att_mean_sim) + r"$
             xytext=(0.32, 1), arrowprops=dict(arrowstyle="->"))
 plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)", xy=(0.018, 1),
             xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
-plt.annotate("Simulated ATT distribution", xy=(0.2, 1.7),
+plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
 plt.xlim(-0.6,0.6)
 plt.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/att_distribution.pdf', format='pdf')
