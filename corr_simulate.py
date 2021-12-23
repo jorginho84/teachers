@@ -69,8 +69,8 @@ def corr_simulate(data, B):
     for i in range(1,B):
         rev = data.sample(n, replace=True)
 
-        est_mean_SIMCE[i] = np.mean(rev['stdsimce_m'])
-        est_var_SIMCE[i] = np.var(rev['stdsimce_m'])
+        est_mean_SIMCE[i] = np.mean(rev['stdsimce'])
+        est_var_SIMCE[i] = np.var(rev['stdsimce'])
 
         p1_past = np.array(rev['score_port_past'])
         p2_past = np.array(rev['score_test_past'])
@@ -80,7 +80,7 @@ def corr_simulate(data, B):
         p0_past = np.where((p1v1 == 0),p2v1, p0_past)
         p0_past = np.where((p2v1 == 0),p1v1, p0_past)
         p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
-        dataf_past = {'TEST': rev['score_port'], 'PORTFOLIO': rev['score_test'], 'P_past': p0_past, 'SIMCE': rev['stdsimce_m'],
+        dataf_past = {'TEST': rev['score_port'], 'PORTFOLIO': rev['score_test'], 'P_past': p0_past, 'SIMCE': rev['stdsimce'],
                       'EXP': rev['experience']}
         datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO','SIMCE','EXP'])
         
@@ -102,7 +102,7 @@ def corr_simulate(data, B):
         perc_inter[i] = (sum(datav['trame']==2) / len(datav['trame'])) 
         perc_advan[i] = (sum(datav['trame']==3) / len(datav['trame'])) 
         perc_expert[i] = ((sum(datav['trame']==4)+sum(datav['trame']==5)) / len(datav['trame'])) 
-        datav1 = {'SIMCE': datav['stdsimce_m'], 'PORTFOLIO': datav['score_port'], 'TEST': datav['score_test'], 'EXP': datav['experience']}
+        datav1 = {'SIMCE': datav['stdsimce'], 'PORTFOLIO': datav['score_port'], 'TEST': datav['score_test'], 'EXP': datav['experience']}
         datadf = pd.DataFrame(datav1, columns=['SIMCE','PORTFOLIO','TEST', 'EXP'])
         corrM = datadf.corr()
         est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
@@ -218,7 +218,7 @@ def corr_simulate(data, B):
 
 
 result = corr_simulate(df,1000)
-print(result)
+#print(result)
 
 varcov = result['Var Cov Matrix']
 

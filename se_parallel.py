@@ -32,7 +32,7 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
-betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v22.npy")
+betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v23.npy")
 df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
 moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
 ses_opt = np.load('/home/jrodriguez/teachers/codes/ses_model.npy')
@@ -247,6 +247,6 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model_v22.npy',betas_opt)
+np.save('/home/jrodriguez/teachers/results/se_model_v23.npy',betas_opt)
 
 

@@ -190,7 +190,7 @@ income_c_sim = np.zeros((N,n_sim))
 
 for j in range(n_sim):
     opt = count_sd.choice()
-    simce_c_sim[:,j] = opt['Opt Simce'][1]
+    simce_c_sim[:,j] = opt['Opt Simce']
     income_c_sim[:,j] = opt['Opt Income'][0]
 
 simce_c = np.mean(simce_c_sim, axis=1)
@@ -211,9 +211,9 @@ y_ses = np.zeros(5)
 x = [1,2,3,4,5]
 
 for j in range(5):
-    y[j] = np.mean(att[data['Rsquare_5']==j+1])
-    y_c[j] = np.mean(att_c[data['Rsquare_5']==j+1])
-    y_ses[j] = np.std(att[data['Rsquare_5']==j+1])/att[data['Rsquare_5']==j+1].shape[0]
+    y[j] = np.mean(att[data['distance2']==j+1])
+    y_c[j] = np.mean(att_c[data['distance2']==j+1])
+    y_ses[j] = np.std(att[data['distance2']==j+1])/att[data['distance2']==j+1].shape[0]
     
 
 
@@ -235,6 +235,38 @@ ax.legend(loc = 'upper left',fontsize = 13)
 plt.tight_layout()
 plt.show()
 fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1.pdf', format='pdf')
+
+
+##Categorías de potential (two for two measures)
+n_quant = 5
+
+baseline_av = (baseline_p[0][:,0] + baseline_p[0][:,1])/2
+
+q_potential_av = pd.qcut(baseline_av,n_quant,labels=False)
+
+for j in range(5):
+    y[j] = np.mean(att[q_potential_av == j])
+    y_c[j] = np.mean(att_c[q_potential_av == j])
+
+    
+
+fig, ax=plt.subplots()
+plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att)) + r'$\sigma$)')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'sandybrown',ls = '--', lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$)')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.3)
+ax.legend(loc = 'upper left',fontsize = 13)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+#fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
 
 
 

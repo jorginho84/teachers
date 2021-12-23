@@ -29,12 +29,13 @@ import time
 
 # DATA 2018
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-betas_nelder  = np.load("D:\Git\Wagenewcomponent/betasopt_model_v18.npy")
+#betas_nelder  = np.load("D:\Git\Wagenewcomponent/betasopt_model_v23.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("D:\Git\Wagenewcomponent/moments.npy")
+#moments_vector = np.load("D:\Git\Wagenewcomponent/moments.npy")
 
-data = pd.read_stata('D:\Git\Wagenewcomponent/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
 
 
@@ -177,3 +178,12 @@ modelSD = sd.SimData(N,model)
 data_sim = modelSD.choice()
 
 np.mean(data_sim['Opt Simce'])
+
+#wages with minium score and low experience
+tscores_min = [np.zeros(N),np.zeros(N)]
+placement_min = model.placement(tscores_min)
+income_min = model.income(placement_min)
+
+income_min[0][years ==2 ]
+
+

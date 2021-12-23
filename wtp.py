@@ -42,7 +42,6 @@ from openpyxl import load_workbook
 from scipy import interpolate
 import time
 
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 
 np.random.seed(100)
@@ -149,9 +148,8 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
 
-
 #STPD original
-treatment = np.ones(N)*1
+treatment = np.ones(N)
 util_stpd = np.zeros((N,n_sim))
 income_stpd = np.zeros((N,n_sim))
 simce_stpd = np.zeros((N,n_sim))
@@ -177,7 +175,8 @@ simce_c_2 = np.zeros((N,n_sim))
 model_c_2 = Count_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                      priotity,rural_rbd,locality)
 
-count_exp = sdc.SimDataC(N,model_c_2)               
+count_exp = sdc.SimDataC(N,model_c_2)
+               
 for j in range(n_sim):
     opt = count_exp.choice()
     util_c_2[:,j] = opt['Opt Utility']
@@ -194,7 +193,9 @@ simce_c_1 = np.zeros((N,n_sim))
 model_c_1 = Count_1(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                      priotity,rural_rbd,locality)
 
-count_pfp = sdc.SimDataC(N,model_c_1)               
+
+
+count_pfp = sdc.SimDataC(N,model_c_1)             
 for j in range(n_sim):
     opt = count_pfp.choice()
     util_c_1[:,j] = opt['Opt Utility']

@@ -147,15 +147,15 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-#ses_opt = np.load("/home/jrodriguez/teachers/codes/ses_model.npy")
+ses_opt = np.load("/home/jrodriguez/teachers/codes/ses_model.npy")
 
 
-var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
-w_matrix = np.linalg.inv(var_cov) 
+#var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
+#w_matrix = np.linalg.inv(var_cov) 
 
-#w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
-#for j in range(ses_opt.shape[0]):
- #   w_matrix[j,j] = ses_opt[j]**(-2)
+w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+for j in range(ses_opt.shape[0]):
+    w_matrix[j,j] = ses_opt[j]**(-2)
 
 
 

@@ -50,7 +50,7 @@ np.random.seed(123)
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
 
@@ -188,21 +188,22 @@ att_mean_sim = np.mean(att_sim)
 
 
 #Data complete
-data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_main.dta')
+data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_main_regmain.dta')
 
+"""
 #drop if eval16==1 & eval17==1
 data_reg_1 = data_reg[(data_reg['eval16']==1) & (data_reg['eval17']==1)].index
 data_reg.drop(data_reg_1, inplace = True)
 #drop if eval16==1 & eval18==1
 data_reg_2 = data_reg[(data_reg['eval16']==1) & (data_reg['eval18']==1)].index
 data_reg.drop(data_reg_2, inplace = True)
+"""
 
-#Regression
 #REG Stata
 #reg stdsimce_m d_trat d_year inter if (eval_year == 1 | eval_year == 2018 | eval_year == 0), vce(cluster drun)
-data_reg = data_reg[ (data_reg['eval_year'] == 1) | (data_reg['eval_year'] == 2018) | (data_reg['eval_year'] == 0) ]
+#data_reg = data_reg[ (data_reg['eval_year'] == 1) | (data_reg['eval_year'] == 2018) | (data_reg['eval_year'] == 0) ]
 
-y = np.array(data_reg['stdsimce_m'])
+y = np.array(data_reg['stdsimce'])
 x_1 = np.array(data_reg['d_trat'])
 x_2 = np.array(data_reg['d_year'])
 x_3 = np.array(data_reg['inter'])
@@ -242,7 +243,7 @@ plt.axvline(x=att_mean_sim, ymin=0, ymax=0.95, color='sandybrown', linestyle='-'
 plt.axvline(x=inter_data, ymin=0, ymax=0.95, color='black', linestyle='-', linewidth=2,alpha = 0.6)
 plt.axvline(x=inter_posit, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
 plt.axvline(x=inter_negat, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
-plt.annotate("Simulated ATT" "\n" + "("   +'{:04.2f}'.format(att_mean_sim) + r"$\sigma$s)", xy=(0.05, 1),
+plt.annotate("Simulated ATT" "\n" + "("   +'{:04.2f}'.format(att_mean_sim) + r"$\sigma$s)", xy=(0.08, 1),
             xytext=(0.32, 1), arrowprops=dict(arrowstyle="->"))
 plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)", xy=(0.018, 1),
             xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))

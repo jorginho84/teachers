@@ -166,6 +166,9 @@ modelSD = sd.SimData(N,model)
 ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
+#var_cov = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy")
+#w_matrix = np.linalg.inv(var_cov) 
+
 for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
 

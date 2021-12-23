@@ -238,8 +238,8 @@ class Count_1(Utility):
         
         
         #Linear PFP system
-        b = 900
-        a = 200
+        b = 800
+        a = 600
         
         salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2
 
