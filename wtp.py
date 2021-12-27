@@ -22,7 +22,8 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("C:\\Users\pjdea\OneDrive\Documentos\GitRepository\wtp_table7")
 #import gridemax
 import time
 #import int_linear
@@ -47,9 +48,11 @@ import time
 np.random.seed(100)
 
 #Betas and var-cov matrix
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
+betas_nelder  = np.load("C:\\Users\pjdea\OneDrive\Documentos\GitRepository\wtp_table7/betasopt_model_v23.npy")
 
-data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+#data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data_1 = pd.read_stata('C:\\Users\pjdea\OneDrive\Documentos\GitRepository\wtp_table7/data_pythonpast.dta')
 
 data = data_1[data_1['d_trat']==1]
 
@@ -256,23 +259,119 @@ for j in range(n_sim):
                                  
 
 #Average WTPs: saving them into table
-np.mean(wtp_list[0])
 
-wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/mvpf_teachers.xlsx')
-sheet = wb["calculos"]
+#WTPs
+original_stpd_O7 = np.mean(wtp_list[0])
+no_experience_P7 = np.mean(wtp_list[1])
+linear_Q7 = np.mean(wtp_list[2])
 
-sheet['O7'] = np.mean(wtp_list[0])
-sheet['P7'] = np.mean(wtp_list[1])
-sheet['Q7'] = np.mean(wtp_list[2])
+#Delta income (also provision cost)
+original_stpd_S7 = np.mean(income_list[0])
+no_experience_T7 = np.mean(income_list[1])
+linear_U7 = np.mean(income_list[2])
 
-sheet['S7'] = np.mean(income_list[0])
-sheet['T7'] = np.mean(income_list[1])
-sheet['U7'] = np.mean(income_list[2])
+#ATTs
+STPD_C22 = np.mean(simce_list[0])
+no_experience_D22 = np.mean(simce_list[1])
+linear_pfp_E22 = np.mean(simce_list[2])
 
-sheet['C22'] = np.mean(simce_list[0])
-sheet['D22'] = np.mean(simce_list[1])
-sheet['E22'] = np.mean(simce_list[2])  
+ATT_E4 = 0.22
+first_gain_F4 = 0.1
+marginal_tax_rate_D4 = 0.35
 
-wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/mvpf_teachers.xlsx')
+#Averge annual wage
+av_annual_wage = 14400
+
+wage = np.zeros(25)
+interes = 0.03
+
+for i in range(25):
+    wage[i] = av_annual_wage/((1+interes)**(i))
+    
+
+cost_K30 = np.sum(wage)
+
+lifetime_earnings_G4 = cost_K30
+
+#STUDENTS 
+studentst7 = np.zeros(3)
+v_students = np.array([STPD_C22, no_experience_D22, linear_pfp_E22])
+
+for i in range(3):
+    studentst7[i] = v_students[i]*first_gain_F4*lifetime_earnings_G4*(1-marginal_tax_rate_D4)
+    
+#TEACHERS 
+teacherst7 = np.zeros(3)
+v_teachers = np.array([original_stpd_O7, no_experience_P7, linear_Q7])
+
+for i in range(3):
+    teacherst7[i] = v_teachers[i]*12*(1-marginal_tax_rate_D4)
+
+#OVERAL WTP 
+overalwtpt7 = np.zeros(3)
+
+for i in range(3):
+    overalwtpt7[i] = studentst7[i] + teacherst7[i]
+    
+# PROVISION COST 
+provisiont7 = np.zeros(3)
+v_provision = np.array([original_stpd_S7, no_experience_T7, linear_U7])
+
+for i in range(3):
+    provisiont7[i] = v_provision[i]*12
+    
+# ADDED REVENUE
+revenuet7 = np.zeros(3)
+
+for i in range(3):
+    revenuet7[i] = v_students[i]*first_gain_F4*lifetime_earnings_G4*marginal_tax_rate_D4 + provisiont7[i]*marginal_tax_rate_D4
+
+# NET COST
+net_costt7 = np.zeros(3)
+
+for i in range(3):
+    net_costt7[i] = provisiont7[i] - revenuet7[i]
+    
+# MVPF
+mvpft7 = np.zeros(3)
+
+for i in range(3):
+    mvpft7[i] = overalwtpt7[i]/net_costt7[i]
+
+
+#\Latex archive
+#Table 7 of the paper
+
+with open('C:\\Users\pjdea\OneDrive\Documentos\GitRepository\wtp_table7/wtp_table7.tex','w') as f:
+    f.write(r'\footnotesize{'+'\n')
+    f.write(r'\begin{tabular}{lcccccc}'+'\n')
+    f.write(r'\toprule'+'\n')
+    f.write(r'&  & \multirow{2}{*}{\makecell[c]{\textbf{Original} \\ \textbf{STPD}}} & & \multirow{2}{*}{\makecell[c]{\textbf{Policy 1} \\ \textbf{(no experience)}}} & & \multirow{2}{*}{\makecell[c]{\textbf{Policy 2} \\ \textbf{(linear PFP)}}}  \\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'\midrule'+'\n')
+    f.write(r'\textbf{A. Willigness to pay}  & &  & &  & & \\'+'\n')
+    f.write(r'\multirow{2}{*}{\makecell[l]{Students WTP (in \$): \\ $ATT\times \rho \times \$258,272\times$  $(1-\tau)$}} &  & \multirow{2}{*}{\makecell[l]{'+'{:1.0f}'.format(studentst7[0]) +r'}} & & \multirow{2}{*}{\makecell[l]{'+'{:1.0f}'.format(studentst7[1]) +r'}} & & \multirow{2}{*}{\makecell[l]{'+'{:1.0f}'.format(studentst7[2]) +r'}} \\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'Teachers WTP (in \$)  & & '+'{:1.0f}'.format(teacherst7[0]) +r' & & '+'{:1.0f}'.format(teacherst7[1]) +r' & & '+'{:1.0f}'.format(teacherst7[2]) +r'\\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'Overall WTP  & & '+'{:1.0f}'.format(overalwtpt7[0]) +r' & & '+'{:1.0f}'.format(overalwtpt7[1]) +r' & & '+'{:1.0f}'.format(overalwtpt7[2]) +r'\\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'\textbf{B. Costs} & &  & &  & & \\'+'\n')
+    f.write(r'Provision cost $C$ (in \$) & & '+'{:1.0f}'.format(provisiont7[0]) +r' & & '+'{:1.0f}'.format(provisiont7[1]) +r' & & '+'{:1.0f}'.format(provisiont7[2]) +r'\\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'\multirow{2}{*}{\makecell[l]{Added revenues (in \$): \\ $ATT\times \rho \times \$258,272\times \tau + C*\tau$}} &  & \multirow{2}{*}{\makecell[l]{'+'{:1.0f}'.format(revenuet7[0]) +r'}} & & \multirow{2}{*}{\makecell[l]{'+'{:1.0f}'.format(revenuet7[0]) +r'}} & & \multirow{2}{*}{\makecell[l]{'+'{:1.0f}'.format(revenuet7[0]) +r'}} \\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'& &  & &  & & \\'+'\n')
+    f.write(r'Net Cost & & '+'{:1.0f}'.format(net_costt7[0]) +r' & & '+'{:1.0f}'.format(net_costt7[0]) +r' & & '+'{:1.0f}'.format(net_costt7[0]) +r' \\'+'\n')
+    f.write(r'\midrule'+'\n')
+    f.write(r'\textbf{MVPF: WTP/Net Cost} & & \textbf{'+'{:1.0f}'.format(mvpft7[0]) +r'} & & \textbf{'+'{:1.0f}'.format(mvpft7[0]) +r'} & & \textbf{'+'{:1.0f}'.format(mvpft7[0]) +r'} \\ '+'\n')
+    f.write(r'\bottomrule'+'\n')
+    f.write(r'\end{tabular}'+'\n')
+    f.write(r'}'+'\n')
+    f.close()
+ 
+
 
 
