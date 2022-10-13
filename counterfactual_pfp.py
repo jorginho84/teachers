@@ -1,9 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 15 15:59:57 2021
-
-@author: pjac2
+This code implements the pay-for-percentile (PFP) contest of Barvely and Neal (2012)
 """
+
 
 
 from __future__ import division
@@ -25,10 +25,10 @@ import time
 #import int_linear
 import between
 import utility as util
-import parameters as parameters
+import parameters_pfp as parameters
 import simdata as sd
 import estimate as est
-from utility_counterfactual import Count_1
+from utility_counterfactual_pfp import Count_3
 import simdata_c as sdc
 #import pybobyqa
 #import xlsxwriter
@@ -55,10 +55,51 @@ n_sim = 500
 
 simce = []
 baseline_p = []
-income = [] 
+income = []
+
+#----------Percentile cutoffs--------#
+
+data_aux =  pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pfp.dta')
+
+experience = np.array(data_aux['experience'])
+
+score_past = np.array(data_aux['score_past'])
+
+n_pfp = score_past.shape[0]
+
+nq = 10
+
+#Experience categories
+cat_exp = np.zeros(n_pfp)
+cat_exp[experience <= 4] = 0
+cat_exp[(experience >= 5) & (experience <= 10)] = 1
+cat_exp[(experience >= 11) & (experience <= 20)] = 2
+cat_exp[(experience >= 21) & (experience <= 30)] = 3
+cat_exp[experience >= 40] = 4
+
+percs_exp = np.zeros(n_pfp)
 
 
+for i in range(5):
+    percs_exp[cat_exp == i] = pd.qcut(score_past[cat_exp == i],nq,labels=False)
+    
 
+cutoffs_min = []
+cutoffs_max = []
+
+for j in range(5): #experience
+    cutoffs_min_aux = []
+    cutoffs_max_aux = []
+    for i in range(nq): #percentiles
+
+        cutoffs_min_aux.append(np.min(score_past[(cat_exp == j) & (percs_exp == i)]))
+        cutoffs_max_aux.append(np.max(score_past[(cat_exp == j) & (percs_exp == i)]))
+        
+    cutoffs_min.append(cutoffs_min_aux)
+    cutoffs_max.append(cutoffs_max_aux)
+
+
+#----------Simulating counterfactual--------#
 
 for x in range(0,2):
     
@@ -143,7 +184,7 @@ for x in range(0,2):
     pri = [47872,113561]
     priori = [pri[0]/dolar, pri[1]/dolar]
     
-    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori,cutoffs_min,cutoffs_max)
     
     model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality)
@@ -167,21 +208,15 @@ for x in range(0,2):
     baseline_p.append(np.mean(baseline_sims,axis=1))
     
 
-
-
-print ('')
-print ('ATT equals ', np.mean(simce[1] - simce[0]))
-print ('')
-
-
 #For validation purposes
 att = simce[1] - simce[0]
 att_cost = income[1] - income[0]
 
+
 #Effects under a new system
 treatment = np.ones(N)
     
-model_c = Count_1(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+model_c = Count_3(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                   priotity,rural_rbd,locality)
 count_sd = sdc.SimDataC(N,model_c)
 
@@ -201,10 +236,7 @@ att_cost_c = income_c - income[0]
 
 
 
-#---------------------------------------------------------------#
-#Effects by distance to nearest cutoff (distance based on previous test scores)
-#---------------------------------------------------------------#
-
+#Effects by distance to previous test score
 y = np.zeros(5)
 y_c = np.zeros(5)
 y_ses = np.zeros(5)
@@ -220,38 +252,6 @@ for j in range(5):
 
 fig, ax=plt.subplots()
 plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att)) + r'$\sigma$)')
-plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'sandybrown',ls = '--', lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$)')
-ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
-ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.yaxis.set_ticks_position('left')
-ax.xaxis.set_ticks_position('bottom')
-plt.yticks(fontsize=12)
-plt.xticks(fontsize=12)
-ax.set_ylim(0,0.26)
-ax.legend(loc = 'upper left',fontsize = 13)
-#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
-plt.tight_layout()
-plt.show()
-fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1.pdf', format='pdf')
-
-
-##Categorías de potential (two for two measures)
-n_quant = 5
-
-baseline_av = (baseline_p[0][:,0] + baseline_p[0][:,1])/2
-
-q_potential_av = pd.qcut(baseline_av,n_quant,labels=False)
-
-for j in range(5):
-    y[j] = np.mean(att[q_potential_av == j])
-    y_c[j] = np.mean(att_c[q_potential_av == j])
-
-    
-
-fig, ax=plt.subplots()
-plot1 = ax.bar(x,y,color='b' ,alpha=.7, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att)) + r'$\sigma$)')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.5, ec = 'darkorange',ls = '--', lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_c)) + r'$\sigma$)')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
 ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
@@ -261,12 +261,9 @@ ax.yaxis.set_ticks_position('left')
 ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
 plt.xticks(fontsize=12)
-ax.set_ylim(0,0.26)
+#ax.set_ylim(0,0.3)
 ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-#fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
-
-
-
+fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual_percentiles.pdf', format='pdf')

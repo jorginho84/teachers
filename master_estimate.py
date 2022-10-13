@@ -178,12 +178,12 @@ print("--- %s seconds ---" % (time_opt))
 beta_1 = output_me.x[0]
 beta_2 = output_me.x[1]
 beta_3 = output_me.x[2]
-beta_4 = output_me.x[3]
+beta_4 = np.exp(output_me.x[3])
 beta_5 = output_me.x[4]
 beta_6 = output_me.x[5]
 beta_7 = output_me.x[6]
 beta_8 = output_me.x[7]
-beta_9 = output_me.x[8]
+beta_9 = np.exp(output_me.x[8])
 beta_10 = output_me.x[9]
 beta_11 = output_me.x[10]
 beta_12 = output_me.x[11]

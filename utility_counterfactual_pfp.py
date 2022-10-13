@@ -28,7 +28,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 from utility import Utility
 
 
-class Count_1(Utility):
+class Count_3(Utility):
     """ 
 
     This class modifies the economic environment of the agent
@@ -38,12 +38,14 @@ class Count_1(Utility):
     def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
                  catPort, catPrueba, TrameI,priotity, rural_rbd, locality):
         """
-        Calling baseline m odel
+        Calling baseline model
 
         """
         
         Utility.__init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
                  catPort, catPrueba, TrameI,priotity, rural_rbd, locality)
+        
+
         
     
     def income(self, initial_p,tscores):
@@ -52,10 +54,8 @@ class Count_1(Utility):
         initial placement, and self.years of experience
 
         """
-        # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
-        # " Values in dolars "
-        # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
-        # " Values in dolars "
+
+
         HvalueE = self.param.hw[0]
         HvalueS = self.param.hw[1]
         
@@ -235,15 +235,36 @@ class Count_1(Utility):
                       salary11,salary12,salary13,salary14,salary15,salary16,salary17,salary18,salary19,salary20])
             
         salary_pr = sum([salary21,salary22,salary23,salary24,salary25,salary26,salary27,salary28])
+
+
+        #Barvely and Neal (2012)
         
+        percentile = np.zeros(tscores[0].shape[0])
         
-        #Linear PFP system
-        b = 725
-        a = 800
+        tscore = (tscores[0] + tscores[1])/2
         
-        salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2
+        cat_exp = np.zeros(tscores[0].shape[0])
+        cat_exp[self.years <= 10] = 0
+        cat_exp[(self.years >= 11) & (self.years <= 20)] = 1
+        cat_exp[(self.years >= 21) & (self.years <= 30)] = 2
+        cat_exp[(self.years >= 31) & (self.years <= 40)] = 3
+        cat_exp[(self.years >= 40)] = 4
+        
+        nq = 10 #5 percentiles
+        
+        #percentiles
+        for j in range(5): #experience
+            for i in range(nq): #percentiles
+                percentile[(cat_exp == j) & (tscore >= self.param.cutoffs_min[j][i]) & (tscore <= self.param.cutoffs_max[j][i])] = i
+
+
+      #  for j in range(5):
+       #     percentile[self.cat_exp == j] = np.where(tscore >= cutoffs[0][0] & )
+
+        b = 215*100
+        a = 1300
+        
+        salary[(self.treatment == 1)] = a + b*percentile/100
 
 
         return [salary, salary_pr]
-
-

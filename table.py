@@ -76,14 +76,13 @@ se_betas_opt_t[2,0],se_betas_opt_t[4,0],se_betas_opt_t[3,0]]
 wage_names = ['Constant', 'Portfolio effort','STEI effort','Experience effect','Measurement error SD']
 
 
-alphas_port_list= [alphas_port[0,0],alphas_port[1,0],alphas_port[2,0],alphas_port[3,0]]
-se_alphas_port_list = [se_alphas_port[0,0],se_alphas_port[1,0],se_alphas_port[2,0],se_alphas_port[3,0]]
-prod_names_young = ['Constant', 'Effort','Experience', r'Variance of shock', r'Past performance']
+alphas_port_list= [alphas_port[0,0],alphas_port[1,0],alphas_port[2,0],alphas_port[4,0],alphas_port[3,0]]
+se_alphas_port_list = [se_alphas_port[0,0],se_alphas_port[1,0],se_alphas_port[2,0],se_alphas_port[4,0],se_alphas_port[3,0]]
+prod_names_young = ['Constant', 'Effort','Experience', r'Past performance',r'Variance of shock']
 
-alphas_test_list = [alphas_test[0,0],alphas_test[1,0],alphas_test[2,0],alphas_test[3,0]]
-se_alphas_test = [se_alphas_test[0,0],se_alphas_test[1,0],se_alphas_test[2,0],se_alphas_test[3,0]]
-prod_names_old = ['Constant', 'Effort',
-                    'Experience', r'Variance of shock', r'Past performance']
+alphas_test_list = [alphas_test[0,0],alphas_test[1,0],alphas_test[2,0],alphas_test[4,0],alphas_test[3,0]]
+se_alphas_test = [se_alphas_test[0,0],se_alphas_test[1,0],se_alphas_test[2,0],se_alphas_test[4,0],se_alphas_test[3,0]]
+prod_names_old = ['Constant', 'Effort','Experience', r'Past performance',r'Variance of shock']
 
 
 
