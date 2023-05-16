@@ -22,7 +22,7 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\ExpSIMCE")
-sys.path.append("/home/jrodriguez/teachers/codes/")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT")
 import time
 import utility as util
 import parameters as parameters
@@ -33,15 +33,15 @@ import estimate as est
 np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
-betas_nelder  = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v22.npy")
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/betasopt_model_v23.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
-moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
+moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/moments_v2023.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 #data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
-data = pd.read_stata('/home/jrodriguez/teachers/codes/data_pythonpast.dta')
+data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
 
 
 #count_nan = data['zpjeport'].isnull().sum()
@@ -82,6 +82,8 @@ priotity = np.array(data['por_priority'])
 rural_rbd = np.array(data['rural_rbd'])
 
 locality = np.array(data['AsignacionZona'])
+
+priority_aep = np.array(data['priority_aep'])
 
 #### PARAMETERS MODEL ####
 N = np.size(p1_0)
@@ -147,7 +149,7 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-ses_opt = np.load("/home/jrodriguez/teachers/codes/ses_model.npy")
+ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/ses_model_v2023.npy")
 
 
 #var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
@@ -160,7 +162,7 @@ for j in range(ses_opt.shape[0]):
 
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
-                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality, \
+                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality, priority_aep, \
                  w_matrix,moments_vector)
 
 
@@ -208,5 +210,5 @@ betas_opt_me = np.array([beta_1, beta_2,
 
 
 #np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy',betas_opt_me)
-np.save('/home/jrodriguez/teachers/codes/betasopt_model_v23.npy',betas_opt_me)
+np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/betasopt_model_v2023.npy',betas_opt_me)
 

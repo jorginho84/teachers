@@ -33,7 +33,7 @@ from openpyxl import load_workbook
 #### LOAD DATA ####
 
 #df = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-df = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+df = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
 
 pd.value_counts(df['trame'])
 
@@ -224,7 +224,7 @@ varcov = result['Var Cov Matrix']
 
 ##### PYTHON TO EXCEL #####
 
-wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
+wb = load_workbook('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/Outcomes_v2023.xlsx')
 sheet = wb["data"]
 
 
@@ -312,12 +312,12 @@ result['perc adv/exp control'],
 result['Estimation Test vs p'],
 result['Estimation Portfolio vs p']])
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy',ses)
+np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/ses_model_v2023.npy',ses)
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy',means)
+np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/moments_v2023.npy',means)
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy',varcov)
+np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/var_cov_v2023.npy',varcov)
 
-wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/Outcomes.xlsx')
+wb.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/Outcomes_v2023.xlsx')
 
 
