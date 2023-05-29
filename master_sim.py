@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("D:\Git\ExpSIMCE")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -28,16 +28,14 @@ from openpyxl import load_workbook
 import time
 
 # DATA 2018
-#betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/betasopt_model_v23.npy")
 #betas_nelder  = np.load("D:\Git\Wagenewcomponent/betasopt_model_v23.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("D:\Git\Wagenewcomponent/moments.npy")
 
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
-
-
+data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
 
 #count_nan = data['zpjeport'].isnull().sum()
 #print('Count of nan: ' +str(count_nan))
@@ -80,6 +78,8 @@ priotity = np.array(data['por_priority'])
 rural_rbd = np.array(data['rural_rbd'])
 
 locality = np.array(data['AsignacionZona'])
+
+priority_aep = np.array(data['priority_aep'])
 
 
 #### PARAMETERS MODEL ####
@@ -146,7 +146,7 @@ priori = [pri[0]/dolar, pri[1]/dolar]
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
-model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality)
+model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality,priority_aep)
 
 print("Random Effort")
 

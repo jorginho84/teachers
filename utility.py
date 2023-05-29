@@ -25,7 +25,7 @@ class Utility(object):
     """
 
     def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, catPort, catPrueba, 
-                 TrameI, priotity, rural_rbd, locality):
+                 TrameI, priotity, rural_rbd, locality, AEP_priority):
         """
         Set up model's data and paramaters
 
@@ -48,6 +48,7 @@ class Utility(object):
         self.priotity = priotity
         self.rural_rbd = rural_rbd
         self.locality = locality
+        self.AEP_priority = AEP_priority
     
     def initial(self):
         
@@ -218,6 +219,9 @@ class Utility(object):
         prioirtyap995 = np.zeros(initial_p_2.shape[0])
         localAssig2 = np.zeros(initial_p_2.shape[0])
         localAssig3 = np.zeros(initial_p_2.shape[0])
+        prioirtyap_aep11 = np.zeros(initial_p_2.shape[0])
+        prioirtyap_aep22 = np.zeros(initial_p_2.shape[0])
+        prioirtyap_aep33 = np.zeros(initial_p_2.shape[0])
         
         
         
@@ -290,7 +294,7 @@ class Utility(object):
         #AsigElemt = np.where(((self.typeSchool==1)), RBMNElemt*0.4*(biennium/15), AsigElemt2)
         
         # " Asignación por docencia
-        # " Priority student
+        # "Post-reform Priority allocation 
         
         prioirtyap1 = np.where((self.priotity >= 0.6) & (initial_p_2==1), ((ATDPinitial*0.2)+((self.HOURS/full_contract)*self.param.priori[0])), prioirtyap11)
         prioirtyap2 = np.where((self.priotity >= 0.6) & (initial_p_2==2), (ATDPearly*0.2+((self.HOURS/full_contract)*self.param.priori[0])), prioirtyap22)
@@ -306,6 +310,14 @@ class Utility(object):
         prioirtyap94 = np.where(((self.priotity >= 0.45) & (self.priotity <= 0.6))  & (self.rural_rbd==1) & (initial_p_2==4), (ATDPexpert1*0.1), prioirtyap994)
         prioirtyap95 = np.where(((self.priotity >= 0.45) & (self.priotity <= 0.6))  & (self.rural_rbd==1) & (initial_p_2==5),(ATDPexpert2*0.1), prioirtyap995)
         prioirtyap = sum([prioirtyap1,prioirtyap2,prioirtyap3,prioirtyap4,prioirtyap5,prioirtyap6,prioirtyap7,prioirtyap8,prioirtyap91,prioirtyap92,prioirtyap93,prioirtyap94,prioirtyap95])
+        
+        # "Pre-reform Priority allocation
+        
+        prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
+        prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
+        prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
+        priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
+        
         
         # " Locality assignation
         
@@ -344,14 +356,14 @@ class Utility(object):
         salary21 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt]), salary3d)
         salary22 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond]), salary3d)
         
-        salary23 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,AcreditaTramoI]), salary3d)
-        salary24 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,AcreditaTramoI]), salary3d)
+        salary23 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoI]), salary3d)
+        salary24 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoI]), salary3d)
         
-        salary25 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,AcreditaTramoII]), salary3d)
-        salary26 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,AcreditaTramoII]), salary3d)
+        salary25 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoII]), salary3d)
+        salary26 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoII]), salary3d)
         
-        salary27 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,AcreditaTramoIII]), salary3d)
-        salary28 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,AcreditaTramoIII]), salary3d)
+        salary27 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoIII]), salary3d)
+        salary28 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoIII]), salary3d)
         
         
         salary = sum([salary1,salary2,salary3,salary4,salary5,salary6,salary7,salary8,salary9,salary10, \

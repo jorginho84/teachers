@@ -20,7 +20,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT")
 #import gridemax
 import time
 #import int_linear
@@ -50,9 +50,15 @@ np.random.seed(123)
 
 #Betas and var-cov matrix
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
+#betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/betasopt_model_v23.npy")
+#df = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_main_regmain_v2023.dta')
+#moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/moments.npy")
+#ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
+#data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/betasopt_model_v2023.npy")
+
+data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
 data = data_1[data_1['d_trat']==1]
 
@@ -92,6 +98,8 @@ for x in range(0,2):
  
     # Priority #
     priotity = np.array(data['por_priority'])
+    
+    priotity_aep = np.array(data['priority_aep'])
     
     rural_rbd = np.array(data['rural_rbd'])
     
@@ -153,7 +161,7 @@ for x in range(0,2):
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
     model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
-                         priotity,rural_rbd,locality)
+                         priotity,rural_rbd,locality, priotity_aep)
     
     # SIMULACIÓN SIMDATA
     
@@ -188,7 +196,9 @@ att_mean_sim = np.mean(att_sim)
 
 
 #Data complete
-data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_main_regmain.dta')
+data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_main_regmain_v2023.dta')
+
+#aquí restricción nueva de data
 
 """
 #drop if eval16==1 & eval17==1
@@ -250,7 +260,7 @@ plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)
 plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
 plt.xlim(-0.6,0.6)
-plt.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/att_distribution.pdf', format='pdf')
+plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\Result/att_distribution_v2023_v2.pdf', format='pdf')
 
 
 
