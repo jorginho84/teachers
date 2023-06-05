@@ -210,12 +210,14 @@ class estimate:
         #self.param0.alphas[0][2] = beta[2]
         self.param0.alphas[0][3] = beta[2]
         self.param0.alphas[0][4] = np.exp(beta[3])
+        #self.param0.alphas[0][4] = beta[3]
         self.param0.alphas[0][5] = beta[4]
         self.param0.alphas[1][0] = beta[5]
         #self.param0.alphas[1][1] = beta[7]
         self.param0.alphas[1][2] = beta[6]
         self.param0.alphas[1][3] = beta[7]
         self.param0.alphas[1][4] = np.exp(beta[8])
+        #self.param0.alphas[1][4] = beta[8]
         self.param0.alphas[1][5] = beta[9]
         self.param0.betas[0] = beta[10]
         self.param0.betas[1] = beta[11]

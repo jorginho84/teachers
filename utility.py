@@ -235,6 +235,7 @@ class Utility(object):
         
         bienniumtwoFalse = self.years/2
         biennium = np.floor(bienniumtwoFalse)
+        biennium[biennium>15]=15
         
         porc1 = self.param.porc[0] 
         porc2 = self.param.porc[1] 
