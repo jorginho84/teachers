@@ -20,7 +20,7 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit")
 #sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
@@ -37,15 +37,15 @@ from openpyxl import load_workbook
 np.random.seed(123)
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/betasopt_model_v2023.npy")
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v2023.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/moments_v2023.npy")
+moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/moments_v2023.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/data_pythonpast_v2023_v2.dta')
+data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/data_pythonpast.dta')
 
 
 
@@ -132,8 +132,8 @@ AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 # * value professional qualification (pesos)= 253076 *
 # * value professional mention (pesos)= 84360 *
 
-#inflation adjustment: 2012Jan-2019Dec: 1.266
-qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
+#inflation adjustemtn: 2012Jan-2020Jan: 1.111***
+qualiPesos = [72100*1.111, 24034*1.111, 253076, 84360] 
 
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
 
@@ -152,8 +152,8 @@ progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
 pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
 
-pri = [47872,113561]
-priori = [pri[0]/dolar, pri[1]/dolar]
+pri = [48542,66609,115151]
+priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
@@ -165,7 +165,7 @@ modelSD = sd.SimData(N,model)
 
 
 #ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
-ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/ses_model_v2023.npy")
+ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/ses_model_v2023.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 #var_cov = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy")
@@ -214,7 +214,7 @@ qw = output_ins.objfunction(beta0)
 ##### PYTHON TO EXCEL #####
 
 #wb = load_workbook('D:\Git\ExpSIMCE/Outcomes.xlsx')
-wb = load_workbook('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/Outcomes_v2023.xlsx')
+wb = load_workbook('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/Outcomes_v2023.xlsx')
 sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
@@ -287,7 +287,7 @@ sheet['D22'] = corr_data['Estimation SIMCE vs Experience']
 
 
 #wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
-wb.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/Outcomes_v2023.xlsx')
+wb.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/Outcomes_v2023.xlsx')
 
 
 """

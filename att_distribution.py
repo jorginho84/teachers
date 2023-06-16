@@ -20,7 +20,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit")
 #import gridemax
 import time
 #import int_linear
@@ -56,9 +56,9 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/betasopt_model_v2023.npy")
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v2023.npy")
 
-data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/data_pythonpast_v2023_v2.dta')
+data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/data_pythonpast.dta')
 
 data = data_1[data_1['d_trat']==1]
 
@@ -135,9 +135,8 @@ for x in range(0,2):
     # * value professional qualification (pesos)= 253076 *
     # * value professional mention (pesos)= 84360 *
     
-    #inflation adjustment: 2012Jan-2019Dec: 1.266
-    qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
-    qualiPesos = [72100, 24034, 253076, 84360]
+    #inflation adjustemtn: 2012Jan-2020Jan: 1.111***
+    qualiPesos = [72100*1.111, 24034*1.111, 253076, 84360] 
     pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
     
     #* Progression component by tranche *
@@ -155,8 +154,8 @@ for x in range(0,2):
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
        progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
     
-    pri = [47872,113561]
-    priori = [pri[0]/dolar, pri[1]/dolar]
+    pri = [48542,66609,115151]
+    priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
@@ -196,9 +195,93 @@ att_mean_sim = np.mean(att_sim)
 
 
 #Data complete
-data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/data_main_regmain_v2023.dta')
+data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/FINALdata.dta')
+
+# first drop Stata 1083190 rows 
+data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
+
+#destring
+data_reg["drun_l"] = pd.to_numeric(data_reg["drun_l"], errors='coerce')
+data_reg["drun_m"] = pd.to_numeric(data_reg["drun_m"], errors='coerce')
+
+
+##### generates variables #####
+#eval_year
+data_reg.loc[data_reg["eval_year_m"]==data_reg["eval_year_l"],'eval_year'] = data_reg["eval_year_m"]
+data_reg.loc[(data_reg["eval_year_m"].notna()) & (data_reg["eval_year_l"].isna()),'eval_year'] = data_reg["eval_year_m"]
+data_reg.loc[(data_reg["eval_year_m"].isna()) & (data_reg["eval_year_l"].notna()),'eval_year'] = data_reg["eval_year_l"]
+
+#drun
+data_reg.loc[data_reg["drun_m"]==data_reg["drun_l"],'drun'] = data_reg["drun_m"]
+data_reg.loc[(data_reg["drun_m"].notna()) & (data_reg["drun_l"].isna()),'drun'] = data_reg["drun_m"]
+data_reg.loc[(data_reg["drun_m"].isna()) & (data_reg["drun_l"].notna()),'drun'] = data_reg["drun_l"]
+
+#experience
+data_reg.loc[data_reg["experience_m"]==data_reg["experience_l"],'experience'] = data_reg["experience_m"]
+data_reg.loc[(data_reg["experience_m"].notna()) & (data_reg["experience_l"].isna()),'experience'] = data_reg["experience_m"]
+data_reg.loc[(data_reg["experience_m"].isna()) & (data_reg["experience_l"].notna()),'experience'] = data_reg["experience_l"]
+
+#d_trat
+data_reg.loc[data_reg["d_trat_m"]==data_reg["d_trat_l"],'d_trat'] = data_reg["d_trat_m"]
+data_reg.loc[(data_reg["d_trat_m"].notna()) & (data_reg["d_trat_l"].isna()),'d_trat'] = data_reg["d_trat_m"]
+data_reg.loc[(data_reg["d_trat_m"].isna()) & (data_reg["d_trat_l"].notna()),'d_trat'] = data_reg["d_trat_l"]
+
+#inter
+data_reg.loc[data_reg["inter_m"]==data_reg["inter_l"],'inter'] = data_reg["inter_m"]
+data_reg.loc[(data_reg["inter_m"].notna()) & (data_reg["inter_l"].isna()),'inter'] = data_reg["inter_m"]
+data_reg.loc[(data_reg["inter_m"].isna()) & (data_reg["inter_l"].notna()),'inter'] = data_reg["inter_l"]
+
+#d_year
+data_reg.loc[data_reg["d_year_m"]==data_reg["d_year_l"],'d_year'] = data_reg["d_year_m"]
+data_reg.loc[(data_reg["d_year_m"].notna()) & (data_reg["d_year_l"].isna()),'d_year'] = data_reg["d_year_m"]
+data_reg.loc[(data_reg["d_year_m"].isna()) & (data_reg["d_year_l"].notna()),'d_year'] = data_reg["d_year_l"]
+        
+##### drop nan #####
+data_reg = data_reg[(data_reg["edp"].notna())]
+data_reg = data_reg[(data_reg["edm"].notna())]
+data_reg = data_reg[(data_reg["ingreso"].notna())]
+data_reg = data_reg[(data_reg["experience"].notna())]
+data_reg = data_reg[(data_reg["drun"].notna())]
+data_reg = data_reg[(data_reg["d_trat"].notna())]
+data_reg = data_reg[(data_reg["d_year"].notna())]
+data_reg = data_reg[(data_reg["inter"].notna())]
+                                                                   
+# keep if eval_year == 1 | eval_year == 2018 | eval_year == 0
+data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 2018) | (data_reg["eval_year"] == 0)]
+
+# mean simce
+data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
+
+#data_reg["stdsimce"].value_counts()
+#data_reg["stdsimce"].info()
+#data_reg["experience"].isna().sum()
 
 #aquí restricción nueva de data
+
+"""
+keep if stdsimce_m != . & stdsimce_l != .
+
+destring drun_l drun_m, force replace
+foreach variable in "eval_year" "drun" "experience" "d_trat" "inter" "d_year"{
+	
+	gen `variable' = .
+	replace `variable' = `variable'_m if `variable'_m == `variable'_l
+	replace `variable' = `variable'_m if `variable'_l == . & `variable'_m != .  
+	replace `variable' = `variable'_l if `variable'_l != . & `variable'_m == .
+	
+}
+
+local S_controls edp edm ingreso
+local T_controls experience
+
+*fixing sample size for all models
+foreach variable in `S_controls' `T_controls' drun d_trat d_year inter{
+	keep if `variable' != .
+}
+
+eval_year == 1 | eval_year == 2018 | eval_year == 0
+
+"""
 
 """
 #drop if eval16==1 & eval17==1
@@ -260,7 +343,7 @@ plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)
 plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
 plt.xlim(-0.6,0.6)
-plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\Result/att_distribution_v2023_v3.pdf', format='pdf')
+plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v3.pdf', format='pdf')
 
 
 

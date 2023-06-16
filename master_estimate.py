@@ -22,7 +22,7 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\ExpSIMCE")
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit")
 import time
 import utility as util
 import parameters as parameters
@@ -33,15 +33,15 @@ import estimate as est
 np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/betasopt_model_v23.npy")
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v23.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
-moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/moments_v2023.npy")
+moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/moments_v2023.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 #data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
-data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/data_pythonpast_v2023_v2.dta')
+data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/data_pythonpast.dta')
 
 
 #count_nan = data['zpjeport'].isnull().sum()
@@ -116,8 +116,8 @@ porc = [0.0338, 0.0333]
 # * value professional qualification (pesos)= 253076 *
 # * value professional mention (pesos)= 84360 *
 
-#inflation adjustment: 2012Jan-2019Dec: 1.266
-qualiPesos = [72100*1.266, 24034*1.266, 253076, 84360] 
+#inflation adjustemtn: 2012Jan-2020Jan: 1.111***
+qualiPesos = [72100*1.111, 24034*1.111, 253076, 84360] 
  
 
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
@@ -141,15 +141,15 @@ progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
 pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
 
-pri = [47872,113561]
-priori = [pri[0]/dolar, pri[1]/dolar]
+pri = [48542,66609,115151]
+priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/ses_model_v2023.npy")
+ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/ses_model_v2023.npy")
 
 
 #var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
@@ -212,5 +212,5 @@ betas_opt_me = np.array([beta_1, beta_2,
 
 
 #np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy',betas_opt_me)
-np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacher_profe_fit/betasopt_model_v2023.npy',betas_opt_me)
+np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v2023.npy',betas_opt_me)
 
