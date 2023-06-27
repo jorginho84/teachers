@@ -29,7 +29,7 @@ class estimate:
     "This class generate descriptive statiscals"
     
     def __init__(self,N, years,param0, p1_0,p2_0,treatment, \
-                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priority,rural_rbd,locality, \
+                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priority,rural_rbd,locality, AEP_priority, \
                  w_matrix,moments_vector):
         "Initial class"
         
@@ -53,6 +53,7 @@ class estimate:
         self.priority = priority
         self.rural_rbd = rural_rbd
         self.locality = locality
+        self.AEP_priority = AEP_priority
         
         
     
@@ -209,12 +210,14 @@ class estimate:
         #self.param0.alphas[0][2] = beta[2]
         self.param0.alphas[0][3] = beta[2]
         self.param0.alphas[0][4] = np.exp(beta[3])
+        #self.param0.alphas[0][4] = beta[3]
         self.param0.alphas[0][5] = beta[4]
         self.param0.alphas[1][0] = beta[5]
         #self.param0.alphas[1][1] = beta[7]
         self.param0.alphas[1][2] = beta[6]
         self.param0.alphas[1][3] = beta[7]
         self.param0.alphas[1][4] = np.exp(beta[8])
+        #self.param0.alphas[1][4] = beta[8]
         self.param0.alphas[1][5] = beta[9]
         self.param0.betas[0] = beta[10]
         self.param0.betas[1] = beta[11]
@@ -228,7 +231,7 @@ class estimate:
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
                              self.typeSchool,self.HOURS,self.p1,self.p2,self.catPort,self.catPrueba,self.TrameI, \
-                             self.priority,self.rural_rbd,self.locality)
+                             self.priority,self.rural_rbd,self.locality,self.AEP_priority)
 
             
         modelSD = sd.SimData(self.N,model)
