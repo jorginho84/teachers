@@ -42,11 +42,11 @@ from multiprocessing import Pool
 
 np.random.seed(123)
 
-betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/betasopt_model_v23.npy")
-df = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_main_regmain_v2023.dta')
-moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/moments.npy")
-ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/ses_model.npy')
-data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
+df = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
+
 
 n_sim = 100
 
@@ -64,7 +64,7 @@ start_time = time.time()
 
 
 if __name__ == '__main__':
-    with Pool(processes=8) as pool:
+    with Pool(processes=2) as pool:
         mp.set_start_method('spawn', force = True)
         dics = pool.map(data_models.data_model,range(boot_n))
         pool.join()
@@ -86,12 +86,9 @@ se_diff_boot = np.std(diff_boot)
 
 
 
-
-
-
 #------Point estimate of att data - att model--------#
 
-data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
+data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 
 data = data_1[data_1['d_trat']==1]
 
@@ -122,6 +119,8 @@ for x in range(0,2):
  
     # Priority #
     priotity = np.array(data['por_priority'])
+
+    AEP_priority = np.array(data['priority_aep'])
     
     rural_rbd = np.array(data['rural_rbd'])
     
@@ -183,7 +182,7 @@ for x in range(0,2):
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
     model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
-                         priotity,rural_rbd,locality)
+                         priotity,rural_rbd,locality,AEP_priority)
     
     # SIMULACIÓN SIMDATA
     
@@ -218,13 +217,64 @@ att_mean_sim = np.mean(att_sim)
 
 
 #Data complete
-data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/data_main_regmain.dta')
+data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
 
 
+# first drop Stata 1083190 rows 
+data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
 
-#REG Stata
-#reg stdsimce_m d_trat d_year inter if (eval_year == 1 | eval_year == 2018 | eval_year == 0), vce(cluster drun)
-#data_reg = data_reg[ (data_reg['eval_year'] == 1) | (data_reg['eval_year'] == 2018) | (data_reg['eval_year'] == 0) ]
+#destring
+data_reg["drun_l"] = pd.to_numeric(data_reg["drun_l"], errors='coerce')
+data_reg["drun_m"] = pd.to_numeric(data_reg["drun_m"], errors='coerce')
+
+
+##### generates variables #####
+#eval_year
+data_reg.loc[data_reg["eval_year_m"]==data_reg["eval_year_l"],'eval_year'] = data_reg["eval_year_m"]
+data_reg.loc[(data_reg["eval_year_m"].notna()) & (data_reg["eval_year_l"].isna()),'eval_year'] = data_reg["eval_year_m"]
+data_reg.loc[(data_reg["eval_year_m"].isna()) & (data_reg["eval_year_l"].notna()),'eval_year'] = data_reg["eval_year_l"]
+
+#drun
+data_reg.loc[data_reg["drun_m"]==data_reg["drun_l"],'drun'] = data_reg["drun_m"]
+data_reg.loc[(data_reg["drun_m"].notna()) & (data_reg["drun_l"].isna()),'drun'] = data_reg["drun_m"]
+data_reg.loc[(data_reg["drun_m"].isna()) & (data_reg["drun_l"].notna()),'drun'] = data_reg["drun_l"]
+
+#experience
+data_reg.loc[data_reg["experience_m"]==data_reg["experience_l"],'experience'] = data_reg["experience_m"]
+data_reg.loc[(data_reg["experience_m"].notna()) & (data_reg["experience_l"].isna()),'experience'] = data_reg["experience_m"]
+data_reg.loc[(data_reg["experience_m"].isna()) & (data_reg["experience_l"].notna()),'experience'] = data_reg["experience_l"]
+
+#d_trat
+data_reg.loc[data_reg["d_trat_m"]==data_reg["d_trat_l"],'d_trat'] = data_reg["d_trat_m"]
+data_reg.loc[(data_reg["d_trat_m"].notna()) & (data_reg["d_trat_l"].isna()),'d_trat'] = data_reg["d_trat_m"]
+data_reg.loc[(data_reg["d_trat_m"].isna()) & (data_reg["d_trat_l"].notna()),'d_trat'] = data_reg["d_trat_l"]
+
+#inter
+data_reg.loc[data_reg["inter_m"]==data_reg["inter_l"],'inter'] = data_reg["inter_m"]
+data_reg.loc[(data_reg["inter_m"].notna()) & (data_reg["inter_l"].isna()),'inter'] = data_reg["inter_m"]
+data_reg.loc[(data_reg["inter_m"].isna()) & (data_reg["inter_l"].notna()),'inter'] = data_reg["inter_l"]
+
+#d_year
+data_reg.loc[data_reg["d_year_m"]==data_reg["d_year_l"],'d_year'] = data_reg["d_year_m"]
+data_reg.loc[(data_reg["d_year_m"].notna()) & (data_reg["d_year_l"].isna()),'d_year'] = data_reg["d_year_m"]
+data_reg.loc[(data_reg["d_year_m"].isna()) & (data_reg["d_year_l"].notna()),'d_year'] = data_reg["d_year_l"]
+        
+##### drop nan #####
+data_reg = data_reg[(data_reg["edp"].notna())]
+data_reg = data_reg[(data_reg["edm"].notna())]
+data_reg = data_reg[(data_reg["ingreso"].notna())]
+data_reg = data_reg[(data_reg["experience"].notna())]
+data_reg = data_reg[(data_reg["drun"].notna())]
+data_reg = data_reg[(data_reg["d_trat"].notna())]
+data_reg = data_reg[(data_reg["d_year"].notna())]
+data_reg = data_reg[(data_reg["inter"].notna())]
+                                                                   
+# keep if eval_year == 1 | eval_year == 2018 | eval_year == 0
+data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 2018) | (data_reg["eval_year"] == 0)]
+
+# mean simce
+data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
+
 
 y = np.array(data_reg['stdsimce'])
 x_1 = np.array(data_reg['d_trat'])
