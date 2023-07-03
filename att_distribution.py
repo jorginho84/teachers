@@ -20,7 +20,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #import gridemax
 import time
 #import int_linear
@@ -29,7 +29,7 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-from utility_counterfactual_exp import Count_2
+from utility_counterfactual_att import Count_att
 import simdata_c as sdc
 #import pybobyqa
 #import xlsxwriter
@@ -56,15 +56,15 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v2023.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
 
-data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/data_pythonpast.dta')
+data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 
 data = data_1[data_1['d_trat']==1]
 
 N = np.array(data['experience']).shape[0]
 
-n_sim = 100
+n_sim = 50
 
 simce = []
 baseline_p = []
@@ -194,8 +194,9 @@ att_cost = income[1] - income[0]
 att_mean_sim = np.mean(att_sim)
 
 
+
 #Data complete
-data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/FINALdata.dta')
+data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
 
 # first drop Stata 1083190 rows 
 data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
@@ -252,49 +253,6 @@ data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 201
 # mean simce
 data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
 
-#data_reg["stdsimce"].value_counts()
-#data_reg["stdsimce"].info()
-#data_reg["experience"].isna().sum()
-
-#aquí restricción nueva de data
-
-"""
-keep if stdsimce_m != . & stdsimce_l != .
-
-destring drun_l drun_m, force replace
-foreach variable in "eval_year" "drun" "experience" "d_trat" "inter" "d_year"{
-	
-	gen `variable' = .
-	replace `variable' = `variable'_m if `variable'_m == `variable'_l
-	replace `variable' = `variable'_m if `variable'_l == . & `variable'_m != .  
-	replace `variable' = `variable'_l if `variable'_l != . & `variable'_m == .
-	
-}
-
-local S_controls edp edm ingreso
-local T_controls experience
-
-*fixing sample size for all models
-foreach variable in `S_controls' `T_controls' drun d_trat d_year inter{
-	keep if `variable' != .
-}
-
-eval_year == 1 | eval_year == 2018 | eval_year == 0
-
-"""
-
-"""
-#drop if eval16==1 & eval17==1
-data_reg_1 = data_reg[(data_reg['eval16']==1) & (data_reg['eval17']==1)].index
-data_reg.drop(data_reg_1, inplace = True)
-#drop if eval16==1 & eval18==1
-data_reg_2 = data_reg[(data_reg['eval16']==1) & (data_reg['eval18']==1)].index
-data_reg.drop(data_reg_2, inplace = True)
-"""
-
-#REG Stata
-#reg stdsimce_m d_trat d_year inter if (eval_year == 1 | eval_year == 2018 | eval_year == 0), vce(cluster drun)
-#data_reg = data_reg[ (data_reg['eval_year'] == 1) | (data_reg['eval_year'] == 2018) | (data_reg['eval_year'] == 0) ]
 
 y = np.array(data_reg['stdsimce'])
 x_1 = np.array(data_reg['d_trat'])
@@ -342,9 +300,8 @@ plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)
             xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
 plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
-plt.xlim(-0.6,0.6)
-plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v3.pdf', format='pdf')
+plt.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/att_distribution_v2023_v3.pdf', format='pdf')
 
-
+#plt.xlim(-0.6,0.6)
 
 
