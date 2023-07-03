@@ -20,7 +20,7 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
@@ -37,15 +37,15 @@ from openpyxl import load_workbook
 np.random.seed(123)
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v2023.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/moments_v2023.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
 
 #ajhdsajk = moments_vector[0,1]
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 
 
 
@@ -164,12 +164,18 @@ model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,c
 modelSD = sd.SimData(N,model)
 
 
+"""
+opt = modelSD.choice()
+simce = opt['Opt Simce']
+np.var(simce[treatment == 1])
+np.mean(simce[treatment == 1]) - np.mean(simce[treatment == 0])
+
+"""
+
 #ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
-ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/ses_model_v2023.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
-#var_cov = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/var_cov.npy")
-#w_matrix = np.linalg.inv(var_cov) 
 
 for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
@@ -207,14 +213,12 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.gammas[1],
                           param0.gammas[2]])
 
-print(beta0)
-
 qw = output_ins.objfunction(beta0)
 
 ##### PYTHON TO EXCEL #####
 
 #wb = load_workbook('D:\Git\ExpSIMCE/Outcomes.xlsx')
-wb = load_workbook('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/Outcomes_v2023.xlsx')
+wb = load_workbook('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/Outcomes_v2023.xlsx')
 sheet = wb["data"]
 
 sheet['C5'] = 'Mean Portfolio'
@@ -261,33 +265,34 @@ sheet['D22'] = corr_data['Estimation SIMCE vs Experience']
 
 
 
-#sim = np.array([corr_data['Mean Portfolio'],
-#corr_data['Var Port'],
-#corr_data['Mean SIMCE'],
-#corr_data['Var SIMCE'],
-#corr_data['Mean Test'],
-#corr_data['Var Test'],
-#corr_data['Mean PortTest'],
-#corr_data['perc inter'],
-#corr_data['perc advanced'],
-#corr_data['perc expert'],
-#corr_data['Estimation SIMCE vs Portfolio'],
-#corr_data['Estimation SIMCE vs Prueba'],
-#corr_data['Estimation EXP vs Portfolio'],
-#corr_data['Estimation EXP vs Prueba'],
-#corr_data['perc adv/exp control'],
-#corr_data['Estimation Test vs p'],
-#corr_data['Estimation Portfolio vs p']])
+sim = np.array([corr_data['Mean Portfolio'],
+corr_data['Var Port'],
+corr_data['Mean SIMCE'],
+corr_data['Var SIMCE'],
+corr_data['Mean Test'],
+corr_data['Var Test'],
+corr_data['Mean PortTest'],
+corr_data['perc inter'],
+corr_data['perc advanced'],
+corr_data['perc expert'],
+corr_data['Estimation SIMCE vs Portfolio'],
+corr_data['Estimation SIMCE vs Prueba'],
+corr_data['Estimation EXP vs Portfolio'],
+corr_data['Estimation EXP vs Prueba'],
+corr_data['Estimation SIMCE vs Experience'],
+corr_data['perc adv/exp control'],
+corr_data['Estimation Test vs p'],
+corr_data['Estimation Portfolio vs p']])
 
-#x_vector = sim - moments_vector
+x_vector = sim - moments_vector
 
-#q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
+q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
 
 #weight = x_vector**2/ses_opt**2
 
 
 #wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
-wb.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/Outcomes_v2023.xlsx')
+wb.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/Outcomes_v2023.xlsx')
 
 
 """

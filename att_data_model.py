@@ -26,7 +26,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import time
 #import int_linear
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 import utility as util
 import parameters as parameters
 import simdata as sd

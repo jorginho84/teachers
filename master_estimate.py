@@ -22,7 +22,7 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\ExpSIMCE")
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 import time
 import utility as util
 import parameters as parameters
@@ -33,15 +33,15 @@ import estimate as est
 np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v23.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v23.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
-moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/moments_v2023.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 #data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
-data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 
 
 #count_nan = data['zpjeport'].isnull().sum()
@@ -149,7 +149,7 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-ses_opt = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/ses_model_v2023.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
 
 
 #var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
@@ -211,6 +211,62 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-#np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy',betas_opt_me)
-np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_profe_fit/betasopt_model_v2023.npy',betas_opt_me)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy',betas_opt_me)
 
+"""
+##this is to check if value function coincides##
+
+qw = output_ins.objfunction(output_me.x)
+
+
+betas_nelder_2  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
+
+alphas = [[betas_nelder_2[0], betas_nelder_2[1],0,betas_nelder_2[2],
+      betas_nelder_2[3], betas_nelder_2[4]],
+     [betas_nelder_2[5], 0,betas_nelder_2[6],betas_nelder_2[7],
+      betas_nelder_2[8], betas_nelder_2[9]]]
+
+betas = [betas_nelder_2[10], betas_nelder_2[11], betas_nelder_2[12] ,betas_nelder_2[13],betas_nelder_2[14]]
+gammas = [betas_nelder_2[15],betas_nelder_2[16],betas_nelder_2[17]]
+
+
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+
+model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,
+                     TrameI,priotity,rural_rbd,locality, AEP_priority)
+
+modelSD = sd.SimData(N,model)
+
+   
+
+output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
+                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality, AEP_priority, \
+                 w_matrix,moments_vector)
+    
+       
+beta0 = np.array([param0.alphas[0][0],
+                          param0.alphas[0][1],
+                          param0.alphas[0][3],  
+                          np.log(param0.alphas[0][4]),
+                          param0.alphas[0][5],
+                          param0.alphas[1][0],
+                          param0.alphas[1][2],
+                          param0.alphas[1][3],
+                          np.log(param0.alphas[1][4]),
+                          param0.alphas[1][5],
+                          param0.betas[0],
+                          param0.betas[1],
+                          param0.betas[2],
+                          param0.betas[3],
+                          param0.betas[4],
+                          param0.gammas[0],
+                          param0.gammas[1],
+                          param0.gammas[2]])
+
+qw = output_ins.objfunction(beta0)
+
+
+
+
+
+"""
