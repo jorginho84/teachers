@@ -177,7 +177,7 @@ def data_model(j):
     ##Here: get python data from bootstrapped data
     
     #---------------------------------------------#
-    
+    data_python = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
 
 
 
