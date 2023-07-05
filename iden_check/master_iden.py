@@ -6,7 +6,7 @@ Created on Tue Aug 10 10:25:47 2021
 @author: jorge-home
 
 
-This code computes local-identificacion checks
+This code compares simulated with data moments across sets of parameters
 
 """
 
@@ -42,14 +42,8 @@ np.random.seed(123)
 exec(open('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/iden_check/load_param.py').read())
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/data_pythonpast.dta')
+data = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 
-
-
-#count_nan = data['zpjeport'].isnull().sum()
-#print('Count of nan: ' +str(count_nan))
-#count_nan_1 = data['zpjeprue'].isnull().sum()
-#print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
 treatment = np.array(data['d_trat'])
@@ -81,26 +75,34 @@ TrameI = np.array(data['trame'])
 # TYPE SCHOOL #
 typeSchool = np.array(data['typeschool'])
 
-#### PARAMETERS MODEL ####
+# Priority #
+priotity = np.array(data['por_priority'])
+
+AEP_priority = np.array(data['priority_aep'])
+
+rural_rbd = np.array(data['rural_rbd'])
+
+locality = np.array(data['AsignacionZona'])
+
 
 N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI)
+model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality, AEP_priority)
 
 modelSD = sd.SimData(N,model)
 
 
 #ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
-                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, w_matrix,moments_vector)
+                 typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, priotity,rural_rbd,locality, AEP_priority, w_matrix,moments_vector)
     
     
 #----------------------------------------------------------------------------#
@@ -111,8 +113,6 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
 font_size = 12
 
 ######Utility Function#####
-
-
 
     
 #gamma0:utility cost of effort type 1
