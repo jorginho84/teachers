@@ -11,10 +11,10 @@ This code loads estimated parameters
 
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v15.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/moments.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
 
 
 #### PARAMETERS MODEL ####
@@ -25,8 +25,8 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
       betas_nelder[8], betas_nelder[9]]]
 
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
-
 gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
 # value hour (pesos)= 15155 *
@@ -70,6 +70,11 @@ progress = [14515, 47831, 96266, 99914, 360892, 138769, 776654, 210929]
 
 pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,  
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
+
+pri = [48542,66609,115151]
+priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+
+

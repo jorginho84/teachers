@@ -8,17 +8,17 @@ Created on Tue Aug 10 10:39:57 2021
 
 lenght = 0.05
 size_grid = 4
-max_p = -0.2
-min_p = 0.2
+max_p = -0.4
+min_p = -0.01
 p_list = np.linspace(min_p,max_p,size_grid)
-obs_moment = moments_vector[9].copy()
+obs_moment = moments_vector[15].copy()
 
 target_moment = np.zeros((size_grid,))
 
 for i in range(size_grid):
     param0.gammas[0] = p_list[i]
     corr_data = output_ins.simulation(50,modelSD)
-    target_moment[i] = corr_data['perc expert']
+    target_moment[i] = corr_data['perc adv/exp control']
 
 #Back to original
 exec(open('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/iden_check/load_param.py').read())

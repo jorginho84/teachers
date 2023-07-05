@@ -25,7 +25,7 @@ import estimate as est
 
 
 class estimate:
-    "This class generate descriptive statiscals"
+    "This class estimates the parameters of the model"
     
     def __init__(self,N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priority,rural_rbd,locality, AEP_priority, \
@@ -57,7 +57,7 @@ class estimate:
         
     
     def simulation(self,times,modelSD):
-        "Function that simulate x times."
+        "Function that simulates samples given a set of parameters."
         
         est_corrSPort = np.zeros(times)
         est_corrSPrue = np.zeros(times)
@@ -201,8 +201,7 @@ class estimate:
     
     
     def objfunction(self,beta):
-        """Define objective function how a substraction of real and
-        simulate data """
+        "Computes value function given a set of parameters"
         
         self.param0.alphas[0][0] = beta[0]
         self.param0.alphas[0][1] = beta[1]
@@ -300,6 +299,7 @@ class estimate:
     
     
     def optimizer(self):
+        "Uses Nelder-Mead to optimize"
         
         beta0 = np.array([self.param0.alphas[0][0],
                           self.param0.alphas[0][1],
