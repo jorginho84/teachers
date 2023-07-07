@@ -25,8 +25,8 @@ import openpyxl
 sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 
 #Betas and var-cov matrix
-se_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_model_v22.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v22.npy")
+se_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/se_model_v24.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
 
 #Utility function
 gamma_0 = betas_nelder[15]
@@ -68,21 +68,21 @@ se_alphas_test = np.array([se_vector[5],se_vector[6],se_vector[7],
 
 utility_list_beta = [gamma_0,gamma_1,gamma_2]
 utility_list_se = [se_gamma_0,se_gamma_1,se_gamma_2]
-utility_names = [r'Teaching skills (Portfolio) effort',r'Subject knowledge (STEI) effort',r'Preference for student performance']
+utility_names = [r'Teaching skills (Portfolio) effort ($\gamma_1$)',r'Subject knowledge (STEI) effort ($\gamma_1$)',r'Preference for student performance ($\gamma_h$)']
 
 beta_list_beta = [betas_opt_t[0,0],betas_opt_t[1,0],betas_opt_t[2,0],betas_opt_t[4,0],betas_opt_t[3,0]]
 beta_list_se = [se_betas_opt_t[0,0],se_betas_opt_t[1,0],
 se_betas_opt_t[2,0],se_betas_opt_t[4,0],se_betas_opt_t[3,0]]
-wage_names = ['Constant', 'Portfolio effort','STEI effort','Experience effect','Measurement error SD']
+wage_names = [r'Constant ($\beta_0$)', r'Portfolio effort ($\beta_1$)',r'STEI effort ($\beta_2$)',r'Experience effect ($\beta_3$)',r'Error term SD ($ \sigma_\nu$)']
 
 
 alphas_port_list= [alphas_port[0,0],alphas_port[1,0],alphas_port[2,0],alphas_port[4,0],alphas_port[3,0]]
 se_alphas_port_list = [se_alphas_port[0,0],se_alphas_port[1,0],se_alphas_port[2,0],se_alphas_port[4,0],se_alphas_port[3,0]]
-prod_names_young = ['Constant', 'Effort','Experience', r'Past performance',r'Variance of shock']
+prod_names_young = [r'Constant ($\alpha_0^p$)', r'Effort ($\alpha_1^p$)',r'Experience ($\alpha_2^p$)', r'Past performance ($\alpha_3^p$)',r'Variance of shock ($\sigma^2_{M_p}$)']
 
 alphas_test_list = [alphas_test[0,0],alphas_test[1,0],alphas_test[2,0],alphas_test[4,0],alphas_test[3,0]]
 se_alphas_test = [se_alphas_test[0,0],se_alphas_test[1,0],se_alphas_test[2,0],se_alphas_test[4,0],se_alphas_test[3,0]]
-prod_names_old = ['Constant', 'Effort','Experience', r'Past performance',r'Variance of shock']
+prod_names_old = [r'Constant ($\alpha_0^s$)', r'Effort ($\alpha_1^s$)',r'Experience ($\alpha_2^s$)', r'Past performance ($\alpha_3^p$)',r'Variance of shock ($\sigma^2_{M_s}$)']
 
 
 

@@ -2,9 +2,10 @@
 """
 Created on Thu Oct 14 11:12:06 2021
 
-This .py generate the density graph of ATT 
+This .py generate two figures comparing simulated and data-based att across initial placement and distance to the performance cutoff
 
-@author: pjac2
+**ACA VOY: diseñar gráfico, recuperar DiD
+
 """
 
 from __future__ import division
@@ -43,10 +44,7 @@ import openpyxl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
-import math
-import linearmodels as lm
-from linearmodels.panel import PanelOLS
-
+import math 
 
 
 np.random.seed(123)
@@ -261,19 +259,12 @@ y = np.array(data_reg['stdsimce'])
 x_1 = np.array(data_reg['d_trat'])
 x_2 = np.array(data_reg['d_year'])
 x_3 = np.array(data_reg['inter'])
-
-data_reg.set_index(['rbd','agno'],inplace = True)
-exog = data_reg[['d_trat','d_year','inter']]
-data_exog = sm.add_constant(exog)
-rbd = np.array(data_reg['rbd'])
+x = np.transpose(np.array([x_1, x_2, x_3]))
+x = sm.add_constant(x)
 cov_drun = np.array(data_reg['drun'])
 
-#It does not work!!
-model_reg = PanelOLS(np.reshape(np.array(data_reg['stdsimce']),(np.array(data_reg['stdsimce']).shape[0],1)), data_exog, entity_effects = True)
+model_reg = sm.OLS(exog=x, endog=y)
 results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
-
-#model_reg = sm.OLS(exog=x, endog=y)
-#results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
 
 #reg_data = sm.OLS("stdsimce_m ~ d_trat + d_year + inter", data_reg).fit(cov_type='cluster', cov_kwds={'groups': data_reg['drun']})
 
@@ -286,32 +277,5 @@ error_data = results.bse[3].round(8)
 number_obs = results.nobs
 inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
 inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
-
-#Data Graph
-
-#dataf_graph = {'ATTsim': att_sim, 'ATTdata': att_sim}
-dataf_graph = {'ATTsim': att_sim}
-dataf_graph = pd.DataFrame(dataf_graph, columns=['ATTsim'])
-
-
-# Graphs Density 
-
-dataf_graph.plot.kde(linewidth=3, legend=False,alpha = 0.6, color = 'blue');
-plt.rcParams['axes.spines.top'] = False
-plt.rcParams['axes.spines.right'] = False
-#dataf_graph.plot.kde(linewidth=3, legend=False);
-plt.axvline(x=att_mean_sim, ymin=0, ymax=0.95, color='sandybrown', linestyle='-', linewidth=2,alpha = 0.8)
-plt.axvline(x=inter_data, ymin=0, ymax=0.95, color='black', linestyle='-', linewidth=2,alpha = 0.6)
-plt.axvline(x=inter_posit, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
-plt.axvline(x=inter_negat, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
-plt.annotate("Simulated ATT" "\n" + "("   +'{:04.2f}'.format(att_mean_sim) + r"$\sigma$s)", xy=(0.08, 1),
-            xytext=(0.32, 1), arrowprops=dict(arrowstyle="->"))
-plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)", xy=(0.018, 1),
-            xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
-plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
-            xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
-plt.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/att_distribution_v2023_v3.pdf', format='pdf')
-
-#plt.xlim(-0.6,0.6)
 
 

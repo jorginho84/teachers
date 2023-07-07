@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-exec(open("/home/jrodriguez/teachers/codes/se_parallel.py").read())
+exec(open("/home/jrodriguezo/teachers/codes/se_parallel.py").read())
 
 """
 
@@ -24,7 +24,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import time
 #import int_linear
-sys.path.append("/home/jrodriguez/teachers/codes")
+sys.path.append("/home/jrodriguezo/teachers/codes")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -32,10 +32,10 @@ import estimate as est
 from pathos.multiprocessing import ProcessPool
 
 
-betas_nelder = np.load("/home/jrodriguez/teachers/codes/betasopt_model_v23.npy")
-df = pd.read_stata('/home/jrodriguez/teachers/data/data_pythonpast.dta')
-moments_vector = np.load("/home/jrodriguez/teachers/codes/moments.npy")
-ses_opt = np.load('/home/jrodriguez/teachers/codes/ses_model.npy')
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v24.npy")
+df = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
+moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_v2023.npy")
+ses_opt = np.load('/home/jrodriguezo/teachers/codes/ses_model_v2023.npy')
 
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 for j in range(ses_opt.shape[0]):
@@ -81,6 +81,8 @@ def simulation(j):
     
     # Priority #
     priotity = np.array(rev['por_priority'])
+
+    AEP_priority = np.array(rev['priority_aep'])
     
     rural_rbd = np.array(rev['rural_rbd'])
     
@@ -109,8 +111,8 @@ def simulation(j):
     pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dolar,
            progress[4]/dolar, progress[5]/dolar, progress[6]/dolar, progress[7]/dolar]
     
-    pri = [47872,113561]
-    priori = [pri[0]/dolar, pri[1]/dolar]
+    pri = [48542,66609,115151]
+    priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
     Asig = [150000*1.111,100000*1.111,50000*1.111]
     AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
@@ -118,7 +120,7 @@ def simulation(j):
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
         
     output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
-         typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, priotity,rural_rbd,locality, \
+         typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI, priotity,rural_rbd,locality,AEP_priority, \
          w_matrix,moments_vector)
     
     start_time = time.time()
@@ -178,12 +180,12 @@ for j in range(boot_n):
     alpha_00[j] = dics[j][0]
     alpha_01[j] = dics[j][1]
     alpha_03[j] = dics[j][2]
-    alpha_04[j] = dics[j][3]
+    alpha_04[j] = np.exp(dics[j][3])
     alpha_05[j] = dics[j][4]
     alpha_10[j] = dics[j][5]
     alpha_12[j] = dics[j][6]
     alpha_13[j] = dics[j][7]
-    alpha_14[j] = dics[j][8]
+    alpha_14[j] = np.exp(dics[j][8])
     alpha_15[j] = dics[j][9]
     beta_0[j] = dics[j][10]
     beta_1[j] = dics[j][11]
@@ -247,6 +249,6 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model_v23.npy',betas_opt)
+np.save('/home/jrodriguez/teachers/results/se_model_v24.npy',betas_opt)
 
 
