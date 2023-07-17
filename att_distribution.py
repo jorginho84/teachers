@@ -43,7 +43,10 @@ import openpyxl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
-import math 
+import math
+import linearmodels as lm
+from linearmodels.panel import PanelOLS
+
 
 
 np.random.seed(123)
@@ -258,12 +261,19 @@ y = np.array(data_reg['stdsimce'])
 x_1 = np.array(data_reg['d_trat'])
 x_2 = np.array(data_reg['d_year'])
 x_3 = np.array(data_reg['inter'])
-x = np.transpose(np.array([x_1, x_2, x_3]))
-x = sm.add_constant(x)
+
+data_reg.set_index(['rbd','agno'],inplace = True)
+exog = data_reg[['d_trat','d_year','inter']]
+data_exog = sm.add_constant(exog)
+rbd = np.array(data_reg['rbd'])
 cov_drun = np.array(data_reg['drun'])
 
-model_reg = sm.OLS(exog=x, endog=y)
+#It does not work!!
+model_reg = PanelOLS(np.reshape(np.array(data_reg['stdsimce']),(np.array(data_reg['stdsimce']).shape[0],1)), data_exog, entity_effects = True)
 results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
+
+#model_reg = sm.OLS(exog=x, endog=y)
+#results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
 
 #reg_data = sm.OLS("stdsimce_m ~ d_trat + d_year + inter", data_reg).fit(cov_type='cluster', cov_kwds={'groups': data_reg['drun']})
 
