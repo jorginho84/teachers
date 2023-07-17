@@ -277,5 +277,3 @@ error_data = results.bse[3].round(8)
 number_obs = results.nobs
 inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
 inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
-
-

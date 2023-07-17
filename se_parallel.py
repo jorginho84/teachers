@@ -249,6 +249,6 @@ betas_opt = np.array([dics_se['SE alpha_00'], dics_se['SE alpha_01'],
 
 
 
-np.save('/home/jrodriguez/teachers/results/se_model_v24.npy',betas_opt)
+np.save('/home/jrodriguezo/teachers/results/se_model_v24.npy',betas_opt)
 
 

@@ -2,9 +2,10 @@
 """
 Created on Thu Oct 14 11:12:06 2021
 
-This .py generate the density graph of ATT 
+This .py generate two figures comparing simulated and data-based att across initial placement and distance to the performance cutoff
 
-@author: pjac2
+**ACA VOY: diseñar gráfico, recuperar DiD
+
 """
 
 from __future__ import division
@@ -276,32 +277,5 @@ error_data = results.bse[3].round(8)
 number_obs = results.nobs
 inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
 inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
-
-#Data Graph
-
-#dataf_graph = {'ATTsim': att_sim, 'ATTdata': att_sim}
-dataf_graph = {'ATTsim': att_sim}
-dataf_graph = pd.DataFrame(dataf_graph, columns=['ATTsim'])
-
-
-# Graphs Density 
-
-dataf_graph.plot.kde(linewidth=3, legend=False,alpha = 0.6, color = 'blue');
-plt.rcParams['axes.spines.top'] = False
-plt.rcParams['axes.spines.right'] = False
-#dataf_graph.plot.kde(linewidth=3, legend=False);
-plt.axvline(x=att_mean_sim, ymin=0, ymax=0.95, color='sandybrown', linestyle='-', linewidth=2,alpha = 0.8)
-plt.axvline(x=inter_data, ymin=0, ymax=0.95, color='black', linestyle='-', linewidth=2,alpha = 0.6)
-plt.axvline(x=inter_posit, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
-plt.axvline(x=inter_negat, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
-plt.annotate("Simulated ATT" "\n" + "("   +'{:04.2f}'.format(att_mean_sim) + r"$\sigma$s)", xy=(0.08, 1),
-            xytext=(0.32, 1), arrowprops=dict(arrowstyle="->"))
-plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)", xy=(0.018, 1),
-            xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
-plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
-            xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
-plt.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/att_distribution_v2023_v3.pdf', format='pdf')
-
-#plt.xlim(-0.6,0.6)
 
 
