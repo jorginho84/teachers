@@ -13,7 +13,7 @@ import sys, os
 from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT")
+sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -28,15 +28,15 @@ from openpyxl import load_workbook
 import time
 
 # DATA 2018
-betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/betasopt_model_v23.npy")
+betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v23.npy")
 #betas_nelder  = np.load("D:\Git\Wagenewcomponent/betasopt_model_v23.npy")
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betasopt_model_v23.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("D:\Git\Wagenewcomponent/moments.npy")
 
-data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
-
+#data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGIT/data_pythonpast_v2023.dta')
+data= pd.read_pickle("data_pythonv.pkl")
 #count_nan = data['zpjeport'].isnull().sum()
 #print('Count of nan: ' +str(count_nan))
 #count_nan_1 = data['zpjeprue'].isnull().sum()
@@ -165,7 +165,7 @@ between.betweenOne()
 
 print("Placement")
 
-placement = model.placement(tscores[0])
+placement = model.placement(tscores[0], initial_p)
 print(placement)
 
 income = model.income(placement)
