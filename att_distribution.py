@@ -20,7 +20,8 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
 #import gridemax
 import time
 #import int_linear
@@ -48,20 +49,21 @@ import linearmodels as lm
 from linearmodels.panel import PanelOLS
 
 
-
 np.random.seed(123)
 
 #Betas and var-cov matrix
 
-#betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/betasopt_model_v23.npy")
+#betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
 #df = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_main_regmain_v2023.dta')
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/moments.npy")
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
-
-data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
+betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
+#data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+#data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
+data_1= pd.read_pickle("data_pythonv.pkl")
 
 data = data_1[data_1['d_trat']==1]
 
@@ -199,7 +201,7 @@ att_mean_sim = np.mean(att_sim)
 
 
 #Data complete
-data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/FINALdata_vLocal.dta')
 
 # first drop Stata 1083190 rows 
 data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
@@ -256,36 +258,33 @@ data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 201
 # mean simce
 data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
 
-
-y = np.array(data_reg['stdsimce'])
-x_1 = np.array(data_reg['d_trat'])
-x_2 = np.array(data_reg['d_year'])
-x_3 = np.array(data_reg['inter'])
-
-data_reg.set_index(['rbd','agno'],inplace = True)
-exog = data_reg[['d_trat','d_year','inter']]
-data_exog = sm.add_constant(exog)
-rbd = np.array(data_reg['rbd'])
-cov_drun = np.array(data_reg['drun'])
-
-#It does not work!!
-model_reg = PanelOLS(np.reshape(np.array(data_reg['stdsimce']),(np.array(data_reg['stdsimce']).shape[0],1)), data_exog, entity_effects = True)
-results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
-
-#model_reg = sm.OLS(exog=x, endog=y)
-#results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
-
 #reg_data = sm.OLS("stdsimce_m ~ d_trat + d_year + inter", data_reg).fit(cov_type='cluster', cov_kwds={'groups': data_reg['drun']})
+#print(results.summary())
 
-print(results.summary())
+#exog = data_reg[['d_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']]
+#data_exog = sm.add_constant(exog)
+data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
+#School fixed effects
+#data_reg['delta'] = pd.Categorical(data_reg['rbd'])
+data_reg.set_index(['rbd','agno'],inplace = True)
+#cov_drun = np.array(data_reg['drun'])
 
+model_reg = PanelOLS(dependent = data_reg['stdsimce'], exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
+
+print(results)
+#print(results.params.inter)
+#print(results.std_errors.inter)
+#print(results.cov.inter.inter)
 #Recover the data
 
-inter_data = results.params[3].round(8)
-error_data = results.bse[3].round(8)
+inter_data = results.params.inter.round(8)
+error_data = results.std_errors.inter.round(8)
 number_obs = results.nobs
-inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
-inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
+inter_posit = inter_data + 1.96 * np.sqrt(results.cov.inter.inter)
+inter_negat = inter_data - 1.96 * np.sqrt(results.cov.inter.inter)
+#inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
+#inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
 
 #Data Graph
 
@@ -310,7 +309,7 @@ plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)
             xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
 plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
-plt.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/att_distribution_v2023_v3.pdf', format='pdf')
+plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v5.pdf', format='pdf')
 
 #plt.xlim(-0.6,0.6)
 

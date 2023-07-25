@@ -72,7 +72,7 @@ class Utility(object):
               
                 
         
-    def placement(self,tscores):
+    def placement(self,tscores,initial_p):
 
         # *I want to replicate the typecasting of the teachers to the tramo
         # puntajeportafolio := p1
@@ -84,9 +84,10 @@ class Utility(object):
         #initial_p = np.array(['']*(len(self.p1)))
         placementF = np.zeros(self.p1.shape[0])
         placementF_aep = np.zeros(self.p1.shape[0])
-        
+        #placement_corr = np.zeros(self.p1.shape[0])
         
         # " Treatment "
+        #Restringir por placement ... Tramo asimilación 2016.
         placementF[(self.years < 4)]=1
         placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2 
         placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
@@ -149,6 +150,11 @@ class Utility(object):
         placementF[(self.years >= 12) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
         placementF[(self.years >= 12) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=4
         
+        placementF[(initial_p == 2) & (placementF <= 1)]=2
+        placementF[(initial_p == 3) & (placementF <= 2)]=3
+        placementF[(initial_p == 4) & (placementF <= 3)]=4
+        placementF[(initial_p == 5) & (placementF <= 4)]=5
+        
         # " Control: AEP "
         placementF_aep[(tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
         placementF_aep[(tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=6
@@ -169,6 +175,7 @@ class Utility(object):
         np.warnings.filterwarnings('ignore')
         
 
+        #return [placementF,placement_corr,placementF_aep]
         return [placementF,placementF_aep]
     
 

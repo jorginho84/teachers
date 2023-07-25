@@ -33,11 +33,11 @@ class SimData:
         This function takes effort and computes utils
         """
         
-
+        initial_p = self.model.initial()
         
         teacher_scores = self.model.t_test(effort)
         
-        placement = self.model.placement(teacher_scores[0])
+        placement = self.model.placement(teacher_scores[0],initial_p)
         
         income = self.model.income(placement)
         
@@ -67,9 +67,11 @@ class SimData:
         
         effort_v1 = np.argmax(u_v2, axis=1)
         
+        initial_p = self.model.initial()
+        
         teacher_scores = self.model.t_test(effort_v1)
         
-        placement = self.model.placement(teacher_scores[0])
+        placement = self.model.placement(teacher_scores[0],initial_p)
         
         income = self.model.income(placement)
         
