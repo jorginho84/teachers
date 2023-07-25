@@ -15,8 +15,7 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("D:\Git\TeacherPrincipal")
-sys.path.append("D:\Git\result")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #import gridemax
 import time
 #import int_linear
@@ -30,7 +29,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import time
 
-betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/betas_v15.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
 
 ses_betas_nelder = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/se_v1.npy")
 
