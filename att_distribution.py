@@ -59,7 +59,7 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v27.npy")
 #betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 #data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
@@ -164,7 +164,7 @@ for x in range(0,2):
     
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
-    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+    model = Count_att(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
     
     # SIMULACIÓN SIMDATA
@@ -310,8 +310,9 @@ plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(inter_data) + r"$\sigma$s)
             xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
 plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
+plt.xlim(-0.6,0.6)
 #plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v5.pdf', format='pdf')
 
-#plt.xlim(-0.6,0.6)
+
 
 
