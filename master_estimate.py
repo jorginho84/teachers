@@ -32,7 +32,7 @@ import estimate as est
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v26.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v27.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -215,7 +215,7 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v27.npy',betas_opt_me)
+np.save('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy',betas_opt_me)
 
 """
 ##this is to check if value function coincides##

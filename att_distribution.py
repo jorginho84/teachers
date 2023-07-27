@@ -59,7 +59,7 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v27.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
 #betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 #data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
