@@ -4,8 +4,6 @@ Created on Thu Oct 14 11:12:06 2021
 
 This .py generate two figures comparing simulated and data-based att across initial placement and distance to the performance cutoff
 
-**ACA VOY: diseñar gráfico, recuperar DiD
-
 """
 
 from __future__ import division
@@ -44,7 +42,9 @@ import openpyxl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
-import math 
+import math
+import linearmodels as lm
+from linearmodels.panel import PanelOLS
 
 
 np.random.seed(123)
@@ -57,12 +57,99 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
+#----------------------------------------------#
+#----------------------------------------------#
+#Preparing data for regressions
+#
+#----------------------------------------------#
+#----------------------------------------------#
+data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+
+
+# first drop Stata 1083190 rows 
+data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
+
+#destring
+data_reg["drun_l"] = pd.to_numeric(data_reg["drun_l"], errors='coerce')
+data_reg["drun_m"] = pd.to_numeric(data_reg["drun_m"], errors='coerce')
+
+
+##### generates variables #####
+#eval_year
+data_reg.loc[data_reg["eval_year_m"]==data_reg["eval_year_l"],'eval_year'] = data_reg["eval_year_m"]
+data_reg.loc[(data_reg["eval_year_m"].notna()) & (data_reg["eval_year_l"].isna()),'eval_year'] = data_reg["eval_year_m"]
+data_reg.loc[(data_reg["eval_year_m"].isna()) & (data_reg["eval_year_l"].notna()),'eval_year'] = data_reg["eval_year_l"]
+
+#drun
+data_reg.loc[data_reg["drun_m"]==data_reg["drun_l"],'drun'] = data_reg["drun_m"]
+data_reg.loc[(data_reg["drun_m"].notna()) & (data_reg["drun_l"].isna()),'drun'] = data_reg["drun_m"]
+data_reg.loc[(data_reg["drun_m"].isna()) & (data_reg["drun_l"].notna()),'drun'] = data_reg["drun_l"]
+
+#experience
+data_reg.loc[data_reg["experience_m"]==data_reg["experience_l"],'experience'] = data_reg["experience_m"]
+data_reg.loc[(data_reg["experience_m"].notna()) & (data_reg["experience_l"].isna()),'experience'] = data_reg["experience_m"]
+data_reg.loc[(data_reg["experience_m"].isna()) & (data_reg["experience_l"].notna()),'experience'] = data_reg["experience_l"]
+
+#d_trat
+data_reg.loc[data_reg["d_trat_m"]==data_reg["d_trat_l"],'d_trat'] = data_reg["d_trat_m"]
+data_reg.loc[(data_reg["d_trat_m"].notna()) & (data_reg["d_trat_l"].isna()),'d_trat'] = data_reg["d_trat_m"]
+data_reg.loc[(data_reg["d_trat_m"].isna()) & (data_reg["d_trat_l"].notna()),'d_trat'] = data_reg["d_trat_l"]
+
+#inter
+data_reg.loc[data_reg["inter_m"]==data_reg["inter_l"],'inter'] = data_reg["inter_m"]
+data_reg.loc[(data_reg["inter_m"].notna()) & (data_reg["inter_l"].isna()),'inter'] = data_reg["inter_m"]
+data_reg.loc[(data_reg["inter_m"].isna()) & (data_reg["inter_l"].notna()),'inter'] = data_reg["inter_l"]
+
+#d_year
+data_reg.loc[data_reg["d_year_m"]==data_reg["d_year_l"],'d_year'] = data_reg["d_year_m"]
+data_reg.loc[(data_reg["d_year_m"].notna()) & (data_reg["d_year_l"].isna()),'d_year'] = data_reg["d_year_m"]
+data_reg.loc[(data_reg["d_year_m"].isna()) & (data_reg["d_year_l"].notna()),'d_year'] = data_reg["d_year_l"]
+
+#Distance to cutofff
+data_reg.loc[data_reg["XY_distance_m"]==data_reg["XY_distance_l"],'XY_distance'] = data_reg["XY_distance_m"]
+data_reg.loc[(data_reg["XY_distance_m"].notna()) & (data_reg["XY_distance_l"].isna()),'XY_distance'] = data_reg["XY_distance_m"]
+data_reg.loc[(data_reg["XY_distance_m"].isna()) & (data_reg["XY_distance_l"].notna()),'XY_distance'] = data_reg["XY_distance_l"]
+
+
+##### drop nan #####
+data_reg = data_reg[(data_reg["edp"].notna())]
+data_reg = data_reg[(data_reg["edm"].notna())]
+data_reg = data_reg[(data_reg["ingreso"].notna())]
+data_reg = data_reg[(data_reg["experience"].notna())]
+data_reg = data_reg[(data_reg["drun"].notna())]
+data_reg = data_reg[(data_reg["d_trat"].notna())]
+data_reg = data_reg[(data_reg["d_year"].notna())]
+data_reg = data_reg[(data_reg["inter"].notna())]
+                                                                   
+# keep if eval_year == 1 | eval_year == 2018 | eval_year == 0
+data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 2018) | (data_reg["eval_year"] == 0)]
+
+# mean simce
+data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
+data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
+
+
+#Distance categories
+data_reg.loc[data_reg['XY_distance']<= 0.1,'distance2'] = 1
+data_reg.loc[(data_reg['XY_distance']> 0.1) & (data_reg['XY_distance'] <= 0.2),'distance2'] = 2
+data_reg.loc[(data_reg['XY_distance']> 0.2) & (data_reg['XY_distance'] <= 0.3),'distance2'] = 3
+data_reg.loc[(data_reg['XY_distance']> 0.3) & (data_reg['XY_distance'] <= 0.4),'distance2'] = 4
+data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
+
+
+
+
+#----------------------------------------------#
+#----------------------------------------------#
+#Obtaining simulated effects
+#
+#----------------------------------------------#
+#----------------------------------------------#
+
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-
 data = data_1[data_1['d_trat']==1]
-
 N = np.array(data['experience']).shape[0]
 
 n_sim = 50
@@ -70,8 +157,6 @@ n_sim = 50
 simce = []
 baseline_p = []
 income = [] 
-
-
 
 
 for x in range(0,2):
@@ -160,7 +245,7 @@ for x in range(0,2):
     
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
-    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+    model = Count_att(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
     
     # SIMULACIÓN SIMDATA
@@ -196,84 +281,62 @@ att_mean_sim = np.mean(att_sim)
 
 
 
-#Data complete
-data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+#----------------------------------------------#
+#----------------------------------------------#
+#Effects by distance to nearest cutoff: better show effects vs XY distance (probar)
+#
+#----------------------------------------------#
+#----------------------------------------------#
 
-# first drop Stata 1083190 rows 
-data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
+"""
 
-#destring
-data_reg["drun_l"] = pd.to_numeric(data_reg["drun_l"], errors='coerce')
-data_reg["drun_m"] = pd.to_numeric(data_reg["drun_m"], errors='coerce')
+#the fact that we are comparing STPD against the previous system versus no incentives does not change the fact that we have a U shape.
+#try with including previous test scores?
 
-
-##### generates variables #####
-#eval_year
-data_reg.loc[data_reg["eval_year_m"]==data_reg["eval_year_l"],'eval_year'] = data_reg["eval_year_m"]
-data_reg.loc[(data_reg["eval_year_m"].notna()) & (data_reg["eval_year_l"].isna()),'eval_year'] = data_reg["eval_year_m"]
-data_reg.loc[(data_reg["eval_year_m"].isna()) & (data_reg["eval_year_l"].notna()),'eval_year'] = data_reg["eval_year_l"]
-
-#drun
-data_reg.loc[data_reg["drun_m"]==data_reg["drun_l"],'drun'] = data_reg["drun_m"]
-data_reg.loc[(data_reg["drun_m"].notna()) & (data_reg["drun_l"].isna()),'drun'] = data_reg["drun_m"]
-data_reg.loc[(data_reg["drun_m"].isna()) & (data_reg["drun_l"].notna()),'drun'] = data_reg["drun_l"]
-
-#experience
-data_reg.loc[data_reg["experience_m"]==data_reg["experience_l"],'experience'] = data_reg["experience_m"]
-data_reg.loc[(data_reg["experience_m"].notna()) & (data_reg["experience_l"].isna()),'experience'] = data_reg["experience_m"]
-data_reg.loc[(data_reg["experience_m"].isna()) & (data_reg["experience_l"].notna()),'experience'] = data_reg["experience_l"]
-
-#d_trat
-data_reg.loc[data_reg["d_trat_m"]==data_reg["d_trat_l"],'d_trat'] = data_reg["d_trat_m"]
-data_reg.loc[(data_reg["d_trat_m"].notna()) & (data_reg["d_trat_l"].isna()),'d_trat'] = data_reg["d_trat_m"]
-data_reg.loc[(data_reg["d_trat_m"].isna()) & (data_reg["d_trat_l"].notna()),'d_trat'] = data_reg["d_trat_l"]
-
-#inter
-data_reg.loc[data_reg["inter_m"]==data_reg["inter_l"],'inter'] = data_reg["inter_m"]
-data_reg.loc[(data_reg["inter_m"].notna()) & (data_reg["inter_l"].isna()),'inter'] = data_reg["inter_m"]
-data_reg.loc[(data_reg["inter_m"].isna()) & (data_reg["inter_l"].notna()),'inter'] = data_reg["inter_l"]
-
-#d_year
-data_reg.loc[data_reg["d_year_m"]==data_reg["d_year_l"],'d_year'] = data_reg["d_year_m"]
-data_reg.loc[(data_reg["d_year_m"].notna()) & (data_reg["d_year_l"].isna()),'d_year'] = data_reg["d_year_m"]
-data_reg.loc[(data_reg["d_year_m"].isna()) & (data_reg["d_year_l"].notna()),'d_year'] = data_reg["d_year_l"]
-        
-##### drop nan #####
-data_reg = data_reg[(data_reg["edp"].notna())]
-data_reg = data_reg[(data_reg["edm"].notna())]
-data_reg = data_reg[(data_reg["ingreso"].notna())]
-data_reg = data_reg[(data_reg["experience"].notna())]
-data_reg = data_reg[(data_reg["drun"].notna())]
-data_reg = data_reg[(data_reg["d_trat"].notna())]
-data_reg = data_reg[(data_reg["d_year"].notna())]
-data_reg = data_reg[(data_reg["inter"].notna())]
-                                                                   
-# keep if eval_year == 1 | eval_year == 2018 | eval_year == 0
-data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 2018) | (data_reg["eval_year"] == 0)]
-
-# mean simce
-data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
-
-
-y = np.array(data_reg['stdsimce'])
-x_1 = np.array(data_reg['d_trat'])
-x_2 = np.array(data_reg['d_year'])
-x_3 = np.array(data_reg['inter'])
-x = np.transpose(np.array([x_1, x_2, x_3]))
-x = sm.add_constant(x)
-cov_drun = np.array(data_reg['drun'])
-
-model_reg = sm.OLS(exog=x, endog=y)
-results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
-
-#reg_data = sm.OLS("stdsimce_m ~ d_trat + d_year + inter", data_reg).fit(cov_type='cluster', cov_kwds={'groups': data_reg['drun']})
-
+Y = att_sim
+data['XY_distance_2'] = data['XY_distance']**2
+X = data[['XY_distance','XY_distance_2']]
+X = sm.add_constant(X)
+model = sm.OLS(Y,X,missing = 'drop')
+results = model.fit()
 print(results.summary())
 
-#Recover the data
+y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.params[2]*data['XY_distance_2']
 
-inter_data = results.params[3].round(8)
-error_data = results.bse[3].round(8)
-number_obs = results.nobs
-inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
-inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
+X1 = data['XY_distance']
+X1 = sm.add_constant(X1)
+model = sm.OLS(Y,X1,missing = 'drop')
+results = model.fit()
+print(results.summary())
+
+
+fig, ax=plt.subplots()
+plot3 = ax.plot(data['XY_distance'],y_sim,'--o',alpha = .8, color='sandybrown')
+
+
+"""
+
+y = np.zeros(5)
+y_c = np.zeros(5)
+y_ses = np.zeros(5)
+x = [1,2,3,4,5]
+
+for j in range(5):
+    y[j] = np.mean(att_sim[data['distance2']== j + 1])
+    
+
+inter_data = np.zeros(5)
+inter_posit = np.zeros(5)
+inter_negat = np.zeros(5)
+
+for j in range(5):
+    data_reg_j = data_reg[(data_reg['distance2'] == j + 1)]
+    data_reg_j.set_index(['rbd', 'agno'],inplace = True)
+    model_reg = PanelOLS(dependent = data_reg_j['stdsimce'], exog = data_reg_j[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+    results = model_reg.fit(cov_type='clustered', clusters=data_reg_j['drun'])
+    inter_data[j] = results.params.inter.round(8)
+    inter_posit[j] = inter_data[j] + 1.96 * np.sqrt(results.cov.inter.inter)
+    inter_negat[j] = inter_data[j] - 1.96 * np.sqrt(results.cov.inter.inter)
+
+
+

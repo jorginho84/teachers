@@ -26,7 +26,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import time
 #import int_linear
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("/home/jrodriguezo/teachers/codes")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -42,10 +42,16 @@ from multiprocessing import Pool
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
-df = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v28.npy")
+df = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
+moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_v2023.npy")
+ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_v2023.npy")
+data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/FINALdata.dta')
+
+
+
+df.to_pickle("df.pkl")
+data_reg.to_pickle("data_reg.pkl")
 
 
 n_sim = 100
@@ -64,7 +70,7 @@ start_time = time.time()
 
 
 if __name__ == '__main__':
-    with Pool(processes=2) as pool:
+    with Pool(processes=5) as pool:
         mp.set_start_method('spawn', force = True)
         dics = pool.map(data_models.data_model,range(boot_n))
         pool.join()
@@ -87,10 +93,9 @@ se_diff_boot = np.std(diff_boot)
 
 
 #------Point estimate of att data - att model--------#
+df = pd.read_pickle("df.pkl")
 
-data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-
-data = data_1[data_1['d_trat']==1]
+df = data_1[data_1['d_trat']==1]
 
 N = np.array(data['experience']).shape[0]
 
@@ -181,7 +186,7 @@ for x in range(0,2):
     
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
-    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+    model = Count_att(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality,AEP_priority)
     
     # SIMULACIÓN SIMDATA
@@ -217,8 +222,7 @@ att_mean_sim = np.mean(att_sim)
 
 
 #Data complete
-data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
-
+data_reg = pd.read_pickle("data_reg.pkl")
 
 # first drop Stata 1083190 rows 
 data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
@@ -276,16 +280,11 @@ data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 201
 data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
 
 
-y = np.array(data_reg['stdsimce'])
-x_1 = np.array(data_reg['d_trat'])
-x_2 = np.array(data_reg['d_year'])
-x_3 = np.array(data_reg['inter'])
-x = np.transpose(np.array([x_1, x_2, x_3]))
-x = sm.add_constant(x)
-cov_drun = np.array(data_reg['drun'])
+data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
+data_reg.set_index(['rbd','agno'],inplace = True)
 
-model_reg = sm.OLS(exog=x, endog=y)
-results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
+model_reg = PanelOLS(dependent = data_reg['stdsimce'], exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
 
 #reg_data = sm.OLS("stdsimce_m ~ d_trat + d_year + inter", data_reg).fit(cov_type='cluster', cov_kwds={'groups': data_reg['drun']})
 
@@ -293,11 +292,11 @@ print(results.summary())
 
 #Recover the data
 
-inter_data = results.params[3].round(8)
-error_data = results.bse[3].round(8)
+inter_data = results.params.inter.round(8)
+error_data = results.std_errors.inter.round(8)
 number_obs = results.nobs
-inter_posit = inter_data + 1.96 * np.sqrt(results.normalized_cov_params[3,3])
-inter_negat = inter_data - 1.96 * np.sqrt(results.normalized_cov_params[3,3])
+inter_posit = inter_data + 1.96 * np.sqrt(results.cov.inter.inter)
+inter_negat = inter_data - 1.96 * np.sqrt(results.cov.inter.inter)
 
 
 

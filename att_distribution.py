@@ -4,7 +4,9 @@ Created on Thu Oct 14 11:12:06 2021
 
 This .py generate the density graph of ATT 
 
-@author: pjac2
+exec(open("/home/jrodriguezo/teachers/codes/att_distribution.py").read())
+
+
 """
 
 from __future__ import division
@@ -14,31 +16,20 @@ import pickle
 import itertools
 import sys, os
 from scipy import stats
-#from scipy.optimize import minimize
+
 from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-#sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
-#sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
-#import gridemax
+sys.path.append("/home/jrodriguezo/teachers/codes")
 import time
-#import int_linear
-import between
 import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
 from utility_counterfactual_att import Count_att
-import simdata_c as sdc
-#import pybobyqa
-#import xlsxwriter
-from openpyxl import Workbook 
-from openpyxl import load_workbook
-from scipy import interpolate
 import time
-import openpyxl
+
 
 # Import the libraries
 import matplotlib.pyplot as plt
@@ -59,9 +50,12 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
+
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v28.npy")
 #betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
-data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+#data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+data_1 = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
 #data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
 #data_1= pd.read_pickle("data_pythonv.pkl")
 
@@ -202,7 +196,9 @@ att_mean_sim = np.mean(att_sim)
 
 #Data complete
 #data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/FINALdata_vLocal.dta')
-data_reg = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+#data_reg = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/FINALdata.dta')
+
 
 # first drop Stata 1083190 rows 
 data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]
@@ -312,6 +308,7 @@ plt.annotate("Treatment effects distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
 plt.xlim(-0.6,0.6)
 #plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v5.pdf', format='pdf')
+plt.savefig('/home/jrodriguezo/teachers/results/att_distribution_v2023_v5.pdf', format='pdf')
 
 
 

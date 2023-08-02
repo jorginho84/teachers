@@ -25,7 +25,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import time
 #import int_linear
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("/home/jrodriguezo/teachers/codes")
 import utility as util
 import parameters as parameters
 import simdata as sd
@@ -40,11 +40,8 @@ from multiprocessing import Pool
 
 def data_model(j):
     
-    betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
-    df = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-    moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
-    ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
-    data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+    data_reg = pd.read_pickle("data_reg.pkl")
+    n = data_reg.shape[0]
 
     np.random.seed(j+100)
     data_reg = data_reg.sample(n, replace=True)
@@ -109,67 +106,19 @@ def data_model(j):
     data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
 
 
-    y = np.array(data_reg['stdsimce'])
-    x_1 = np.array(data_reg['d_trat'])
-    x_2 = np.array(data_reg['d_year'])
-    x_3 = np.array(data_reg['inter'])
-    x = np.transpose(np.array([x_1, x_2, x_3]))
-    x = sm.add_constant(x)
-    cov_drun = np.array(data_reg['drun'])
-    
-    
-    y = np.array(data_python['stdsimce'])
-    x_1 = np.array(data_python['d_trat'])
-    x_2 = np.array(data_python['d_year'])
-    x_3 = np.array(data_python['inter'])
-    x = np.transpose(np.array([x_1, x_2, x_3]))
-    x = sm.add_constant(x)
-    cov_drun = np.array(data_python['drun'])
+    data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
+    data_reg.set_index(['rbd','agno'],inplace = True)
 
     model_reg = sm.OLS(exog=x, endog=y)
     results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
 
-    att_data = results.params[3].round(8)
+    model_reg = PanelOLS(dependent = data_reg['stdsimce'], exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+    results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
 
-    """
-    data_python = data_python.loc[data_python['agno'].isin([2016,2017])]
-    data_python = data_python[data_python['eval_year'] != 2017]
-    data_python = data_python[data_python['experience'].notnull()]
+    att_data = results.params.inter.round(8)
 
-    data_python_1 = data_python.drop(['stdsimce'], axis=1)
-    data_python_1 = data_python_1.groupby(['drun']).first()
-
-    data_python_2 = data_python[['drun','stdsimce']].groupby(['drun']).mean()
-
-    data_python = pd.merge(data_python_1,data_python_2, on='drun')
-
-
-    data_python['score_port'] = data_python['ptj_portafolio_rec2016']
-    data_python['score_test'] = data_python['ptj_prueba_rec2016']
-    data_python['cat_port'] = data_python['cat_portafolio_rec2016']
-    data_python['cat_test'] = data_python['cat_prueba_rec2016']
-    data_python['trame'] = data_python['tramo_rec2016']
-
-    data_python.loc[data_python['eval_year'] != 1, 'trame'] = data_python.loc[data_python['eval_year'] != 1, 'tramo_a2016']
-
-    data_python.rename(columns = {'ptj_portafolio_a2016':'score_port_past', 'ptj_prueba_a2016':'score_test_past'}, inplace = True)
-
-    data_python = data_python[(data_python['score_port_past'].notnull()) & (data_python['score_test_past'].notnull())]
-
-
-    data_python = data_python[data_python['stdsimce'].notnull()]
-    data_python = data_python[data_python['experience'].notnull()]
-    data_python = data_python[data_python['d_trat'].notnull()]
-    data_python = data_python[data_python['eval_year'].notnull()]
-    data_python = data_python[data_python['typeschool'].notnull()]
-    data_python = data_python[data_python['por_priority'].notnull()]
-    data_python = data_python[data_python['rural_rbd'].notnull()]
-    data_python = data_python[data_python['AsignacionZona'].notnull()]
-    data_python = data_python[data_python['priority_aep'].notnull()]
-    """
-
-
-
+    
+    
     #---------------------------------------------#
     #--------Estimating ATT from model------------#
     #---------------------------------------------#
@@ -177,9 +126,135 @@ def data_model(j):
     ##Here: get python data from bootstrapped data
     
     #---------------------------------------------#
+
+    data_reg = data_reg[(((data_reg["agno"] == 2016) | (data_reg["agno"] == 2017)) & (data_reg["eval_year"] == 1))| ((data_reg["agno"] < 2016) & (data_reg["eval_year"] != 1))]
     
 
+    #gen typeschool=0 replace typeschool = 1 if grado==4 | grado==8
+    data_reg.loc[(data_reg["grado"]!=4) & (data_reg["grado"]!=8),'typeschool'] = 0
+    data_reg.loc[data_reg["grado"]==4,'typeschool'] = 1
+    data_reg.loc[data_reg["grado"]==8,'typeschool'] = 1
 
+    #egen stdsimce = rowmean(stdsimce_m stdsimce_l) drop stdsimce_m stdsimce_l
+    # mean simce
+    data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
+    data_python = data_reg.drop(['stdsimce_m', 'stdsimce_l'], axis = 1)
+
+
+    #tramo_a2016
+    data_reg.loc[data_reg["tramo_a2016_m"]==data_reg["tramo_a2016_l"],'tramo_a2016'] = data_reg["tramo_a2016_m"]
+    data_reg.loc[(data_reg["tramo_a2016_m"] != "") & (data_reg["tramo_a2016_l"]== ""),'tramo_a2016'] = data_reg["tramo_a2016_m"]
+    data_reg.loc[(data_reg["tramo_a2016_m"]== "") & (data_reg["tramo_a2016_l"]!= ""),'tramo_a2016'] = data_reg["tramo_a2016_l"]
+
+    #cat_portafolio_a2016
+    data_reg.loc[data_reg["cat_portafolio_a2016_m"]==data_reg["cat_portafolio_a2016_l"],'cat_portafolio_a2016'] = data_reg["cat_portafolio_a2016_m"]
+    data_reg.loc[(data_reg["cat_portafolio_a2016_m"] != "") & (data_reg["cat_portafolio_a2016_l"]== ""),'cat_portafolio_a2016'] = data_reg["cat_portafolio_a2016_m"]
+    data_reg.loc[(data_reg["cat_portafolio_a2016_m"]== "") & (data_reg["cat_portafolio_a2016_l"]!= ""),'cat_portafolio_a2016'] = data_reg["cat_portafolio_a2016_l"]
+
+    #cat_prueba_a2016
+    data_reg.loc[data_reg["cat_prueba_a2016_m"]==data_reg["cat_prueba_a2016_l"],'cat_prueba_a2016'] = data_reg["cat_prueba_a2016_m"]
+    data_reg.loc[(data_reg["cat_prueba_a2016_m"] != "") & (data_reg["cat_prueba_a2016_l"]== ""),'cat_prueba_a2016'] = data_reg["cat_prueba_a2016_m"]
+    data_reg.loc[(data_reg["cat_prueba_a2016_m"]== "") & (data_reg["cat_prueba_a2016_l"]!= ""),'cat_prueba_a2016'] = data_reg["cat_prueba_a2016_l"]
+
+    #cat_portafolio_rec2016
+    data_reg.loc[data_reg["cat_portafolio_rec2016_m"]==data_reg["cat_portafolio_rec2016_l"],'cat_portafolio_rec2016'] = data_reg["cat_portafolio_rec2016_m"]
+    data_reg.loc[(data_reg["cat_portafolio_rec2016_m"] != "") & (data_reg["cat_portafolio_rec2016_l"]== ""),'cat_portafolio_rec2016'] = data_reg["cat_portafolio_rec2016_m"]
+    data_reg.loc[(data_reg["cat_portafolio_rec2016_m"]== "") & (data_reg["cat_portafolio_rec2016_l"]!= ""),'cat_portafolio_rec2016'] = data_reg["cat_portafolio_rec2016_l"]
+
+    #cat_prueba_rec2016
+    data_reg.loc[data_reg["cat_prueba_rec2016_m"]==data_reg["cat_prueba_rec2016_l"],'cat_prueba_rec2016'] = data_reg["cat_prueba_rec2016_m"]
+    data_reg.loc[(data_reg["cat_prueba_rec2016_m"] != "") & (data_reg["cat_prueba_rec2016_l"]== ""),'cat_prueba_rec2016'] = data_reg["cat_prueba_rec2016_m"]
+    data_reg.loc[(data_reg["cat_prueba_rec2016_m"]== "") & (data_reg["cat_prueba_rec2016_l"]!= ""),'cat_prueba_rec2016'] = data_reg["cat_prueba_rec2016_l"]
+
+    #tramo_rec2016
+    data_reg.loc[data_reg["tramo_rec2016_m"]==data_reg["tramo_rec2016_l"],'tramo_rec2016'] = data_reg["tramo_rec2016_m"]
+    data_reg.loc[(data_reg["tramo_rec2016_m"] != "") & (data_reg["tramo_rec2016_l"]== ""),'tramo_rec2016'] = data_reg["tramo_rec2016_m"]
+    data_reg.loc[(data_reg["tramo_rec2016_m"]== "") & (data_reg["tramo_rec2016_l"]!= ""),'tramo_rec2016'] = data_reg["tramo_rec2016_l"]
+
+    #cat_portafolio_rec2018
+    data_reg.loc[data_reg["cat_portafolio_rec2018_m"]==data_reg["cat_portafolio_rec2018_l"],'cat_portafolio_rec2018'] = data_reg["cat_portafolio_rec2018_m"]
+    data_reg.loc[(data_reg["cat_portafolio_rec2018_m"] != "") & (data_reg["cat_portafolio_rec2018_l"]== ""),'cat_portafolio_rec2018'] = data_reg["cat_portafolio_rec2018_m"]
+    data_reg.loc[(data_reg["cat_portafolio_rec2018_m"]== "") & (data_reg["cat_portafolio_rec2018_l"]!= ""),'cat_portafolio_rec2018'] = data_reg["cat_portafolio_rec2018_l"]
+
+    #cat_prueba_rec2018
+    data_reg.loc[data_reg["cat_prueba_rec2018_m"]==data_reg["cat_prueba_rec2018_l"],'cat_prueba_rec2018'] = data_reg["cat_prueba_rec2018_m"]
+    data_reg.loc[(data_reg["cat_prueba_rec2018_m"] != "") & (data_reg["cat_prueba_rec2018_l"]== ""),'cat_prueba_rec2018'] = data_reg["cat_prueba_rec2018_m"]
+    data_reg.loc[(data_reg["cat_prueba_rec2018_m"]== "") & (data_reg["cat_prueba_rec2018_l"]!= ""),'cat_prueba_rec2018'] = data_reg["cat_prueba_rec2018_l"]
+
+    #tramo_rec2018
+    data_reg.loc[data_reg["tramo_rec2018_m"]==data_reg["tramo_rec2018_l"],'tramo_rec2018'] = data_reg["tramo_rec2018_m"]
+    data_reg.loc[(data_reg["tramo_rec2018_m"] != "") & (data_reg["tramo_rec2018_l"]== ""),'tramo_rec2018'] = data_reg["tramo_rec2018_m"]
+    data_reg.loc[(data_reg["tramo_rec2018_m"]== "") & (data_reg["tramo_rec2018_l"]!= ""),'tramo_rec2018'] = data_reg["tramo_rec2018_l"]
+
+    #distance
+    data_reg.loc[data_reg["distance_m"]==data_reg["distance_l"],'distance'] = data_reg["distance_m"]
+    data_reg.loc[(data_reg["distance_m"] != "") & (data_reg["distance_l"]== ""),'distance'] = data_reg["distance_m"]
+    data_reg.loc[(data_reg["distance_m"]== "") & (data_reg["distance_l"]!= ""),'distance'] = data_reg["distance_l"]
+
+    #xtile distance2 = XY_distance, nq(5) replace distance2 = 1 if  distance=="TOP TEACHER"
+    data_reg['distance2'] = pd.qcut(data_reg['XY_distance'], 5, labels = False)
+    data_reg.loc[data_reg["distance"]=="TOP TEACHER",'distance2'] = 0
+
+    #save the string variables
+    data_pythonpast2 = data_reg[['cat_portafolio_a2016', 'cat_prueba_a2016', 'cat_portafolio_rec2016', 'cat_prueba_rec2016',
+                                        'tramo_rec2016', 'cat_portafolio_rec2018', 'tramo_a2016', 'cat_prueba_rec2018', 'tramo_rec2018',
+                                        'distance', 'distance2', 'drun']]
+
+
+    # Merged numeric and string variables by drun
+    data_python = pd.merge(data_reg, data_pythonpast2, on='drun')
+
+    #score_port
+    #gen score_port = . replace score_port = ptj_portafolio_rec2016 if eval_year == 1
+    data_python.loc[data_python["eval_year"]==1,'score_port'] = data_python["ptj_portafolio_rec2016"]
+
+    #drop ptj_portafolio_rec2016 ptj_portafolio_rec2018
+    data_python = data_python.drop(['ptj_portafolio_rec2016', 'ptj_portafolio_rec2018'], axis=1)
+
+    #gen score_test = . replace score_test = ptj_prueba_rec2016 if eval_year == 1
+    data_python.loc[data_python["eval_year"]==1,'score_test'] = data_python["ptj_prueba_rec2016"]
+
+    #drop ptj_prueba_rec2016 ptj_prueba_rec2018
+    data_python = data_python.drop(['ptj_prueba_rec2016', 'ptj_prueba_rec2018'], axis=1)
+
+    #gen cat_port = "" replace cat_port = cat_portafolio_rec2016 if cat_portafolio_rec2018 == ""
+    data_python.loc[data_python["cat_portafolio_rec2018"]=="",'cat_port'] = data_python["cat_portafolio_rec2016"]
+
+    #drop cat_portafolio_rec2016 cat_portafolio_rec2018
+    data_python = data_python.drop(['cat_portafolio_rec2016', 'cat_portafolio_rec2018'], axis=1)
+
+    #gen cat_test = "" replace cat_test = cat_prueba_rec2016 if cat_prueba_rec2018 == ""
+    data_python.loc[data_python["cat_prueba_rec2018"]=="",'cat_test'] = data_python["cat_prueba_rec2016"]
+
+    #drop cat_prueba_rec2016 cat_prueba_rec2018
+    data_python = data_python.drop(['cat_prueba_rec2016', 'cat_prueba_rec2018'], axis=1)
+
+    #gen trame = "" replace trame = tramo_rec2016 if eval_year == 1 replace trame = tramo_a2016 if eval_year != 1
+    data_python.loc[data_python["eval_year"]==1,'trame'] = data_python["tramo_rec2016"]
+    data_python.loc[data_python["eval_year"] != 1,'trame'] = data_python["tramo_a2016"]
+
+    #drop tramo_rec2016 tramo_rec2018
+    data_python = data_python.drop(['tramo_rec2016', 'tramo_rec2018'], axis=1)
+
+    #rename  ptj_portafolio_a2016 score_port_past rename ptj_prueba_a2016 score_test_past
+    data_python = data_python.rename(columns={'ptj_portafolio_a2016': 'score_port_past'})
+    data_python = data_python.rename(columns={'ptj_prueba_a2016': 'score_test_past'})
+
+    #drop if score_test_past == . & score_port_past == .
+    indexAge = data_python[ (data_python['score_test_past'].isna()) & (data_python['score_port_past'].isna()) ].index
+    data_python.drop(indexAge , inplace=True)
+
+    #foreach variable in "stdsimce" "experience" "d_trat" "eval_year" "typeschool" "por_priority" "rural_rbd" "AsignacionZona"{
+    #   drop if `variable' == .
+    #   }
+    data_python.drop(data_python[data_python['stdsimce'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['experience'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['d_trat'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['eval_year'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['typeschool'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['por_priority'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['rural_rbd'].isna()].index, inplace = True)
+    data_python.drop(data_python[data_python['AsignacionZona'].isna()].index, inplace = True)
 
     #---------------------------------------------#
 
@@ -326,7 +401,7 @@ def data_model(j):
 
         treatment = np.ones(N)*x
 
-        model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+        model = Count_att(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality,priotity_aep)
 
 
