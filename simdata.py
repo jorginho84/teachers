@@ -15,9 +15,7 @@ from scipy.optimize import minimize
 
 class SimData:
     """
-    eitc: eitc function
-    emax_function: interpolating instance
-    The rest are state variables at period 0
+    This class obtains simulated samples (choices and outcomes)
     """
     
     def __init__(self,N,model):
@@ -37,6 +35,7 @@ class SimData:
         
         teacher_scores = self.model.t_test(effort)
         
+      
         placement = self.model.placement(teacher_scores[0],initial_p)
         
         income = self.model.income(placement)
@@ -68,7 +67,7 @@ class SimData:
         effort_v1 = np.argmax(u_v2, axis=1)
         
         initial_p = self.model.initial()
-        
+
         teacher_scores = self.model.t_test(effort_v1)
         
         placement = self.model.placement(teacher_scores[0],initial_p)

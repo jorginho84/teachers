@@ -61,6 +61,7 @@ class estimate:
         
         est_corrSPort = np.zeros(times)
         est_corrSPrue = np.zeros(times)
+        est_corrSPast = np.zeros(times)
         est_corrSExp = np.zeros(times)
         #est_corrPP = np.zeros(times)
         est_mean_Port = np.zeros(times)
@@ -140,8 +141,8 @@ class estimate:
             corrM = datadf.corr()
 
             est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
-
             est_corrSPrue[i] = corrM.iloc[0]['TEST']
+            est_corrSPast[i] = corrM.iloc[0]['P_past']
             est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
             est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
             
@@ -160,6 +161,7 @@ class estimate:
         
         est_bootsSPort = np.mean(est_corrSPort)
         est_bootsSPrue = np.mean(est_corrSPrue)
+        est_bootsSPast = np.mean(est_corrSPast)
         est_bootsSExp = np.mean(est_corrSExp)
         est_sim_mean_Port = np.mean(est_mean_Port)
         est_sim_var_Port = np.mean(est_var_Port)
@@ -182,6 +184,7 @@ class estimate:
         
         return {'Estimation SIMCE vs Portfolio': est_bootsSPort,
             'Estimation SIMCE vs Prueba': est_bootsSPrue,
+            'Estimation SIMCE vs Past': est_bootsSPast,
             'Estimation EXP vs Portfolio': est_sim_EXPPort,
             'Estimation EXP vs Prueba': est_sim_EXPPru,
             'Mean Portfolio': est_sim_mean_Port,
@@ -218,9 +221,10 @@ class estimate:
         self.param0.betas[2] = beta[12]
         self.param0.betas[3] = beta[13]
         self.param0.betas[4] = beta[14]
-        self.param0.gammas[0] = beta[15]
-        self.param0.gammas[1] = beta[16]
-        self.param0.gammas[2] = beta[17]
+        self.param0.betas[5] = beta[15]
+        self.param0.gammas[0] = beta[16]
+        self.param0.gammas[1] = beta[17]
+        self.param0.gammas[2] = beta[18]
 
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
@@ -246,7 +250,8 @@ class estimate:
         beta_padv = result['perc advanced']
         beta_pexpert = result['perc expert']
         beta_sport = result['Estimation SIMCE vs Portfolio']
-        beta_spru = result['Estimation SIMCE vs Prueba']       
+        beta_spru = result['Estimation SIMCE vs Prueba']
+        beta_spast = result['Estimation SIMCE vs Past']      
         beta_expport = result['Estimation EXP vs Portfolio']
         beta_exptest = result['Estimation EXP vs Prueba']
         beta_sexp = result['Estimation SIMCE vs Experience']
@@ -261,7 +266,7 @@ class estimate:
         #Number of moments to match
         num_par = beta_mport.size + beta_vport.size + beta_msimce.size + beta_vsimce.size + beta_mtest.size + \
             beta_vtest.size + beta_mporttest.size  + beta_pinter.size + beta_padv.size + \
-                beta_pexpert.size + beta_sport.size + beta_spru.size + beta_expport.size + beta_exptest.size + \
+                beta_pexpert.size + beta_sport.size + beta_spru.size + beta_spast.size + beta_expport.size + beta_exptest.size + \
                     beta_advexp_c.size + beta_testp.size + beta_portp.size + beta_sexp.size
         
         #Outer matrix
@@ -278,12 +283,13 @@ class estimate:
         x_vector[9,0] = beta_pexpert - self.moments_vector[9]
         x_vector[10,0] = beta_sport - self.moments_vector[10]
         x_vector[11,0] = beta_spru - self.moments_vector[11]
-        x_vector[12,0] = beta_expport - self.moments_vector[12]
-        x_vector[13,0] = beta_exptest - self.moments_vector[13]
-        x_vector[14,0] = beta_sexp - self.moments_vector[14]
-        x_vector[15,0] = beta_advexp_c - self.moments_vector[15]
-        x_vector[16,0] = beta_testp - self.moments_vector[16]
-        x_vector[17,0] = beta_portp - self.moments_vector[17]
+        x_vector[12,0] = beta_spast - self.moments_vector[12]
+        x_vector[13,0] = beta_expport - self.moments_vector[13]
+        x_vector[14,0] = beta_exptest - self.moments_vector[14]
+        x_vector[15,0] = beta_sexp - self.moments_vector[15]
+        x_vector[16,0] = beta_advexp_c - self.moments_vector[16]
+        x_vector[17,0] = beta_testp - self.moments_vector[17]
+        x_vector[18,0] = beta_portp - self.moments_vector[18]
         
         
         
@@ -318,6 +324,7 @@ class estimate:
                           self.param0.betas[2],
                           self.param0.betas[3],
                           self.param0.betas[4],
+                          self.param0.betas[5],
                           self.param0.gammas[0],
                           self.param0.gammas[1],
                           self.param0.gammas[2]])

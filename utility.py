@@ -527,12 +527,22 @@ class Utility(object):
         effort_m = d_effort_t1 + d_effort_t3
         effort_h = d_effort_t2 + d_effort_t3
         
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
+     
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        
 
     
         eps = np.random.randn(self.N)*self.param.betas[3]
         
         h =  self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
-            self.param.betas[4]*self.years + eps
+            self.param.betas[4]*self.years + self.param.betas[5]*p0_past + eps
         
 
         return np.exp(h)
