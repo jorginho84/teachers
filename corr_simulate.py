@@ -32,7 +32,7 @@ from openpyxl import load_workbook
 
 #Load data_python
 data_python = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-
+data_python['trame'] = data_python['trame'].replace(['INICIAL', 'TEMPRANO', 'AVANZADO', 'EXPERTO I', 'EXPERTO II'], [1,2,3,4,5]) 
 
 #### BOOTSTRAP ####
 
@@ -40,6 +40,7 @@ def corr_simulate(data, B):
     n = data.shape[0]
     est_corrSPort = np.zeros(B)
     est_corrSPrue = np.zeros(B)
+    est_corrSPast = np.zeros(B)
     est_corrSEXP = np.zeros(B)
     est_corr_EXPPort = np.zeros(B)
     est_corr_EXPPru = np.zeros(B)
@@ -95,11 +96,12 @@ def corr_simulate(data, B):
         perc_inter[i] = (sum(datav['trame']==2) / len(datav['trame'])) 
         perc_advan[i] = (sum(datav['trame']==3) / len(datav['trame'])) 
         perc_expert[i] = ((sum(datav['trame']==4)+sum(datav['trame']==5)) / len(datav['trame'])) 
-        datav1 = {'SIMCE': datav['stdsimce'], 'PORTFOLIO': datav['score_port'], 'TEST': datav['score_test'], 'EXP': datav['experience']}
-        datadf = pd.DataFrame(datav1, columns=['SIMCE','PORTFOLIO','TEST', 'EXP'])
+        datav1 = {'SIMCE': datav['stdsimce'], 'PORTFOLIO': datav['score_port'], 'TEST': datav['score_test'], 'EXP': datav['experience'], 'PAST': p0_past[rev['d_trat']==1]}
+        datadf = pd.DataFrame(datav1, columns=['SIMCE','PORTFOLIO','TEST', 'EXP','PAST'])
         corrM = datadf.corr()
         est_corrSPort[i] = corrM.iloc[0]['PORTFOLIO']
         est_corrSPrue[i] = corrM.iloc[0]['TEST']
+        est_corrSPast[i] = corrM.iloc[0]['PAST']
 
         est_corr_EXPPort[i] = corrM.iloc[3]['PORTFOLIO']
         est_corr_EXPPru[i] = corrM.iloc[3]['TEST']
@@ -119,6 +121,7 @@ def corr_simulate(data, B):
         
     est_sim_SPort = np.mean(est_corrSPort)
     est_sim_Prue = np.mean(est_corrSPrue)
+    est_sim_Past = np.mean(est_corrSPast)
     est_sim_SEXP = np.mean(est_corrSEXP)
     est_sim_EXPPort = np.mean(est_corr_EXPPort)
     est_sim_EXPPru = np.mean(est_corr_EXPPru)
@@ -140,6 +143,7 @@ def corr_simulate(data, B):
     
     error_SPort = np.std(est_corrSPort)
     error_SPru = np.std(est_corrSPrue)
+    error_SPast = np.std(est_corrSPast)
     error_SEXP = np.std(est_corrSEXP)
     error_EXPPort = np.std(est_corr_EXPPort)
     error_EXPPru = np.std(est_corr_EXPPru)
@@ -161,7 +165,7 @@ def corr_simulate(data, B):
     
     
     #var-cov matrix
-    samples = np.array([est_corrSPort,est_corrSPrue,est_corrSEXP,est_corr_EXPPort,est_corr_EXPPru,est_mean_Port,
+    samples = np.array([est_corrSPort,est_corrSPrue,est_corrSPast,est_corrSEXP,est_corr_EXPPort,est_corr_EXPPru,est_mean_Port,
                      est_var_Port,est_mean_Pru,est_var_Pru,
                      perc_inter,perc_advan,perc_expert,
                      est_mean_SIMCE,est_var_SIMCE,
@@ -171,6 +175,7 @@ def corr_simulate(data, B):
 
     return {'Estimation SIMCE vs Portfolio': est_sim_SPort,
             'Estimation SIMCE vs Prueba': est_sim_Prue,
+            'Estimation SIMCE vs Past': est_sim_Past,
             'Estimation SIMCE vs Experience': est_sim_SEXP,
             'Estimation EXP vs Portfolio': est_sim_EXPPort,
             'Estimation EXP vs Prueba': est_sim_EXPPru,
@@ -190,6 +195,7 @@ def corr_simulate(data, B):
             'Estimation Test vs p': est_sim_Portp,
                 'Error SIMCE vs Portfolio': error_SPort,
                 'Error SIMCE vs Test': error_SPru,
+                'Error SIMCE vs Past': error_SPast,
                 'Error SIMCE vs Experience': error_SEXP,
                 'Error Exp vs Portfolio': error_EXPPort,
                 'Error Exp vs Pru': error_EXPPru,
@@ -228,6 +234,7 @@ result['Error advanced'],
 result['Error expert'],
 result['Error SIMCE vs Portfolio'],
 result['Error SIMCE vs Test'],
+result['Error SIMCE vs Past'],
 result['Error Exp vs Portfolio'],
 result['Error Exp vs Pru'],
 result['Error SIMCE vs Experience'],
@@ -247,6 +254,7 @@ result['perc advanced'],
 result['perc expert'],
 result['Estimation SIMCE vs Portfolio'],
 result['Estimation SIMCE vs Prueba'],
+result['Estimation SIMCE vs Past'],
 result['Estimation EXP vs Portfolio'],
 result['Estimation EXP vs Prueba'],
 result['Estimation SIMCE vs Experience'],
@@ -255,8 +263,8 @@ result['Estimation Test vs p'],
 result['Estimation Portfolio vs p']])
 
 
-#np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy',ses)
-np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy',ses)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy',ses)
+#np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy',ses)
 
 np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy',means)
 #np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy',means)

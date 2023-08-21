@@ -21,7 +21,7 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("/home/jrodriguezo/teachers/codes")
+sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 import time
 import utility as util
 import parameters as parameters
@@ -50,12 +50,11 @@ np.random.seed(123)
 #ses_opt = np.load('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/ses_model.npy')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\Local_teacherGITnewmodel/data_pythonpast_v2023.dta')
 
-#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v28.npy")
 #betas_nelder = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
-#data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-data_1 = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
+data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+
 #data_1 = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
 #data_1= pd.read_pickle("data_pythonv.pkl")
 
@@ -114,9 +113,8 @@ for x in range(0,2):
          [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
           betas_nelder[8], betas_nelder[9]]]
         
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
-
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
     dolar= 600
     value = [14403, 15155]
@@ -196,9 +194,7 @@ att_mean_sim = np.mean(att_sim)
 
 #Data complete
 #data_reg = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/FINALdata_vLocal.dta')
-#data_reg = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
-data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/FINALdata.dta')
-
+data_reg = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
 
 # first drop Stata 1083190 rows 
 data_reg = data_reg[(data_reg["stdsimce_m"].notna()) & (data_reg["stdsimce_l"].notna())]

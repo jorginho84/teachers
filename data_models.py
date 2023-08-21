@@ -31,6 +31,7 @@ import parameters as parameters
 import simdata as sd
 import estimate as est
 from scipy.stats import norm
+from linearmodels.panel import PanelOLS
 
 #ver https://pythonspeed.com/articles/python-multiprocessing/
 import multiprocessing as mp
@@ -44,7 +45,9 @@ def data_model(j):
     n = data_reg.shape[0]
 
     np.random.seed(j+100)
-    data_reg = data_reg.sample(n, replace=True)
+    
+    
+    #data_reg = data_reg.sample(n, replace=True)
 
     #---------------------------------------------#
     #--------Estimating ATT from data-------------#
@@ -104,17 +107,20 @@ def data_model(j):
 
     # mean simce
     data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
+    
+    
+    #Resampling
+    personids = data_reg.drun.unique()
+    sampled_personids = np.random.choice(personids, size=personids.size, replace=True)
+    data_reg.set_index('drun',inplace = True)
+    data_reg = data_reg.loc[sampled_personids]
 
-
-    data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
+    #Redefining index for school FEs
+    data_reg.reset_index(inplace = True)
     data_reg.set_index(['rbd','agno'],inplace = True)
-
-    model_reg = sm.OLS(exog=x, endog=y)
-    results = model_reg.fit(cov_type='cluster', cov_kwds={'groups': cov_drun}, use_t=True)
-
+    data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
     model_reg = PanelOLS(dependent = data_reg['stdsimce'], exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
     results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
-
     att_data = results.params.inter.round(8)
 
     
@@ -123,17 +129,16 @@ def data_model(j):
     #--------Estimating ATT from model------------#
     #---------------------------------------------#
 
-    ##Here: get python data from bootstrapped data
+    ##get python data from bootstrapped data
     
     #---------------------------------------------#
+    data_reg.reset_index(inplace = True)
 
     data_reg = data_reg[(((data_reg["agno"] == 2016) | (data_reg["agno"] == 2017)) & (data_reg["eval_year"] == 1))| ((data_reg["agno"] < 2016) & (data_reg["eval_year"] != 1))]
     
 
     #gen typeschool=0 replace typeschool = 1 if grado==4 | grado==8
-    data_reg.loc[(data_reg["grado"]!=4) & (data_reg["grado"]!=8),'typeschool'] = 0
-    data_reg.loc[data_reg["grado"]==4,'typeschool'] = 1
-    data_reg.loc[data_reg["grado"]==8,'typeschool'] = 1
+    data_reg['typeschool'] = 1
 
     #egen stdsimce = rowmean(stdsimce_m stdsimce_l) drop stdsimce_m stdsimce_l
     # mean simce
@@ -192,13 +197,13 @@ def data_model(j):
     data_reg.loc[(data_reg["distance_m"]== "") & (data_reg["distance_l"]!= ""),'distance'] = data_reg["distance_l"]
 
     #xtile distance2 = XY_distance, nq(5) replace distance2 = 1 if  distance=="TOP TEACHER"
-    data_reg['distance2'] = pd.qcut(data_reg['XY_distance'], 5, labels = False)
-    data_reg.loc[data_reg["distance"]=="TOP TEACHER",'distance2'] = 0
+    #data_reg['distance2'] = pd.qcut(data_reg['XY_distance'], 5, labels = False)
+    #data_reg.loc[data_reg["distance"]=="TOP TEACHER",'distance2'] = 0
 
     #save the string variables
     data_pythonpast2 = data_reg[['cat_portafolio_a2016', 'cat_prueba_a2016', 'cat_portafolio_rec2016', 'cat_prueba_rec2016',
                                         'tramo_rec2016', 'cat_portafolio_rec2018', 'tramo_a2016', 'cat_prueba_rec2018', 'tramo_rec2018',
-                                        'distance', 'distance2', 'drun']]
+                                        'drun']]
 
 
     # Merged numeric and string variables by drun
@@ -258,12 +263,12 @@ def data_model(j):
 
     #---------------------------------------------#
 
-
+    ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_v2023.npy")
     w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
     for j in range(ses_opt.shape[0]):
         w_matrix[j,j] = ses_opt[j]**(-2)
     
-    n = df.shape[0]
+    n = data_python.shape[0]
     
     n_sim = 100
 
@@ -316,9 +321,9 @@ def data_model(j):
          [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
           betas_nelder[8], betas_nelder[9]]]
     
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
@@ -366,6 +371,7 @@ def data_model(j):
     beta_16 = output_me.x[15]
     beta_17 = output_me.x[16]
     beta_18 = output_me.x[17]
+    beta_19 = output_me.x[18]
 
 
     betas_opt = np.array([beta_1, beta_2,
@@ -373,7 +379,7 @@ def data_model(j):
 		beta_4,beta_5,beta_6,beta_7,beta_8,
 		beta_9,beta_10,beta_11,beta_12,
 		beta_13,beta_14,beta_15,
-		beta_16,beta_17,beta_18])
+		beta_16,beta_17,beta_18,beta_19])
 
     #Updating parameters to compute ATT
     alphas = [[betas_opt[0], betas_opt[1],0,betas_opt[2],
@@ -381,9 +387,9 @@ def data_model(j):
          [betas_opt[5], 0,betas_opt[6],betas_opt[7],
           betas_opt[8], betas_opt[9]]]
     
-    betas = [betas_opt[10], betas_opt[11], betas_opt[12] ,betas_opt[13],betas_opt[14]]
+    betas = [betas_opt[10], betas_opt[11], betas_opt[12] ,betas_opt[13],betas_opt[14],betas_opt[15]]
     
-    gammas = [betas_opt[15],betas_opt[16],betas_opt[17]]
+    gammas = [betas_opt[16],betas_opt[17],betas_opt[18]]
 
     param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 

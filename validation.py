@@ -146,7 +146,7 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 #----------------------------------------------#
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 data = data_1[data_1['d_trat']==1]
@@ -201,9 +201,8 @@ for x in range(0,2):
          [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
           betas_nelder[8], betas_nelder[9]]]
         
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
-
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
     dolar= 600
     value = [14403, 15155]
@@ -283,7 +282,7 @@ att_mean_sim = np.mean(att_sim)
 
 #----------------------------------------------#
 #----------------------------------------------#
-#Effects by distance to nearest cutoff: better show effects vs XY distance (probar)
+#Effects by distance to nearest cutoff
 #
 #----------------------------------------------#
 #----------------------------------------------#
@@ -300,8 +299,17 @@ X = sm.add_constant(X)
 model = sm.OLS(Y,X,missing = 'drop')
 results = model.fit()
 print(results.summary())
-
 y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.params[2]*data['XY_distance_2']
+
+
+data['XY_distance_3'] = data['XY_distance']**3
+X = data[['XY_distance','XY_distance_2','XY_distance_3']]
+X = sm.add_constant(X)
+model = sm.OLS(Y,X,missing = 'drop')
+results = model.fit()
+print(results.summary())
+y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.params[2]*data['XY_distance_2'] + results.params[3]*data['XY_distance_3']
+
 
 X1 = data['XY_distance']
 X1 = sm.add_constant(X1)

@@ -33,6 +33,7 @@ import simdata as sd
 import estimate as est
 from scipy.stats import norm
 import data_models
+from utility_counterfactual_att import Count_att
 
 #ver https://pythonspeed.com/articles/python-multiprocessing/
 import multiprocessing as mp
@@ -42,12 +43,11 @@ from multiprocessing import Pool
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v28.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v29.npy")
 df = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
 moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_v2023.npy")
 ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_v2023.npy")
 data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/FINALdata.dta')
-
 
 
 df.to_pickle("df.pkl")
@@ -137,13 +137,12 @@ for x in range(0,2):
     HOURS = np.array([44]*N)
     
     alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-          betas_nelder[3], betas_nelder[4]],
-         [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-          betas_nelder[8], betas_nelder[9]]]
-        
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14]]
+      betas_nelder[3], betas_nelder[4]],
+     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+      betas_nelder[8], betas_nelder[9]]]
 
-    gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
     dolar= 600
     value = [14403, 15155]
