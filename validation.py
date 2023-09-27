@@ -146,7 +146,7 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 #----------------------------------------------#
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v38.npy")
 
 #Only treated teachers
 data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -157,7 +157,9 @@ n_sim = 500
 
 simce = []
 baseline_p = []
-income = [] 
+income = []
+effort_p = []
+effort_t = [] 
 
 
 for x in range(0,2):
@@ -179,7 +181,7 @@ for x in range(0,2):
     catPrueba = np.array(data['cat_test'])
     # TRAME #
     #Recover initial placement from data (2016)
-    TrameI = np.array(data['trame'])
+    TrameI = np.array(data['tramo_a2016'])
     # TYPE SCHOOL #
     typeSchool = np.array(data['typeschool'])
  
@@ -198,12 +200,15 @@ for x in range(0,2):
     HOURS = np.array([44]*N)
     
     alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-          betas_nelder[3], betas_nelder[4]],
-         [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-          betas_nelder[8], betas_nelder[9]]]
-        
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+             betas_nelder[3], betas_nelder[4]],
+            [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+            betas_nelder[8], betas_nelder[9]]]
+            
+    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
     gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+    
+    alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
+    betas_control = [betas_nelder[23],betas_nelder[24]]
     
     dolar= 600
     value = [14403, 15155]
@@ -243,9 +248,10 @@ for x in range(0,2):
     pri = [48542,66609,115151]
     priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
-    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+    param0 = parameters.Parameters(alphas,betas,gammas,alphas_control, betas_control,
+                                   hw,porc,pro,pol,AEP,priori)
     
-    model = Count_att(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
     
     # SIMULACIÓN SIMDATA
@@ -253,19 +259,29 @@ for x in range(0,2):
     simce_sims = np.zeros((N,n_sim))
     income_sims = np.zeros((N,n_sim))
     baseline_sims = np.zeros((N,n_sim,2))
+    effort_p_sims = np.zeros((N,n_sim))
+    effort_t_sims = np.zeros((N,n_sim)) 
     
     for j in range(n_sim):
         modelSD = sd.SimData(N,model)
         opt = modelSD.choice()
-        simce_sims[:,j] = opt['Opt Simce']
+        simce_sims[:,j] = opt['Opt Simce'][1-x]
         income_sims[:,j] = opt['Opt Income'][1-x]
-        baseline_sims[:,j,0] = opt['Potential scores'][0]
-        baseline_sims[:,j,1] = opt['Potential scores'][1]
+        effort_v1 = opt['Opt Effort']
+        d_effort_t1 = effort_v1 == 1
+        d_effort_t2 = effort_v1 == 2
+        d_effort_t3 = effort_v1 == 3
+        
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
+        effort_p_sims[:,j] = effort_m
+        effort_t_sims[:,j] = effort_h
     
     simce.append(np.mean(simce_sims,axis=1))
     income.append(np.mean(income_sims,axis=1))
     baseline_p.append(np.mean(baseline_sims,axis=1))
-    
+    effort_p.append(np.mean(effort_p_sims,axis = 1))
+    effort_t.append(np.mean(effort_t_sims,axis = 1))    
 
 
 
@@ -277,8 +293,32 @@ print ('')
 #For validation purposes
 att_sim = simce[1] - simce[0]
 att_cost = income[1] - income[0]
+effort_att_p = effort_p[1] - effort_p[0]
+effort_att_t = effort_t[1] - effort_t[0]
 att_mean_sim = np.mean(att_sim)
 
+
+#Initial categorization
+initial_p = np.zeros(N)
+initial_p[(TrameI=='INICIAL')] = 1
+initial_p[(TrameI=='TEMPRANO')] = 2
+initial_p[(TrameI=='AVANZADO')] = 3
+initial_p[(TrameI=='EXPERTO I')] = 4
+initial_p[(TrameI=='EXPERTO II')] = 5
+
+print ('')
+print ('ATT early', np.mean(att_sim[initial_p == 2]))
+print ('')
+
+
+print ('')
+print ('ATT advanced', np.mean(att_sim[initial_p == 3]))
+print ('')
+
+
+print ('')
+print ('ATT expert', np.mean(att_sim[initial_p == 4]))
+print ('')
 
 
 #----------------------------------------------#
@@ -332,21 +372,20 @@ plot3 = ax.plot(data['XY_distance'],y_sim,'--o',alpha = .8, color='sandybrown')
 
 """
 
-#Initial categorization
-initial_p = np.zeros(N)
-initial_p[(TrameI=='INICIAL')] = 1
-initial_p[(TrameI=='TEMPRANO')] = 2
-initial_p[(TrameI=='AVANZADO')] = 3
-initial_p[(TrameI=='EXPERTO I')] = 4
-initial_p[(TrameI=='EXPERTO II')] = 5
+
 
 y = np.zeros(5)
+y_cat = [np.zeros(5),np.zeros(5),np.zeros(5)]
+simce_cat = [np.zeros(5),np.zeros(5),np.zeros(5)]
 y_c = np.zeros(5)
 y_ses = np.zeros(5)
 x = [1,2,3,4,5]
 
 for j in range(5):
     y[j] = np.mean(att_sim[data['distance2']== j + 1])
+    y_cat[0][j] = np.mean(att_sim[(data['distance2']== j + 1) & (initial_p == 2)])
+    y_cat[1][j] = np.mean(att_sim[(data['distance2']== j + 1) & (initial_p == 3)])
+    y_cat[2][j] = np.mean(att_sim[(data['distance2']== j + 1) & (initial_p == 4)])
     
 
 inter_data = np.zeros(5)
@@ -370,8 +409,9 @@ for j in range(5):
     inter_data[j] = results.params.inter.round(8)
     se_data[j] = np.sqrt(results.cov.inter.inter)
     
+    
 
-
+#Quadratic fit from model
 Y = att_sim
 data['XY_distance_2'] = data['XY_distance']**2
 X = data[['XY_distance','XY_distance_2']]
@@ -384,15 +424,131 @@ x_points = np.array([0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
 y_sim_2 = results.params[0] + results.params[1]*x_points + results.params[2]*x_points**2
 
 
-x_points_data = [0.1,0.25,0.35,0.5,1]
+#Quadratic fit from data
+data_reg.reset_index(inplace = True)
+data_reg.set_index(['rbd', 'agno'],inplace = True)
+data_reg['XY_distance_2'] = data_reg['XY_distance']**2 
+data_reg['inter_xy'] = data_reg['inter']*data_reg['XY_distance']
+data_reg['inter_xy_2'] = data_reg['inter']*data_reg['XY_distance_2']
+model_reg = PanelOLS(dependent = data_reg['stdsimce'], 
+                     exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'inter_xy','inter_xy_2','edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
+y_sim_data = results.params.inter + results.params.inter_xy*x_points + results.params.inter_xy_2*x_points**2
 
-#ATT data vs predicted ATT model
+#a = results.params.inter.round(8)
+
+#ATT data vs ATT model
+x_points_data = np.array([0.1,0.25,0.35,0.5,1])
+fig, ax=plt.subplots()
+plot1 = ax.plot(x_points_data,inter_data,'bo',alpha=.7,label = 'ATT data')
+plot2 = ax.errorbar(x_points_data, inter_data, yerr=se_data, fmt='none', color='k')
+plot3 = ax.plot(x_points_data+0.01,y_cat[0],'o',alpha = .8, color='sandybrown', label = 'ATT model (early)')
+plot4 = ax.plot(x_points_data+0.02,y_cat[1],'s',alpha = .8, color='red', label = 'ATT model (advanced)')
+plot5 = ax.plot(x_points_data+0.03,y_cat[2],'v',alpha = .6, color='black', label = 'ATT model (expert)')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.26)
+#ax.legend(fontsize = 13)
+ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
+plt.tight_layout()
+plt.show()
+#fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
+
+
+#ATT data vs ATT model: comparing curvature
+fig, ax=plt.subplots()
+plot1 = ax.plot(x_points,y_sim_data,'--b',alpha=.7,label = 'ATT data')
+plot2 = ax.plot(x_points,y_sim_2,'--o',alpha = .8, color='sandybrown', label = 'ATT model')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.26)
+#ax.legend(fontsize = 13)
+ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
+plt.tight_layout()
+plt.show()
+
+
+#SIMCE (1,0)
+
+for j in range(5):
+    simce_cat[0][j] = np.mean(simce[0][(data['distance2']== j + 1) & (initial_p == 2)])
+    simce_cat[1][j] = np.mean(simce[0][(data['distance2']== j + 1) & (initial_p == 3)])
+    simce_cat[2][j] = np.mean(simce[0][(data['distance2']== j + 1) & (initial_p == 4)])
+
+
+
+fig, ax=plt.subplots()
+plot3 = ax.plot(x_points_data+0.01,simce_cat[0],'o',alpha = .8, color='sandybrown', label = 'ATT model (early)')
+plot4 = ax.plot(x_points_data+0.02,simce_cat[1],'s',alpha = .8, color='red', label = 'ATT model (advanced)')
+plot5 = ax.plot(x_points_data+0.03,simce_cat[2],'v',alpha = .6, color='black', label = 'ATT model (expert)')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.26)
+#ax.legend(fontsize = 13)
+ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
+plt.tight_layout()
+plt.show()
+
+
+#Effort (1,0)
+effort_cat = [np.zeros(5),np.zeros(5),np.zeros(5)]
+effort = np.zeros(5) 
+
+for j in range(5):
+    effort[j] = np.mean(effort_att_p[data['distance2']== j + 1])
+    effort_cat[0][j] = np.mean(effort_att_p[(data['distance2']== j + 1) & (initial_p == 2)])
+    effort_cat[1][j] = np.mean(effort_att_p[(data['distance2']== j + 1) & (initial_p == 3)])
+    effort_cat[2][j] = np.mean(effort_att_p[(data['distance2']== j + 1) & (initial_p == 4)])
+
+
+
+fig, ax=plt.subplots()
+plot2 = ax.plot(x_points_data+0.01,effort*100,'o',alpha = .8, color='blue', label = 'ATT model all')
+plot3 = ax.plot(x_points_data+0.01,effort_cat[0]*100,'o',alpha = .8, color='sandybrown', label = 'ATT model (early)')
+plot4 = ax.plot(x_points_data+0.02,effort_cat[1]*100,'s',alpha = .8, color='red', label = 'ATT model (advanced)')
+plot5 = ax.plot(x_points_data+0.03,effort_cat[2]*100,'v',alpha = .6, color='black', label = 'ATT model (expert)')
+ax.set_ylabel(r'Effect on effort (in pp)', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.26)
+#ax.legend(fontsize = 13)
+ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
+plt.tight_layout()
+plt.show()
+
+
+
+"""
+#ATT data vs ATT model
 fig, ax=plt.subplots()
 plot1 = ax.plot(x_points_data,inter_data,'bo',alpha=.7,label = 'ATT data ('+'{:04.2f}'.format(att_data) + r'$\sigma$)')
 plot2 = ax.errorbar(x_points_data, inter_data, yerr=se_data, fmt='none', color='k')
 plot3 = ax.plot(x_points,y_sim_2,'--o',alpha = .8, color='sandybrown', label = 'ATT model ('+'{:04.2f}'.format(att_mean_sim) + r'$\sigma$)')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
-ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
@@ -405,8 +561,9 @@ ax.legend(loc = 'upper left',fontsize = 13)
 plt.tight_layout()
 plt.show()
 #fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
+"""
 
-
+"""
 #ATT predicted data vs predicted ATT model
 data_reg['XY_distance_2'] = data_reg['XY_distance']**2
 data_reg['inter_xy'] = data_reg['XY_distance']*data_reg['inter']
@@ -440,24 +597,5 @@ ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-
 """
-fig, ax=plt.subplots()
-plot1 = ax.bar(x,inter_data,yerr= se_data,color='b' ,alpha=.7,label = 'ATT data ('+'{:04.2f}'.format(att_data) + r'$\sigma$)')
-plot2 = ax.plot(x,y,'--o',alpha = .8, color='sandybrown', label = 'ATT data ('+'{:04.2f}'.format(att_mean_sim) + r'$\sigma$)')
-ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
-ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.yaxis.set_ticks_position('left')
-ax.xaxis.set_ticks_position('bottom')
-plt.yticks(fontsize=12)
-plt.xticks(fontsize=12)
-ax.set_ylim(0,0.26)
-ax.legend(loc = 'upper left',fontsize = 13)
-#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
-plt.tight_layout()
-plt.show()
-#fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
 
-"""

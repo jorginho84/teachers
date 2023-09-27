@@ -20,7 +20,7 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
+sys.path.append("/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\WageError")
 #import gridemax
 import time
@@ -38,11 +38,11 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v38.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
+moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_new.npy")
 
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
@@ -52,14 +52,8 @@ data = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/te
 
 
 #ses_opt = np.load("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy")
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
+ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_new.npy")
 
-
-
-#count_nan = data['zpjeport'].isnull().sum()
-#print('Count of nan: ' +str(count_nan))
-#count_nan_1 = data['zpjeprue'].isnull().sum()
-#print('Count of nan: ' +str(count_nan_1))
 
 # TREATMENT #
 treatment = np.array(data['d_trat'])
@@ -83,10 +77,7 @@ catPrueba = np.array(data['cat_test'])
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameI = np.array(data['trame'])
-
-#TrameInitial = data[['tramo_a2016']]
-#TrameI = data['tramo_a2016'].to_numpy()
+TrameI = np.array(data['tramo_a2016'])
 
 # TYPE SCHOOL #
 typeSchool = np.array(data['typeschool'])
@@ -107,12 +98,15 @@ N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
 alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-      betas_nelder[3], betas_nelder[4]],
-     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-      betas_nelder[8], betas_nelder[9]]]
-
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+         betas_nelder[3], betas_nelder[4]],
+        [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+        betas_nelder[8], betas_nelder[9]]]
+        
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+
+alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
+betas_control = [betas_nelder[23],betas_nelder[24]]
 
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
@@ -163,7 +157,7 @@ pri = [48542,66609,115151]
 priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+param0 = parameters.Parameters(alphas,betas,gammas,alphas_control,betas_control,hw,porc,pro,pol,AEP,priori)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,
                      TrameI,priotity,rural_rbd,locality, AEP_priority)
@@ -184,7 +178,7 @@ w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 
 for j in range(ses_opt.shape[0]):
-    w_matrix[j,j] = ses_opt[j]**(-2)
+    w_matrix[j,j] = 1/ses_opt[j]**(2)
     
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
@@ -198,7 +192,6 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
        
        
 corr_data = output_ins.simulation(50,modelSD)
-#print(corr_data)
 
 beta0 = np.array([param0.alphas[0][0],
                           param0.alphas[0][1],
@@ -218,91 +211,46 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.betas[5],
                           param0.gammas[0],
                           param0.gammas[1],
-                          param0.gammas[2]])
+                          param0.gammas[2],
+                          param0.alphas_control[0][0],
+                          np.log(param0.alphas_control[0][1]),
+                          param0.alphas_control[1][0],
+                          np.log(param0.alphas_control[1][1]),
+                          param0.betas[0],
+                          param0.betas[1]])
 
 qw = output_ins.objfunction(beta0)
 
-##### PYTHON TO EXCEL #####
-
-#wb = load_workbook('D:\Git\ExpSIMCE/Outcomes.xlsx')
-wb = load_workbook('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/Results/Outcomes_v2023.xlsx')
-sheet = wb["data"]
-
-sheet['C5'] = 'Mean Portfolio'
-sheet['C6'] = 'Variance Portfolio'
-sheet['C7'] = 'Mean SIMCE'
-sheet['C8'] = 'Variance SIMCE'
-sheet['C9'] = 'Mean Test'
-sheet['C10'] = 'Variance Test'
-sheet['C11'] = 'Mean Portfolio-Test'
-sheet['C12'] = '\% Intermediate'
-sheet['C13'] = '\% Advanced'
-sheet['C14'] = '\% Expert'
-sheet['C15'] = 'corr(Port,Simce)'
-sheet['C16'] = 'corr(Test,Simce)'
-sheet['C17'] = 'corr(Past,Simce)'
-sheet['C18'] = 'corr(exp,Port)'
-sheet['C19'] = 'corr(exp,Test)'
-sheet['C20'] = '\% adva/expert control'
-sheet['C21'] = 'Corr(Port,p)'
-sheet['C22'] = 'Corr(Test,p)'
-sheet['C23'] = 'Corr(Simce,Exp)'
-sheet['D4'] = 'simulation'
-sheet['E4'] = 'data'
-sheet['F4'] = 'se'
-
-sheet['D5'] = corr_data['Mean Portfolio']
-sheet['D6'] = corr_data['Var Port']
-sheet['D7'] = corr_data['Mean SIMCE']
-sheet['D8'] = corr_data['Var SIMCE']
-sheet['D9'] = corr_data['Mean Test']
-sheet['D10'] = corr_data['Var Test']
-sheet['D11'] = corr_data['Mean PortTest']
-sheet['D12'] = corr_data['perc inter']
-sheet['D13'] = corr_data['perc advanced']
-sheet['D14'] = corr_data['perc expert']
-sheet['D15'] = corr_data['Estimation SIMCE vs Portfolio']
-sheet['D16'] = corr_data['Estimation SIMCE vs Prueba']
-sheet['D17'] = corr_data['Estimation SIMCE vs Past']
-sheet['D18'] = corr_data['Estimation EXP vs Portfolio']
-sheet['D19'] = corr_data['Estimation EXP vs Prueba']
-sheet['D20'] = corr_data['perc adv/exp control']
-sheet['D21'] = corr_data['Estimation Test vs p']
-sheet['D22'] = corr_data['Estimation Portfolio vs p']
-sheet['D23'] = corr_data['Estimation SIMCE vs Experience']
-
-
-
-
-sim = np.array([corr_data['Mean Portfolio'],
-corr_data['Var Port'],
-corr_data['Mean SIMCE'],
-corr_data['Var SIMCE'],
-corr_data['Mean Test'],
-corr_data['Var Test'],
-corr_data['Mean PortTest'],
-corr_data['perc inter'],
-corr_data['perc advanced'],
-corr_data['perc expert'],
-corr_data['Estimation SIMCE vs Portfolio'],
-corr_data['Estimation SIMCE vs Prueba'],
-corr_data['Estimation SIMCE vs Past'],
-corr_data['Estimation EXP vs Portfolio'],
-corr_data['Estimation EXP vs Prueba'],
-corr_data['Estimation SIMCE vs Experience'],
-corr_data['perc adv/exp control'],
-corr_data['Estimation Test vs p'],
-corr_data['Estimation Portfolio vs p']])
+sim = np.array([corr_data['Corr Simce and experience'],
+            corr_data['Corr Portfolio and experience'],
+            corr_data['Corr STEI and experience'],
+            corr_data['Corr SIMCE and Portfolio'],
+            corr_data['Corr SIMCE and STEI'],
+            corr_data['SIMCE Mean (treated)'],
+            corr_data['SIMCE Var (treated)'],
+            corr_data['Portfolio Mean (treated)'],
+            corr_data['STEI Mean (treated)'],
+            corr_data['Portfolio Var (treated)'],
+            corr_data['STEI Var (treated)'],
+            corr_data['Corr Simce Past'],
+            corr_data['Corr Portfolio Past'],
+            corr_data['Corr STEI Past'],
+            corr_data['Share Portfolio > 2.5 (treated)'],
+            corr_data['Share STEI > 2.74 (treated)'],
+            corr_data['Share teachers advancing from initial'],
+            corr_data['SIMCE Mean (control)'],
+            corr_data['SIMCE Var (control)'],
+            corr_data['Portfolio Mean (control)'],
+            corr_data['STEI Mean (control)'],
+            corr_data['Portfolio Var (control)'],
+            corr_data['STEI Var (control)'],
+            corr_data['Share Portfolio > 2.5 (control)'],
+            corr_data['Share STEI > 2.74 (control)']])
 
 x_vector = sim - moments_vector
 
 q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
-
-#weight = x_vector**2/ses_opt**2
-
-
-#wb.save('D:\Git\ExpSIMCE/Outcomes.xlsx')
-wb.save('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/Results/Outcomes_v2023.xlsx')
+qw = np.sum(x_vector**2/ses_opt**2)
 
 
 with open('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/Results/fit_table.tex','w') as f:
@@ -312,33 +260,46 @@ with open('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-refo
     f.write(r'& Moment &  & Model &  & Data  &  & S.E. data \\'+'\n')
     f.write(r'\midrule'+'\n')
     f.write(r'A. Treatment group  (2016 teachers) &  &       &  &       &  & \\'+'\n')
-    f.write(r'Mean Portfolio                      &  & '+'{:1.2f}'.format(sim[0]) +r' &  & '+'{:1.2f}'.format(moments_vector[0]) +r'   &  & '+'{:1.3f}'.format(ses_opt[0]) +r' \\'+'\n')
-    f.write(r'Variance Portfolio                  &  & '+'{:1.2f}'.format(sim[1]) +r' &  & '+'{:1.2f}'.format(moments_vector[1]) +r'   &  & '+'{:1.3f}'.format(ses_opt[1]) +r' \\'+'\n')
-    f.write(r'Mean STEI                            &  & '+'{:1.2f}'.format(sim[4]) +r' &  & '+'{:1.2f}'.format(moments_vector[4]) +r'   &  & '+'{:1.3f}'.format(ses_opt[4]) +r' \\'+'\n')
-    f.write(r'Variance STEI                        &  & '+'{:1.2f}'.format(sim[5]) +r' &  & '+'{:1.2f}'.format(moments_vector[5]) +r'   &  & '+'{:1.3f}'.format(ses_opt[5]) +r' \\'+'\n')
-    f.write(r'\% Intermediate                     &  & '+'{:1.2f}'.format(sim[7]*100) +r' &  & '+'{:1.2f}'.format(moments_vector[7]*100) +r'   &  & '+'{:1.3f}'.format(ses_opt[7]) +r' \\'+'\n')
-    f.write(r'\% Advanced                         &  & '+'{:1.2f}'.format(sim[8]*100) +r' &  & '+'{:1.2f}'.format(moments_vector[8]*100) +r'   &  & '+'{:1.3f}'.format(ses_opt[8]) +r' \\'+'\n')
-    f.write(r'\% Expert                           &  & '+'{:1.2f}'.format(sim[9]*100) +r' &  & '+'{:1.2f}'.format(moments_vector[9]*100) +r'   &  & '+'{:1.3f}'.format(ses_opt[9]) +r' \\'+'\n')
-    f.write(r'corr(Port,Simce)                    &  & '+'{:1.2f}'.format(sim[10]) +r' &  & '+'{:1.2f}'.format(moments_vector[10]) +r'   &  & '+'{:1.3f}'.format(ses_opt[10]) +r' \\'+'\n')
-    f.write(r'corr(Test,Simce)                    &  & '+'{:1.2f}'.format(sim[11]) +r' &  & '+'{:1.2f}'.format(moments_vector[11]) +r'   &  & '+'{:1.3f}'.format(ses_opt[11]) +r' \\'+'\n')
-    f.write(r'corr(Past,Simce)                    &  & '+'{:1.2f}'.format(sim[12]) +r' &  & '+'{:1.2f}'.format(moments_vector[12]) +r'   &  & '+'{:1.3f}'.format(ses_opt[12]) +r' \\'+'\n')
-    f.write(r'corr(exp,Port)                      &  & '+'{:1.2f}'.format(sim[13]) +r' &  & '+'{:1.2f}'.format(moments_vector[13]) +r'   &  & '+'{:1.3f}'.format(ses_opt[13]) +r' \\'+'\n')
-    f.write(r'corr(exp,Test)                      &  & '+'{:1.2f}'.format(sim[14]) +r' &  & '+'{:1.2f}'.format(moments_vector[14]) +r'   &  & '+'{:1.3f}'.format(ses_opt[14]) +r' \\'+'\n')
-    f.write(r'Corr(Port,p)                        &  & '+'{:1.2f}'.format(sim[18]) +r' &  & '+'{:1.2f}'.format(moments_vector[18]) +r'   &  & '+'{:1.3f}'.format(ses_opt[18]) +r' \\'+'\n')
-    f.write(r'Corr(Test,p)                        &  & '+'{:1.2f}'.format(sim[17]) +r' &  & '+'{:1.2f}'.format(moments_vector[17]) +r'   &  & '+'{:1.3f}'.format(ses_opt[17]) +r' \\'+'\n')
+    f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[5]) +r' &  & '+'{:1.2f}'.format(moments_vector[5]) +r'   &  & '+'{:1.3f}'.format(ses_opt[5]) +r' \\'+'\n')
+    f.write(r'Variance SIMCE                          &  & '+'{:1.2f}'.format(sim[6]) +r' &  & '+'{:1.2f}'.format(moments_vector[6]) +r'   &  & '+'{:1.3f}'.format(ses_opt[6]) +r' \\'+'\n')
+    f.write(r'Mean Portfolio                          &  & '+'{:1.2f}'.format(sim[7]) +r' &  & '+'{:1.2f}'.format(moments_vector[7]) +r'   &  & '+'{:1.3f}'.format(ses_opt[7]) +r' \\'+'\n')
+    f.write(r'Mean STEI                          &  & '+'{:1.2f}'.format(sim[8]) +r' &  & '+'{:1.2f}'.format(moments_vector[8]) +r'   &  & '+'{:1.3f}'.format(ses_opt[8]) +r' \\'+'\n')
+    f.write(r'Variance Portfolio                          &  & '+'{:1.2f}'.format(sim[9]) +r' &  & '+'{:1.2f}'.format(moments_vector[9]) +r'   &  & '+'{:1.3f}'.format(ses_opt[9]) +r' \\'+'\n')
+    f.write(r'Variance STEI                          &  & '+'{:1.2f}'.format(sim[10]) +r' &  & '+'{:1.2f}'.format(moments_vector[10]) +r'   &  & '+'{:1.3f}'.format(ses_opt[10]) +r' \\'+'\n')
+    f.write(r'Corr(SIMCE, Past)                          &  & '+'{:1.2f}'.format(sim[11]) +r' &  & '+'{:1.2f}'.format(moments_vector[11]) +r'   &  & '+'{:1.3f}'.format(ses_opt[11]) +r' \\'+'\n')
+    f.write(r'Corr(Portfolio, Past)                          &  & '+'{:1.2f}'.format(sim[12]) +r' &  & '+'{:1.2f}'.format(moments_vector[12]) +r'   &  & '+'{:1.3f}'.format(ses_opt[12]) +r' \\'+'\n')
+    f.write(r'Corr(STEI, Past)                          &  & '+'{:1.2f}'.format(sim[13]) +r' &  & '+'{:1.2f}'.format(moments_vector[13]) +r'   &  & '+'{:1.3f}'.format(ses_opt[13]) +r' \\'+'\n')
+    f.write(r'Share of teachers portfolio >= 2.5        &  & '+'{:1.2f}'.format(sim[14]) +r' &  & '+'{:1.2f}'.format(moments_vector[14]) +r'   &  & '+'{:1.3f}'.format(ses_opt[14]) +r' \\'+'\n')
+    f.write(r'Share of teachers STEI >= 2.74        &  & '+'{:1.2f}'.format(sim[15]) +r' &  & '+'{:1.2f}'.format(moments_vector[15]) +r'   &  & '+'{:1.3f}'.format(ses_opt[15]) +r' \\'+'\n')
+    f.write(r'Share of teachers advancing from initial        &  & '+'{:1.2f}'.format(sim[16]) +r' &  & '+'{:1.2f}'.format(moments_vector[16]) +r'   &  & '+'{:1.3f}'.format(ses_opt[16]) +r' \\'+'\n')
+
     f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
     f.write(r'B. Control group (2018- teachers)   &  &       &  &       &  &       \\'+'\n')
-    f.write(r'Average of past portfolio-test      &  & '+'{:1.2f}'.format(sim[6]) +r' &  & '+'{:1.2f}'.format(moments_vector[6]) +r'   &  & '+'{:1.3f}'.format(ses_opt[6]) +r' \\'+'\n')
-    f.write(r'\% advanced or expert               &  & '+'{:1.2f}'.format(sim[16]*100) +r' &  & '+'{:1.2f}'.format(moments_vector[16]*100) +r'   &  & '+'{:1.3f}'.format(ses_opt[16]) +r' \\'+'\n')
+    f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[17]) +r' &  & '+'{:1.2f}'.format(moments_vector[17]) +r'   &  & '+'{:1.3f}'.format(ses_opt[17]) +r' \\'+'\n')
+    f.write(r'Variance SIMCE                          &  & '+'{:1.2f}'.format(sim[18]) +r' &  & '+'{:1.2f}'.format(moments_vector[18]) +r'   &  & '+'{:1.3f}'.format(ses_opt[18]) +r' \\'+'\n')
+    f.write(r'Mean Portfolio                          &  & '+'{:1.2f}'.format(sim[19]) +r' &  & '+'{:1.2f}'.format(moments_vector[19]) +r'   &  & '+'{:1.3f}'.format(ses_opt[19]) +r' \\'+'\n')
+    f.write(r'Mean STEI                          &  & '+'{:1.2f}'.format(sim[20]) +r' &  & '+'{:1.2f}'.format(moments_vector[20]) +r'   &  & '+'{:1.3f}'.format(ses_opt[20]) +r' \\'+'\n')
+    f.write(r'Variance Portfolio                          &  & '+'{:1.2f}'.format(sim[21]) +r' &  & '+'{:1.2f}'.format(moments_vector[21]) +r'   &  & '+'{:1.3f}'.format(ses_opt[21]) +r' \\'+'\n')
+    f.write(r'Variance STEI                          &  & '+'{:1.2f}'.format(sim[22]) +r' &  & '+'{:1.2f}'.format(moments_vector[22]) +r'   &  & '+'{:1.3f}'.format(ses_opt[22]) +r' \\'+'\n')
+    f.write(r'Share of teachers portfolio >= 2.5        &  & '+'{:1.2f}'.format(sim[23]) +r' &  & '+'{:1.2f}'.format(moments_vector[23]) +r'   &  & '+'{:1.3f}'.format(ses_opt[23]) +r' \\'+'\n')
+    f.write(r'Share of teachers STEI >= 2.74        &  & '+'{:1.2f}'.format(sim[24]) +r' &  & '+'{:1.2f}'.format(moments_vector[24]) +r'   &  & '+'{:1.3f}'.format(ses_opt[24]) +r' \\'+'\n')
+
     f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
+    
+
     f.write(r'C. Full sample                      &  &       &  &       &  &       \\'+'\n')
-    f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[2]) +r' &  & '+'{:1.2f}'.format(moments_vector[2]) +r'   &  & '+'{:1.3f}'.format(ses_opt[2]) +r' \\'+'\n')
-    f.write(r'Variance SIMCE                      &  & '+'{:1.2f}'.format(sim[3]) +r' &  & '+'{:1.2f}'.format(moments_vector[3]) +r'   &  & '+'{:1.3f}'.format(ses_opt[3]) +r' \\'+'\n')
-    f.write(r'Corr(Simce,Exp)                     &  & '+'{:1.2f}'.format(sim[15]) +r' &  & '+'{:1.2f}'.format(moments_vector[15]) +r'   &  & '+'{:1.3f}'.format(ses_opt[15]) +r' \\'+'\n')
+    f.write(r'Corr(Exp, SIMCE)        &  & '+'{:1.2f}'.format(sim[0]) +r' &  & '+'{:1.2f}'.format(moments_vector[0]) +r'   &  & '+'{:1.3f}'.format(ses_opt[0]) +r' \\'+'\n')
+    f.write(r'Corr(Exp, Port)        &  & '+'{:1.2f}'.format(sim[1]) +r' &  & '+'{:1.2f}'.format(moments_vector[1]) +r'   &  & '+'{:1.3f}'.format(ses_opt[1]) +r' \\'+'\n')
+    f.write(r'Corr(Exp, STEI)        &  & '+'{:1.2f}'.format(sim[2]) +r' &  & '+'{:1.2f}'.format(moments_vector[2]) +r'   &  & '+'{:1.3f}'.format(ses_opt[2]) +r' \\'+'\n')
+    f.write(r'Corr(Port, SIMCE)        &  & '+'{:1.2f}'.format(sim[3]) +r' &  & '+'{:1.2f}'.format(moments_vector[3]) +r'   &  & '+'{:1.3f}'.format(ses_opt[3]) +r' \\'+'\n')
+    f.write(r'Corr(STEI, SIMCE)        &  & '+'{:1.2f}'.format(sim[4]) +r' &  & '+'{:1.2f}'.format(moments_vector[4]) +r'   &  & '+'{:1.3f}'.format(ses_opt[4]) +r' \\'+'\n')
     f.write(r'\bottomrule'+'\n')
     f.write(r'\end{tabular}'+'\n')
     f.write(r'}'+'\n')
     f.close()
+
+
+
 
 
 """

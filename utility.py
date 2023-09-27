@@ -72,7 +72,7 @@ class Utility(object):
               
                 
         
-    def placement(self,tscores,initial_p):
+    def placement(self,ttscores,initial_p):
 
         # *I want to replicate the typecasting of the teachers to the tramo
         # puntajeportafolio := p1
@@ -86,8 +86,52 @@ class Utility(object):
         placementF_aep = np.zeros(self.p1.shape[0])
         #placement_corr = np.zeros(self.p1.shape[0])
         
-        # " Treatment "
-        #Restringir por placement ... Tramo asimilación 2016.
+        """
+        #initial placement 1
+        placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] >= 2.75) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] >= 2.75) ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 1.88) ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 1.88) ] = 3
+        placementF[(initial_p == 1) & (tscores[0] >= 3.01)] = 2
+        
+        #initial placement 2
+        placementF[(initial_p == 2) & (tscores[0] <= 2.25)] = 2
+        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
+        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & ((tscores[1] >= 2.75) & (tscores[1] <= 3.38)) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & ((tscores[1] >= 3.39) )] = 4
+        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & ((tscores[1] >= 1.88) & (tscores[1] <= 2.74)) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 2.75)  ] = 4
+        placementF[(initial_p == 2) & (tscores[0] >= 3.01)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & (tscores[0] >= 3.01)  & (tscores[1] >= 1.88) ] = 4
+        
+        #initial placement 3
+        placementF[(initial_p == 3) & (tscores[0] <= 2.25)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] >= 3.98)] = 4
+        placementF[(initial_p == 3) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 2.75)] = 4
+        placementF[(initial_p == 3) & (tscores[0] >= 3.01) & (tscores[1] <= 1.87)] = 3
+        placementF[(initial_p == 3) & (tscores[0] >= 3.01) & (tscores[1] >= 1.88)] = 4
+        
+       #initial placement 4
+        placementF[(initial_p == 4) & (tscores[0] <= 2.5)] = 4
+        placementF[(initial_p == 4) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 3.38)] = 4
+        placementF[(initial_p == 4) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 3.39)] = 5
+        placementF[(initial_p == 4) & (tscores[0] >= 3.01) & (tscores[1] <= 2.74)] = 4
+        placementF[(initial_p == 4) & (tscores[0] >= 3.01) & (tscores[1] >= 2.75)] = 5
+        
+        #initial placement 5
+        placementF[(initial_p == 5)] = 5
+        """
+        
+        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
+        
+        
         placementF[(self.years < 4)]=1
         placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2 
         placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
@@ -150,10 +194,14 @@ class Utility(object):
         placementF[(self.years >= 12) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
         placementF[(self.years >= 12) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=4
         
+        
         placementF[(initial_p == 2) & (placementF <= 1)]=2
         placementF[(initial_p == 3) & (placementF <= 2)]=3
         placementF[(initial_p == 4) & (placementF <= 3)]=4
         placementF[(initial_p == 5) & (placementF <= 4)]=5
+        
+        
+
         
         # " Control: AEP "
         placementF_aep[(tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
@@ -541,19 +589,17 @@ class Utility(object):
     
         eps = np.random.randn(self.N)*self.param.betas[3]
         
-        h =  self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
-            self.param.betas[4]*self.years + self.param.betas[5]*p0_past + eps
+        h_treated =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
+            self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
+
+        eps = np.random.randn(self.N)*self.param.betas_control[1]
+
+        h_control =  self.param.betas_control[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
+            self.param.betas[4]*self.years/10  + eps
         
 
-        return np.exp(h)
+        return [h_treated,h_control]
     
-    def measure_simce(self,h):
-        """
-        This functions yields SIMCE assuming no measurement error
-        """
-        
-        return self.param.betas[0] + np.log(h)
-
     def t_test(self,effort):
         """
         takes initial scores, effort and experience
@@ -581,36 +627,34 @@ class Utility(object):
         effort_h = d_effort_t2 + d_effort_t3
         
        
-        pb = []
-        pb_potential = []
+        pb_treated = []
+        pb_control = []
 
            
         for j in range(2):
             
             shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
             
-            pb.append(self.param.alphas[j][0] + \
+            pb_treated.append(self.param.alphas[j][0] + \
                      self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
                          self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
                              shock)
-
-                
-            pb_potential.append(self.param.alphas[j][0] + \
-                                self.param.alphas[j][5]*p0_past)
             
+            shock = np.random.normal(0, self.param.alphas_control[j][1], p1v1_past.shape)
+            
+            pb_control.append(self.param.alphas_control[j][0] + \
+                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
+                         self.param.alphas[j][3]*self.years/10  + \
+                             shock)              
 
-        
-        pv1 = ((1/(1+np.exp(-pb[0]))) + (1/3))*3
-        pv2 = ((1/(1+np.exp(-pb[1]))) + (1/3))*3
+          
 
-        p = [pv1, pv2]
+        p_treated = [((1/(1+np.exp(-pb_treated[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_treated[1]))) + (1/3))*3]
+        p_control = [((1/(1+np.exp(-pb_control[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_control[1]))) + (1/3))*3]
         
-        pv1_pot = ((1/(1+np.exp(-pb_potential[0]))) + (1/3))*3
-        pv2_pot = ((1/(1+np.exp(-pb_potential[1]))) + (1/3))*3
-        
-        pb_pot = [pv1_pot,pv2_pot]
+
                 
-        return [p,pb_pot]
+        return [p_treated,p_control]
 
     def utility(self, income, effort, h):
         """
@@ -629,8 +673,10 @@ class Utility(object):
         effort_h = d_effort_t2 + d_effort_t3
         
         income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
+
+        simce = h[0]*self.treatment + h[1]*(1-self.treatment)
          
-        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*np.log(h) 
+        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*simce
         
         #mu_c = -0.5
         #ut_h = self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h
