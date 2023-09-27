@@ -4,7 +4,7 @@ Created on Wed Dec  9 11:28:07 2020
 
 @author: pjac2
 
-exec(open("/home/jrodriguez/teachers/codes/master_estimate.py").read())
+exec(open("/home/jrodriguezo/teachers/codes/master_estimate.py").read())
 
 """
 
@@ -20,9 +20,10 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\ExpSIMCE")
 #sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
+sys.path.append("/home/jrodriguezo/teachers/codes")
 import time
 import utility as util
 import parameters as parameters
@@ -32,15 +33,18 @@ import estimate as est
 
 np.random.seed(123)
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v28.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v37.npy")
+
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
+#moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
+moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_new.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-data = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+data = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
 
 # Reading the data in pkl extension.
@@ -75,7 +79,7 @@ catPrueba = np.array(data['cat_test'])
 
 # TRAME #
 #Recover initial placement from data (2016) 
-TrameI = np.array(data['trame'])
+TrameI = np.array(data['tramo_a2016'])
 
 # TYPE SCHOOL #
 typeSchool = np.array(data['typeschool'])
@@ -93,13 +97,16 @@ AEP_priority = np.array(data['priority_aep'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-      betas_nelder[3], betas_nelder[4]],
-     [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-      betas_nelder[8], betas_nelder[9]]]
+alphas = [[betas_nelder[0], 0.6,0,-0.05,
+         betas_nelder[3], betas_nelder[4]],
+        [betas_nelder[5], 0,0.8,-0.05,
+        betas_nelder[8], betas_nelder[9]]]
+        
+betas = [-0.6, betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14]*10,betas_nelder[15]]
+gammas = [-0.22,-0.22,0.1]
 
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12] ,betas_nelder[13],betas_nelder[14],0.05]
-gammas = [betas_nelder[15],betas_nelder[16],betas_nelder[17]]
+alphas_control = [[0,betas_nelder[3]],[0,betas_nelder[8]]]
+betas_control = [-0.8,betas_nelder[13]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -149,15 +156,14 @@ pri = [48542,66609,115151]
 priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+param0 = parameters.Parameters(alphas,betas,gammas,alphas_control,betas_control,hw,porc,pro,pol,AEP,priori)
 
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
+#ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
+ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
 
 
-#var_cov = np.load("/home/jrodriguez/teachers/codes/var_cov.npy")
-#w_matrix = np.linalg.inv(var_cov) 
 
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 for j in range(ses_opt.shape[0]):
@@ -202,6 +208,12 @@ beta_16 = output_me.x[15]
 beta_17 = output_me.x[16]
 beta_18 = output_me.x[17]
 beta_19 = output_me.x[18]
+beta_20 = output_me.x[19]
+beta_21 = np.exp(output_me.x[20])
+beta_22 = output_me.x[21]
+beta_23 = np.exp(output_me.x[22])
+beta_24 = output_me.x[23]
+beta_25 = output_me.x[24]
 
 
 
@@ -212,11 +224,14 @@ betas_opt_me = np.array([beta_1, beta_2,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
-	beta_16,beta_17,beta_18,beta_19])
+	beta_16,beta_17,beta_18,beta_19,beta_20,beta_21,beta_22,beta_23,
+    beta_24,beta_25])
                         
 
 
-np.save('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v38.npy',betas_opt_me)
+
+
 
 """
 ##this is to check if value function coincides##
