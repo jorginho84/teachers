@@ -5,9 +5,7 @@ Created on Mon Jan 25 17:33:39 2021
 
 @author: jorge-home
 
-This code computes fit analysis
-
-exec(open("/home/jrodriguezo/teachers/codes/fit.py").read())
+This code computes fit anaylisis
 
 """
 #from __future__ import division #omit for python 3.x
@@ -22,9 +20,8 @@ from scipy.optimize import fmin_bfgs
 from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
-#sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
+sys.path.append("/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\WageError")
-sys.path.append("/home/jrodriguezo/teachers/codes")
 #import gridemax
 import time
 #import int_linear
@@ -41,24 +38,22 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-#betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v40.npy")
+betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v38.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
 moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_new.npy")
-#moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_new.npy")
+
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
 #data= pd.read_pickle("data_pythonv.pkl")
 data = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-#data = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
 
 
 #ses_opt = np.load("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy")
 ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_new.npy")
-#ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
+
 
 # TREATMENT #
 treatment = np.array(data['d_trat'])
@@ -103,13 +98,13 @@ N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
 alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-             betas_nelder[3], betas_nelder[4]],
-            [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-            betas_nelder[8], betas_nelder[9]]]
-            
+         betas_nelder[3], betas_nelder[4]],
+        [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+        betas_nelder[8], betas_nelder[9]]]
+        
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
-    
+
 alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
 betas_control = [betas_nelder[23],betas_nelder[24]]
 
@@ -183,15 +178,21 @@ w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 
 
 for j in range(ses_opt.shape[0]):
-    w_matrix[j,j] = ses_opt[j]**(-2)
+    w_matrix[j,j] = 1/ses_opt[j]**(2)
     
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
                  typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,priotity,rural_rbd,locality, AEP_priority, \
                  w_matrix,moments_vector)
+    
+#bienniumtwoFalse = years/2
+#biennium = np.floor(bienniumtwoFalse)
+#biennium[biennium>15]=15
 
        
        
+corr_data = output_ins.simulation(50,modelSD)
+
 beta0 = np.array([param0.alphas[0][0],
                           param0.alphas[0][1],
                           param0.alphas[0][3],  
@@ -215,12 +216,11 @@ beta0 = np.array([param0.alphas[0][0],
                           np.log(param0.alphas_control[0][1]),
                           param0.alphas_control[1][0],
                           np.log(param0.alphas_control[1][1]),
-                          param0.betas_control[0],
-                          param0.betas_control[1]])
+                          param0.betas[0],
+                          param0.betas[1]])
 
 qw = output_ins.objfunction(beta0)
 
-corr_data = output_ins.simulation(50,modelSD)
 sim = np.array([corr_data['Corr Simce and experience'],
             corr_data['Corr Portfolio and experience'],
             corr_data['Corr STEI and experience'],
@@ -247,16 +247,13 @@ sim = np.array([corr_data['Corr Simce and experience'],
             corr_data['Share Portfolio > 2.5 (control)'],
             corr_data['Share STEI > 2.74 (control)']])
 
-x_vector = moments_vector - sim 
+x_vector = sim - moments_vector
 
 q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
-
-
-q_w2 = np.sum((x_vector**2/ses_opt**2))
+qw = np.sum(x_vector**2/ses_opt**2)
 
 
 with open('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/Results/fit_table.tex','w') as f:
-#with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'\footnotesize{'+'\n')
     f.write(r'\begin{tabular}{llccccc}'+'\n')
     f.write(r'\toprule'+'\n')

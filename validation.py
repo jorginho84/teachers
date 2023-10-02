@@ -4,6 +4,8 @@ Created on Thu Oct 14 11:12:06 2021
 
 This .py generate two figures comparing simulated and data-based att across initial placement and distance to the performance cutoff
 
+exec(open("/home/jrodriguezo/teachers/codes/validation.py").read())
+
 """
 
 from __future__ import division
@@ -19,17 +21,16 @@ from joblib import Parallel, delayed
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+#sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
+sys.path.append("/home/jrodriguezo/teachers/codes")
 #import gridemax
 import time
 #import int_linear
-import between
 import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-from utility_counterfactual_att import Count_att
-import simdata_c as sdc
+from utility_counterfactual_att_2 import Count_att_2
 #import pybobyqa
 #import xlsxwriter
 from openpyxl import Workbook 
@@ -63,7 +64,9 @@ np.random.seed(123)
 #
 #----------------------------------------------#
 #----------------------------------------------#
-data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+#data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
+data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/FINALdata.dta')
+
 
 
 # first drop Stata 1083190 rows 
@@ -146,10 +149,12 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 #----------------------------------------------#
 
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v38.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v40.npy")
 
 #Only treated teachers
-data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+#data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+data_1 = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
 data = data_1[data_1['d_trat']==1]
 N = np.array(data['experience']).shape[0]
 
@@ -251,7 +256,7 @@ for x in range(0,2):
     param0 = parameters.Parameters(alphas,betas,gammas,alphas_control, betas_control,
                                    hw,porc,pro,pol,AEP,priori)
     
-    model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+    model = Count_att_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
     
     # SIMULACIÓN SIMDATA
@@ -437,7 +442,7 @@ y_sim_data = results.params.inter + results.params.inter_xy*x_points + results.p
 
 #a = results.params.inter.round(8)
 
-#ATT data vs ATT model
+#ATT data vs ATT model by categories
 x_points_data = np.array([0.1,0.25,0.35,0.5,1])
 fig, ax=plt.subplots()
 plot1 = ax.plot(x_points_data,inter_data,'bo',alpha=.7,label = 'ATT data')
@@ -460,6 +465,26 @@ plt.tight_layout()
 plt.show()
 #fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
 
+
+#ATT data vs ATT overall
+x_points_data = np.array([0.1,0.25,0.35,0.5,1])
+fig, ax=plt.subplots()
+plot1 = ax.plot(x_points_data,inter_data,'bo',alpha=.7,label = 'ATT data')
+plot2 = ax.errorbar(x_points_data, inter_data, yerr=se_data, fmt='none', color='k')
+plot3 = ax.plot(x_points_data+0.01,y,'o',alpha = .8, color='sandybrown', label = 'ATT model')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.26)
+#ax.legend(fontsize = 13)
+ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
+plt.tight_layout()
+plt.show()
 
 #ATT data vs ATT model: comparing curvature
 fig, ax=plt.subplots()

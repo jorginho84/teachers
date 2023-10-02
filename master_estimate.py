@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v37.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v39.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -97,16 +97,16 @@ AEP_priority = np.array(data['priority_aep'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], 0.6,0,-0.05,
-         betas_nelder[3], betas_nelder[4]],
-        [betas_nelder[5], 0,0.8,-0.05,
-        betas_nelder[8], betas_nelder[9]]]
-        
-betas = [-0.6, betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14]*10,betas_nelder[15]]
-gammas = [-0.22,-0.22,0.1]
-
-alphas_control = [[0,betas_nelder[3]],[0,betas_nelder[8]]]
-betas_control = [-0.8,betas_nelder[13]]
+alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+             betas_nelder[3], betas_nelder[4]],
+            [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+            betas_nelder[8], betas_nelder[9]]]
+            
+betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
+gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+    
+alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
+betas_control = [betas_nelder[23],betas_nelder[24]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -229,28 +229,33 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v38.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v40.npy',betas_opt_me)
 
 
 
 """
-##this is to check if value function coincides##
+##this is to check if value function coincides. It does.##
 
 qw = output_ins.objfunction(output_me.x)
 
 
-betas_nelder_2  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v24.npy")
+betas_nelder_2  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v39.npy")
 
 alphas = [[betas_nelder_2[0], betas_nelder_2[1],0,betas_nelder_2[2],
-      betas_nelder_2[3], betas_nelder_2[4]],
-     [betas_nelder_2[5], 0,betas_nelder_2[6],betas_nelder_2[7],
-      betas_nelder_2[8], betas_nelder_2[9]]]
-
-betas = [betas_nelder_2[10], betas_nelder_2[11], betas_nelder_2[12] ,betas_nelder_2[13],betas_nelder_2[14]]
-gammas = [betas_nelder_2[15],betas_nelder_2[16],betas_nelder_2[17]]
+             betas_nelder_2[3], betas_nelder_2[4]],
+            [betas_nelder_2[5], 0,betas_nelder_2[6],betas_nelder_2[7],
+            betas_nelder_2[8], betas_nelder_2[9]]]
 
 
-param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
+            
+betas = [betas_nelder_2[10], betas_nelder_2[11], betas_nelder_2[12],betas_nelder_2[13],betas_nelder_2[14],betas_nelder_2[15]]
+gammas = [betas_nelder_2[16],betas_nelder_2[17],betas_nelder_2[18]]
+    
+alphas_control = [[betas_nelder_2[19],betas_nelder_2[20]],[betas_nelder_2[21],betas_nelder_2[22]]]
+betas_control = [betas_nelder_2[23],betas_nelder_2[24]]
+
+
+param0 = parameters.Parameters(alphas,betas,gammas,alphas_control,betas_control,hw,porc,pro,pol,AEP,priori)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,
                      TrameI,priotity,rural_rbd,locality, AEP_priority)
@@ -279,11 +284,20 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.betas[2],
                           param0.betas[3],
                           param0.betas[4],
+                          param0.betas[5],
                           param0.gammas[0],
                           param0.gammas[1],
-                          param0.gammas[2]])
+                          param0.gammas[2],
+                          param0.alphas_control[0][0],
+                          np.log(param0.alphas_control[0][1]),
+                          param0.alphas_control[1][0],
+                          np.log(param0.alphas_control[1][1]),
+                          param0.betas_control[0],
+                          param0.betas_control[1]])
 
-qw = output_ins.objfunction(beta0)
+
+
+q_w2 = output_ins.objfunction(beta0)
 
 
 
