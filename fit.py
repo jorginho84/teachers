@@ -41,24 +41,24 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
-betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-#betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v40.npy")
+#betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v41.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
-moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_new.npy")
-#moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_new.npy")
+#moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_new.npy")
+moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_new.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
 #data= pd.read_pickle("data_pythonv.pkl")
-data = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-#data = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
+#data = pd.read_stata('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
+data = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
 
 
 #ses_opt = np.load("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy")
-ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_new.npy")
-#ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
+#ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_new.npy")
+ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
 
 # TREATMENT #
 treatment = np.array(data['d_trat'])
@@ -255,8 +255,8 @@ q_w = np.dot(np.dot(np.transpose(x_vector),w_matrix),x_vector)
 q_w2 = np.sum((x_vector**2/ses_opt**2))
 
 
-with open('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/Results/fit_table.tex','w') as f:
-#with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
+#with open('/Users/jorge-home/Library/CloudStorage/Dropbox/Research/teachers-reform/teachers/Results/fit_table.tex','w') as f:
+with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'\footnotesize{'+'\n')
     f.write(r'\begin{tabular}{llccccc}'+'\n')
     f.write(r'\toprule'+'\n')

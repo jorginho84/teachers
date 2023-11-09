@@ -98,9 +98,7 @@ class Count_att_2(Utility):
         
        
         pb_treated = []
-        pb_control = []
-
-           
+                   
         for j in range(2):
             
             shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)

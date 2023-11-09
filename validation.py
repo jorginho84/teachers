@@ -150,7 +150,7 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v40.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v41.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -463,7 +463,7 @@ plt.xticks(fontsize=12)
 ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
 plt.tight_layout()
 plt.show()
-#fig.savefig('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/Results/counterfactual1_v2.pdf', format='pdf')
+fig.savefig('/home/jrodriguezo/teachers/results/att_data_categories.pdf', format='pdf')
 
 
 #ATT data vs ATT overall
@@ -485,6 +485,7 @@ plt.xticks(fontsize=12)
 ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
 plt.tight_layout()
 plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/att_data_model_points.pdf', format='pdf')
 
 #ATT data vs ATT model: comparing curvature
 fig, ax=plt.subplots()
@@ -503,6 +504,7 @@ plt.xticks(fontsize=12)
 ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
 plt.tight_layout()
 plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/att_data_model_quadratic.pdf', format='pdf')
 
 
 #SIMCE (1,0)
@@ -563,6 +565,7 @@ plt.xticks(fontsize=12)
 ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
 plt.tight_layout()
 plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/effect_effort.pdf', format='pdf')
 
 
 

@@ -85,8 +85,10 @@ class Utility(object):
         placementF = np.zeros(self.p1.shape[0])
         placementF_aep = np.zeros(self.p1.shape[0])
         #placement_corr = np.zeros(self.p1.shape[0])
+
+        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
         
-        """
+        
         #initial placement 1
         placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
         placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
@@ -127,82 +129,7 @@ class Utility(object):
         
         #initial placement 5
         placementF[(initial_p == 5)] = 5
-        """
-        
-        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
-        
-        
-        placementF[(self.years < 4)]=1
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2 
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=2
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[((self.years >= 4) & (self.years < 8)) & (tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
-        placementF[((self.years >= 4) & (self.years < 8)) & (tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=1
-        placementF[((self.years >= 4) & (self.years < 8)) & (tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=1
-        placementF[((self.years >= 4) & (self.years < 8)) & (tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=1
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
-        placementF[((self.years >= 4) & (self.years < 8)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=4
-        placementF[((self.years >= 8) & (self.years < 12)) & (tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
-        placementF[((self.years >= 8) & (self.years < 12)) & (tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=1
-        placementF[((self.years >= 8) & (self.years < 12)) & (tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=1
-        placementF[((self.years >= 8) & (self.years < 12)) & (tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=1
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
-        placementF[((self.years >= 8) & (self.years < 12)) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
-        placementF[(self.years >= 12) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=5
-        placementF[(self.years >= 12) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=5
-        placementF[(self.years >= 12) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=5
-        placementF[(self.years >= 12) & (tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=1
-        placementF[(self.years >= 12) & (tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=1
-        placementF[(self.years >= 12) & (tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=1
-        placementF[(self.years >= 12) & (tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=1
-        placementF[(self.years >= 12) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>=2) & (tscores[0]<=2.25)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=3
-        placementF[(self.years >= 12) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=3
-        placementF[(self.years >= 12) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=3
-        placementF[(self.years >= 12) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87))]=2
-        placementF[(self.years >= 12) & ((tscores[0]>2.25) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4))]=4
-        placementF[(self.years >= 12) & ((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38))]=4
-        placementF[(self.years >= 12) & ((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74))]=4
-        
-        
-        placementF[(initial_p == 2) & (placementF <= 1)]=2
-        placementF[(initial_p == 3) & (placementF <= 2)]=3
-        placementF[(initial_p == 4) & (placementF <= 3)]=4
-        placementF[(initial_p == 5) & (placementF <= 4)]=5
-        
-        
-
-        
+                
         # " Control: AEP "
         placementF_aep[(tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
         placementF_aep[(tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=6
