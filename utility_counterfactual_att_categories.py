@@ -16,7 +16,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 from utility import Utility
 
 
-class Count_att_2(Utility):
+class Count_att_2_cat(Utility):
     """ 
 
     This class modifies the economic environment of the agent
@@ -115,6 +115,73 @@ class Count_att_2(Utility):
 
                 
         return [p_treated,p_treated]
+
+    def placement(self,ttscores,initial_p):
+
+        # *I want to replicate the typecasting of the teachers to the tramo
+        # puntajeportafolio := p1
+        # Puntajepruebaconocimientosespecí := self.p2
+        # The tranche nameXY is defined how X: row nad Y:column
+        # We have {'INICIAL': 1, 'TEMPRANO': 2, 'AVANZADO': 3 , 'EXPERTO I': 4, 'EXPERTO II': 5}
+
+        # Inicializar vector initial_p
+        #initial_p = np.array(['']*(len(self.p1)))
+        placementF = np.zeros(self.p1.shape[0])
+        placementF_aep = np.zeros(self.p1.shape[0])
+        #placement_corr = np.zeros(self.p1.shape[0])
+
+        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
+        
+        #Treatment group: initial placement does not matter
+
+        #E 
+        placementF[(tscores[0] <= 1.99)] = 1
+
+        #D
+        placementF[((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
+        placementF[((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] > 2.74) ] = 2
+
+        #C
+        placementF[((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
+        placementF[((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 2
+        placementF[((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 2.74) & (tscores[1] <= 3.38)) ] = 3
+        placementF[((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.39) ] = 4
+
+        #B
+        placementF[((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
+        placementF[((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74))] = 3
+        placementF[((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & ((tscores[1] > 2.74) & (tscores[1] <= 3.38))] = 4
+        placementF[((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 3.39) ] = 5
+
+        #A
+        placementF[(tscores[0] > 3.0)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(tscores[0] > 3.0)  & ((tscores[1] > 1.87) &  (tscores[1] <= 2.74)) ] = 4
+        placementF[(tscores[0] > 3.0)  & (tscores[1] > 2.74) ] = 5
+                
+        # " Control: AEP "
+        placementF_aep[(tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
+        placementF_aep[(tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=6
+        placementF_aep[(tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=6
+        placementF_aep[(tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6 
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=7
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=8
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=7
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=8
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=9
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=8
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=9
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=9
+        np.warnings.filterwarnings('ignore')
+
+        
+        
+
+        #return [placementF,placement_corr,placementF_aep]
+        return [placementF,placementF_aep]
 
     def income(self, initial_p):
         """

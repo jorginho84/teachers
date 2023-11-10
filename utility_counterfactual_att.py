@@ -1,20 +1,8 @@
-    #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Thu Mar 25 13:31:28 2021
-
-@author: jorge-home
-"""
-
-
-# -*- coding: utf-8 -*-
-"""
-
-
--Utility class: takes parameters, X's, and given choices
-computes utility
-
-
+Utility class: takes parameters, X's, and given choices
+computes utility. It modifies the original utility by
+forcing all agents to go through the same production
+functions
 """
 # from __future__ import division #omit for python 3.x
 import numpy as np
@@ -28,7 +16,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 from utility import Utility
 
 
-class Count_att(Utility):
+class Count_att_2(Utility):
     """ 
 
     This class modifies the economic environment of the agent
@@ -44,8 +32,90 @@ class Count_att(Utility):
         
         Utility.__init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
                  catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority)
+
+
+
+    def student_h(self, effort):
+        """
+        takes student initial HC and teacher effort to compute achievement
+
+        return: student test score, where effort_low = 0
+
+        """
+        d_effort_t1 = effort == 1
+        d_effort_t2 = effort == 2
+        d_effort_t3 = effort == 3
         
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
+        
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
+     
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        
+
     
+        eps = np.random.randn(self.N)*self.param.betas[3]
+        
+        h_treated =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
+            self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
+
+                
+
+        return [h_treated,h_treated]
+    
+    def t_test(self,effort):
+        """
+        takes initial scores, effort and experience
+
+        returns: test scores and portfolio
+
+        """
+        
+ 
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
+     
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        
+        d_effort_t1 = effort == 1
+        d_effort_t2 = effort == 2
+        d_effort_t3 = effort == 3
+        
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
+        
+       
+        pb_treated = []
+                   
+        for j in range(2):
+            
+            shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
+            
+            pb_treated.append(self.param.alphas[j][0] + \
+                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
+                         self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
+                             shock)
+           
+
+        p_treated = [((1/(1+np.exp(-pb_treated[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_treated[1]))) + (1/3))*3]
+        
+        
+
+                
+        return [p_treated,p_treated]
+
     def income(self, initial_p):
         """
         takes treatment dummy, teach test scores, 
@@ -211,13 +281,14 @@ class Count_att(Utility):
     
             
         # " SUM OF TOTAL SALARY "
+
         
-        #Experiencia assignment: appears twice following system's rules.
         salary1 = np.where((initial_p_2==1) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPinitial,prioirtyap,localAssig_1]), salary2d)
-        salary3 = np.where((initial_p_2==1) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPinitial,prioirtyap,localAssig_0]), salary2d)
+        salary3 = np.where((initial_p_2==1) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRP,ATDPinitial,prioirtyap,localAssig_0]), salary2d)
         
         salary5 = np.where((initial_p_2==2) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPearly,prioirtyap,localAssig_1]), salary2d)
         salary7 = np.where((initial_p_2==2) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPearly,prioirtyap,localAssig_0]), salary2d)
+
         
         salary9 = np.where((initial_p_2==3) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_1]), salary2d)
         salary11 = np.where((initial_p_2==3) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_0]), salary2d)
@@ -228,63 +299,32 @@ class Count_att(Utility):
         salary17 = np.where((initial_p_2==5) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_1]), salary2d)
         salary19 = np.where((initial_p_2==5) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
 
+        #Control: following initial placement
+        initial_p = self.initial()
+
+        salary21 = np.where((initial_p==1) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPinitial,prioirtyap,localAssig_1]), salary2d)
+        salary22 = np.where((initial_p==1) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRP,ATDPinitial,prioirtyap,localAssig_0]), salary2d)
         
+        salary23 = np.where((initial_p==2) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPearly,prioirtyap,localAssig_1]), salary2d)
+        salary24 = np.where((initial_p==2) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPearly,prioirtyap,localAssig_0]), salary2d)
+
+        salary25 = np.where((initial_p==3) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_1]), salary2d)
+        salary26 = np.where((initial_p==3) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_0]), salary2d)
+
+        salary27 = np.where((initial_p==4) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert1,ATDPexpert1fixed,prioirtyap,localAssig_1]), salary2d)
+        salary28 = np.where((initial_p==4) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert1,ATDPexpert1fixed,prioirtyap,localAssig_0]), salary2d)
+
+        salary29 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_1]), salary2d)
+        salary30 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
+        
+            
         salary = sum([salary1,salary3,salary5,salary7,salary9,salary11,salary13,salary15,salary17,salary19])
-
-        ####Control group: not evaluated yet, salary is fixed at baseline##
-                
-        initial_p_base = self.initial()
-        
-        ATDPinitial = np.where((initial_p_base==1) , (Proinitial/15)*(self.HOURS/full_contract)*biennium, ATDPinitial2)
-        ATDPearly = np.where((initial_p_base==2) , (ProEarly/15)*(self.HOURS/full_contract)*biennium, ATDPearly2)
-        ATDPadvanced = np.where((initial_p_base==3) , (Proadvanced/15)*(self.HOURS/full_contract)*biennium, ATDPadvanced2)
-        ATDPadvancedfixed = np.where((initial_p_base==3) , (Proadvancedfixed)*(self.HOURS/full_contract), ATDPadvancedfixed2)
-        ATDPexpert1 = np.where((initial_p_base==4) , (Proexpert1/15)*(self.HOURS/44)*biennium, ATDPexpert12)
-        ATDPexpert1fixed = np.where((initial_p_base==4) , (Proexpert1fixed)*(self.HOURS/full_contract), ATDPexpert1fixed2)
-        ATDPexpert2 = np.where((initial_p_base==5) , (Proexpert2/15)*(self.HOURS/full_contract)*biennium, ATDPexpert22)
-        ATDPexpert2fixed = np.where((initial_p_base==5), (Proexpert2fixed)*(self.HOURS/full_contract), ATDPexpert2fixed2)
-        
-        prioirtyap1 = np.where(((self.priotity >= 0.6) & (self.priotity < 0.8)) & (initial_p_base==1), ((ATDPinitial+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[0]), prioirtyap11)
-        prioirtyap2 = np.where(((self.priotity >= 0.6) & (self.priotity < 0.8)) & (initial_p_base==2), (((ATDPearly+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[0])), prioirtyap22)
-        prioirtyap3 = np.where(((self.priotity >= 0.6) & (self.priotity < 0.8)) & (initial_p_base==3), ((ATDPadvanced+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[0]), prioirtyap33)
-        prioirtyap4 = np.where(((self.priotity >= 0.6) & (self.priotity < 0.8)) & (initial_p_base==4), ((ATDPexpert1+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[0]), prioirtyap44)
-        prioirtyap5 = np.where(((self.priotity >= 0.6) & (self.priotity < 0.8)) & (initial_p_base==5), ((ATDPexpert2+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[0]), prioirtyap55)
-        prioirtyap51 = np.where((self.priotity >= 0.8) & (initial_p_2==1), ((ATDPinitial+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[1]), prioirtyap661)
-        prioirtyap52 = np.where((self.priotity >= 0.8) & (initial_p_2==2), ((ATDPearly+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[1]), prioirtyap771)
-        prioirtyap6 = np.where((self.priotity >= 0.8) & (initial_p_2==3), ((ATDPadvanced+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[2]), prioirtyap66)
-        prioirtyap7 = np.where((self.priotity >= 0.8) & (initial_p_2==4), ((ATDPexpert1+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[2]), prioirtyap77)
-        prioirtyap8 = np.where((self.priotity >= 0.8) & (initial_p_2==5), ((ATDPexpert2+ExpTrameE)*0.2)+((self.HOURS/full_contract)*self.param.priori[2]), prioirtyap88)
-        prioirtyap91 = np.where(((self.priotity >= 0.45) & (self.priotity < 0.6))  & (self.rural_rbd==1) & (initial_p_base==1), (ATDPinitial*0.1), prioirtyap991)
-        prioirtyap92 = np.where(((self.priotity >= 0.45) & (self.priotity < 0.6))  & (self.rural_rbd==1) & (initial_p_base==2), (ATDPearly*0.1), prioirtyap992)
-        prioirtyap93 = np.where(((self.priotity >= 0.45) & (self.priotity < 0.6))  & (self.rural_rbd==1) & (initial_p_base==3), (ATDPadvanced*0.1), prioirtyap993)
-        prioirtyap94 = np.where(((self.priotity >= 0.45) & (self.priotity < 0.6))  & (self.rural_rbd==1) & (initial_p_base==4), (ATDPexpert1*0.1), prioirtyap994)
-        prioirtyap95 = np.where(((self.priotity >= 0.45) & (self.priotity < 0.6))  & (self.rural_rbd==1) & (initial_p_base==5),(ATDPexpert2*0.1), prioirtyap995)
-        
-                
-        prioirtyap = sum([prioirtyap1,prioirtyap2,prioirtyap3,prioirtyap4,prioirtyap5,prioirtyap51,prioirtyap52\
-                          ,prioirtyap6,prioirtyap7,prioirtyap8,prioirtyap91,prioirtyap92,prioirtyap93,prioirtyap94,prioirtyap95])
-
-        
-        salary11 = np.where((initial_p_base==1) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPinitial,prioirtyap,localAssig_1]), salary2d)
-        salary31 = np.where((initial_p_base==1) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPinitial,prioirtyap,localAssig_0]), salary2d)
-        
-        salary51 = np.where((initial_p_base==2) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPearly,prioirtyap,localAssig_1]), salary2d)        
-        salary71 = np.where((initial_p_base==2) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPearly,prioirtyap,localAssig_0]), salary2d)
-        
-        salary91 = np.where((initial_p_base==3) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_1]), salary2d)
-        salary111 = np.where((initial_p_base==3) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_0]), salary2d)
-        
-        salary131 = np.where((initial_p_base==4) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert1,ATDPexpert1fixed,prioirtyap,localAssig_1]), salary2d)
-        salary151 = np.where((initial_p_base==4) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert1,ATDPexpert1fixed,prioirtyap,localAssig_0]), salary2d)
-        
-        salary171 = np.where((initial_p_base==5) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_1]), salary2d)
-        salary191 = np.where((initial_p_base==5) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
-
             
+        salary_pr = sum([salary21,salary22,salary23,salary24,salary25,salary26,salary27,salary28,salary29,salary30])
+        
+        #This is salary post-reform, for -2018 teachers
 
-            
-        salary_pr = sum([salary11,salary31,salary51,salary71,salary91,salary111,salary131,salary151,salary171,salary191])
-
-
+        #getting 4-year average salary
         return [salary, salary_pr]
+
 
