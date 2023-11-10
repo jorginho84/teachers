@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v40.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v42.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -229,7 +229,7 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v41.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v43.npy',betas_opt_me)
 
 
 
