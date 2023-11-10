@@ -4,7 +4,7 @@ Created on Thu Oct 14 11:12:06 2021
 
 This .py generates counterfactual experiment #1: a policy that eliminates progression in the system
 
-exec(open("/home/jrodriguezo/teachers/codes/validation.py").read())
+exec(open("/home/jrodriguezo/teachers/codes/count_experiment_1.py").read())
 
 """
 
@@ -30,7 +30,8 @@ import utility as util
 import parameters as parameters
 import simdata as sd
 import estimate as est
-from utility_counterfactual_att_categories import Count_att_2
+from utility_counterfactual_att import Count_att_2
+from utility_counterfactual_att_categories import Count_att_2_cat
 #import pybobyqa
 #import xlsxwriter
 from openpyxl import Workbook 
@@ -222,6 +223,44 @@ print ('')
 att_sim_original = simce[1] - simce[0]
 att_sim_count = simce[2] - simce[0]
 
-#aca voy: produce bar graphs across categories
+#Initial categorization
+initial_p = np.zeros(N)
+initial_p[(TrameI=='INICIAL')] = 1
+initial_p[(TrameI=='TEMPRANO')] = 2
+initial_p[(TrameI=='AVANZADO')] = 3
+initial_p[(TrameI=='EXPERTO I')] = 4
+initial_p[(TrameI=='EXPERTO II')] = 5
+
+
+#---------------------------------------------------------------#
+#Effects by initial categorization
+#---------------------------------------------------------------#
+
+y = np.zeros(5)
+y_c = np.zeros(5)
+x = [1,2,3,4,5]
+
+for j in range(5):
+	y[j] = np.mean(att_sim_original[initial_p == j + 1])
+	y_c[j] = np.mean(att_sim_count[initial_p == j + 1])
+
+fig, ax=plt.subplots()
+plot1 = ax.bar(x,y,color='b' ,alpha=.9, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att_sim_original)) + r'$\sigma$)')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.6, lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_sim_count)) + r'$\sigma$)')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Initial categorization', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(x, ['Initial', 'Early', 'Advanced', 'Expert I', 'Expert II'],fontsize=12)
+#ax.set_ylim(0,0.26)
+ax.legend(loc = 'upper left',fontsize = 13)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/att_count_categories.pdf', format='pdf')
+
 
 
