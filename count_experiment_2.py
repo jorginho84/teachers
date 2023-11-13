@@ -2,9 +2,9 @@
 """
 Created on Thu Oct 14 11:12:06 2021
 
-This .py generates counterfactual experiment #1: a policy that eliminates progression in the system
+This .py generates counterfactual experiment #2: a linear PFP.
 
-exec(open("/home/jrodriguezo/teachers/codes/count_experiment_1.py").read())
+exec(open("/home/jrodriguezo/teachers/codes/count_experiment_2.py").read())
 
 """
 
@@ -29,9 +29,10 @@ import time
 import utility as util
 import parameters as parameters
 import simdata as sd
+import simdata_c as sdc
 import estimate as est
 from utility_counterfactual_att import Count_att_2
-from utility_counterfactual_att_categories import Count_att_2_cat
+from utility_counterfactual_att_pfp import Count_att_2_pfp
 #import pybobyqa
 #import xlsxwriter
 from openpyxl import Workbook 
@@ -158,6 +159,7 @@ param0 = parameters.Parameters(alphas,betas,gammas,alphas_control, betas_control
 #List of choices across counterfactuals
 simce = []
 baseline_p = []
+income = []
 effort_p = []
 effort_t = []
 
@@ -165,48 +167,51 @@ effort_t = []
 #Original ATT
 for x in range(0,3):
 
-	
+   
 
 
     
-    # TREATMENT #
+   # TREATMENT #
 
-    if x <= 1:
-    	treatment = np.ones(N)*x
-    	 #Original STPD
-    	model = Count_att_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+   if x <= 1:
+      treatment = np.ones(N)*x
+       #Original STPD
+      model = Count_att_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
-    else:
-    	treatment = np.ones(N)
-    	model = Count_att_2_cat(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+   else:
+      treatment = np.ones(N)
+      model = Count_att_2_pfp(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
 
   
-    # SIMULACIÓN SIMDATA
+   # SIMULACIÓN SIMDATA
     
-    simce_sims = np.zeros((N,n_sim))
-    baseline_sims = np.zeros((N,n_sim,2))
-    effort_p_sims = np.zeros((N,n_sim))
-    effort_t_sims = np.zeros((N,n_sim)) 
+   simce_sims = np.zeros((N,n_sim))
+   baseline_sims = np.zeros((N,n_sim,2))
+   effort_p_sims = np.zeros((N,n_sim))
+   effort_t_sims = np.zeros((N,n_sim))
+
+   if x <= 1:
+      modelSD = sd.SimData(N,model)
+   else:
+      modelSD = sdc.SimDataC(N,model)
     
-    for j in range(n_sim):
-        modelSD = sd.SimData(N,model)
-        opt = modelSD.choice()
-        simce_sims[:,j] = opt['Opt Simce'][1-x]
-        effort_v1 = opt['Opt Effort']
-        d_effort_t1 = effort_v1 == 1
-        d_effort_t2 = effort_v1 == 2
-        d_effort_t3 = effort_v1 == 3
-        
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        effort_p_sims[:,j] = effort_m
-        effort_t_sims[:,j] = effort_h
+   for j in range(n_sim):
+      opt = modelSD.choice()
+      simce_sims[:,j] = opt['Opt Simce'][1-x]
+      effort_v1 = opt['Opt Effort']
+      d_effort_t1 = effort_v1 == 1
+      d_effort_t2 = effort_v1 == 2
+      d_effort_t3 = effort_v1 == 3
+      effort_m = d_effort_t1 + d_effort_t3
+      effort_h = d_effort_t2 + d_effort_t3
+      effort_p_sims[:,j] = effort_m
+      effort_t_sims[:,j] = effort_h
     
-    simce.append(np.mean(simce_sims,axis=1))
-    baseline_p.append(np.mean(baseline_sims,axis=1))
-    effort_p.append(np.mean(effort_p_sims,axis = 1))
-    effort_t.append(np.mean(effort_t_sims,axis = 1))    
+   simce.append(np.mean(simce_sims,axis=1))
+   baseline_p.append(np.mean(baseline_sims,axis=1))
+   effort_p.append(np.mean(effort_p_sims,axis = 1))
+   effort_t.append(np.mean(effort_t_sims,axis = 1))    
 
 
 
@@ -219,17 +224,9 @@ print ('')
 att_sim_original = simce[1] - simce[0]
 att_sim_count = simce[2] - simce[0]
 
-#Initial categorization
-initial_p = np.zeros(N)
-initial_p[(TrameI=='INICIAL')] = 1
-initial_p[(TrameI=='TEMPRANO')] = 2
-initial_p[(TrameI=='AVANZADO')] = 3
-initial_p[(TrameI=='EXPERTO I')] = 4
-initial_p[(TrameI=='EXPERTO II')] = 5
-
 
 #---------------------------------------------------------------#
-#Effects by initial categorization
+#Effects by distance to nearest cutoff (distance based on previous test scores)
 #---------------------------------------------------------------#
 
 y = np.zeros(5)
@@ -237,26 +234,29 @@ y_c = np.zeros(5)
 x = [1,2,3,4,5]
 
 for j in range(5):
-	y[j] = np.mean(att_sim_original[initial_p == j + 1])
-	y_c[j] = np.mean(att_sim_count[initial_p == j + 1])
+    y[j] = np.mean(att_sim_original[data['distance2']==j+1])
+    y_c[j] = np.mean(att_sim_count[data['distance2']==j+1])
 
 fig, ax=plt.subplots()
 plot1 = ax.bar(x,y,color='b' ,alpha=.9, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att_sim_original)) + r'$\sigma$)')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.6, lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_sim_count)) + r'$\sigma$)')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
-ax.set_xlabel(r'Initial categorization', fontsize=13)
+ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
 ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
-plt.xticks(x, ['Initial', 'Early', 'Advanced', 'Expert I', 'Expert II'],fontsize=12)
+plt.xticks(fontsize=12)
 #ax.set_ylim(0,0.26)
 ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-fig.savefig('/home/jrodriguezo/teachers/results/att_count_categories.pdf', format='pdf')
+fig.savefig('/home/jrodriguezo/teachers/results/att_count_pfp.pdf', format='pdf')
 
+
+    
+    
 
 

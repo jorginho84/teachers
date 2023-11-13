@@ -70,7 +70,7 @@ class SimData:
 
         teacher_scores = self.model.t_test(effort_v1)
         
-        placement = self.model.placement(teacher_scores[0],initial_p)
+        placement = self.model.placement(teacher_scores,initial_p)
         
         income = self.model.income(placement)
         

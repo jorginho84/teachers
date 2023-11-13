@@ -42,7 +42,7 @@ np.random.seed(123)
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v43.npy")
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
@@ -128,7 +128,7 @@ porc = [0.0338, 0.0333]
 
 
 #inflation adjustemtn: 2012Jan-2020Jan: 1.111
-Asig = [150000*1.111,100000*1.111,50000*1.111]
+Asig = [50000*1.111, 100000*1.111, 150000*1.111]
 AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 
 # *** This is withouth teaching career ***

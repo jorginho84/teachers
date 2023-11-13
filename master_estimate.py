@@ -129,8 +129,6 @@ porc = [0.0338, 0.0333]
 
 #inflation adjustemtn: 2012Jan-2020Jan: 1.111***
 qualiPesos = [72100*1.111, 24034*1.111, 253076, 84360] 
- 
-
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
 
 #inflation adjustemtn: 2012Jan-2020Jan: 1.111

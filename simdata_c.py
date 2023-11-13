@@ -39,15 +39,19 @@ class SimDataC:
         
 
         
+        initial_p = self.model.initial()
+        
         teacher_scores = self.model.t_test(effort)
         
-        placement = self.model.placement(teacher_scores[0])
+      
+        placement = self.model.placement(teacher_scores,initial_p)
         
-        income = self.model.income(placement,teacher_scores[0])
+        income = self.model.income(placement,teacher_scores)
+        
         
         student_h = self.model.student_h(effort)
         
-                
+        
         return self.model.utility(income, effort, student_h)
     
     
@@ -70,22 +74,21 @@ class SimDataC:
         
         effort_v1 = np.argmax(u_v2, axis=1)
         
+        initial_p = self.model.initial()
+
         teacher_scores = self.model.t_test(effort_v1)
         
-        placement = self.model.placement(teacher_scores[0])
+        placement = self.model.placement(teacher_scores,initial_p)
         
-        income = self.model.income(placement,teacher_scores[0])
+        income = self.model.income(placement,teacher_scores)
         
         student_h = self.model.student_h(effort_v1)
-        
-        simce = self.model.measure_simce(student_h)
-        
+                
         utility_max = self.model.utility(income, effort_v1, student_h)
         
                               
-        return {'Opt Effort': effort_v1, 'Opt Simce': simce,
+        return {'Opt Effort': effort_v1, 'Opt Simce': student_h,
                 'Opt Placement': placement, 'Opt Income': income,
-                'Opt Teacher': teacher_scores[0], 'Potential scores': teacher_scores[1],
-                'Opt Utility': utility_max, 'Opt Simce': simce}
+                'Opt Teacher': teacher_scores, 'Opt Utility': utility_max}
     
     
