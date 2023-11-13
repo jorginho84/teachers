@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v42.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v43.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -134,7 +134,7 @@ qualiPesos = [72100*1.111, 24034*1.111, 253076, 84360]
 pro = [qualiPesos[0]/dolar, qualiPesos[1]/dolar, qualiPesos[2]/dolar, qualiPesos[3]/dolar]
 
 #inflation adjustemtn: 2012Jan-2020Jan: 1.111
-Asig = [150000*1.111,100000*1.111,50000*1.111]
+Asig = [50000*1.111, 100000*1.111, 150000*1.111]
 AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar]
 
 #* Progression component by tranche *
@@ -229,7 +229,7 @@ betas_opt_me = np.array([beta_1, beta_2,
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v43.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy',betas_opt_me)
 
 
 

@@ -150,7 +150,7 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v42.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v43.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -221,7 +221,7 @@ for x in range(0,2):
     porc = [0.0338, 0.0333]
     
     #inflation adjustemtn: 2012Jan-2020Jan: 1.111
-    Asig = [150000*1.111,100000*1.111,50000*1.111]
+    Asig = [50000*1.111, 100000*1.111, 150000*1.111]
     AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
     
     # *** This is withouth teaching career ***
@@ -310,6 +310,11 @@ initial_p[(TrameI=='TEMPRANO')] = 2
 initial_p[(TrameI=='AVANZADO')] = 3
 initial_p[(TrameI=='EXPERTO I')] = 4
 initial_p[(TrameI=='EXPERTO II')] = 5
+
+
+print ('')
+print ('ATT initial', np.mean(att_sim[initial_p == 1]))
+print ('')
 
 print ('')
 print ('ATT early', np.mean(att_sim[initial_p == 2]))

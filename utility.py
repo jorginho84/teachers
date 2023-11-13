@@ -150,7 +150,7 @@ class Utility(object):
 
         #Experience requirements
         placementF[(placementF == 2) & (self.years < 4) ] = 1
-        placementF[(placementF == 3) & (self.years < 4) ] = 2
+        placementF[(placementF == 3) & (self.years < 4) ] = 1
         placementF[(placementF == 4) & (self.years < 8) ] = 3
         placementF[(placementF == 5) & (self.years < 12) ] = 4
         
