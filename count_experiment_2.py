@@ -61,7 +61,7 @@ np.random.seed(123)
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -112,9 +112,6 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
 
-alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
-betas_control = [betas_nelder[23],betas_nelder[24]]
-
 dolar= 600
 value = [14403, 15155]
 hw = [value[0]/dolar,value[1]/dolar]
@@ -153,8 +150,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 pri = [48542,66609,115151]
 priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
-param0 = parameters.Parameters(alphas,betas,gammas,alphas_control, betas_control,
-                               hw,porc,pro,pol,AEP,priori)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 #List of choices across counterfactuals
 simce = []
@@ -198,7 +194,7 @@ for x in range(0,3):
     
    for j in range(n_sim):
       opt = modelSD.choice()
-      simce_sims[:,j] = opt['Opt Simce'][1-x]
+      simce_sims[:,j] = opt['Opt Simce']
       effort_v1 = opt['Opt Effort']
       d_effort_t1 = effort_v1 == 1
       d_effort_t2 = effort_v1 == 2

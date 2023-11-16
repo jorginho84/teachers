@@ -35,88 +35,8 @@ class Count_att_2_pfp(Utility):
 
 
 
-    def student_h(self, effort):
-        """
-        takes student initial HC and teacher effort to compute achievement
 
-        return: student test score, where effort_low = 0
-
-        """
-        d_effort_t1 = effort == 1
-        d_effort_t2 = effort == 2
-        d_effort_t3 = effort == 3
-        
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
-
-    
-        eps = np.random.randn(self.N)*self.param.betas[3]
-        
-        h_treated =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
-            self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
-
-                
-
-        return [h_treated,h_treated]
-    
-    def t_test(self,effort):
-        """
-        takes initial scores, effort and experience
-
-        returns: test scores and portfolio
-
-        """
-        
- 
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
-        d_effort_t1 = effort == 1
-        d_effort_t2 = effort == 2
-        d_effort_t3 = effort == 3
-        
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        
-       
-        pb_treated = []
-                   
-        for j in range(2):
-            
-            shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
-            
-            pb_treated.append(self.param.alphas[j][0] + \
-                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
-                         self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
-                             shock)
-           
-
-        p_treated = [((1/(1+np.exp(-pb_treated[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_treated[1]))) + (1/3))*3]
-        
-        
-
-                
-        return [p_treated,p_treated]
-
-    def placement(self,ttscores,initial_p):
+    def placement(self,tscores,initial_p):
 
         # *I want to replicate the typecasting of the teachers to the tramo
         # puntajeportafolio := p1
@@ -130,8 +50,7 @@ class Count_att_2_pfp(Utility):
         placementF_aep = np.zeros(self.p1.shape[0])
         #placement_corr = np.zeros(self.p1.shape[0])
 
-        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
-        
+            
         #The following will not be used in this counterfactual
         #initial placement 1
         placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
@@ -198,14 +117,13 @@ class Count_att_2_pfp(Utility):
         #return [placementF,placement_corr,placementF_aep]
         return [placementF,placementF_aep]
 
-    def income(self, initial_p,ttscores):
+    def income(self, initial_p,tscores):
         """
         takes treatment dummy, teach test scores, 
         initial placement, and self.years of experience
 
         """
-        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
-
+        
         # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
         # " Values in dolars "
         HvalueE = self.param.hw[0]
@@ -384,10 +302,6 @@ class Count_att_2_pfp(Utility):
         
         salary27 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoIII]), salary3d)
         salary28 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoIII]), salary3d)
-        
-        
-        
-            
         
             
         salary_pr = sum([salary21,salary22,salary23,salary24,salary25,salary26,salary27,salary28])

@@ -150,7 +150,7 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -212,9 +212,6 @@ for x in range(0,2):
     betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
     gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
-    alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
-    betas_control = [betas_nelder[23],betas_nelder[24]]
-    
     dolar= 600
     value = [14403, 15155]
     hw = [value[0]/dolar,value[1]/dolar]
@@ -253,8 +250,7 @@ for x in range(0,2):
     pri = [48542,66609,115151]
     priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
-    param0 = parameters.Parameters(alphas,betas,gammas,alphas_control, betas_control,
-                                   hw,porc,pro,pol,AEP,priori)
+    param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
     
     model = Count_att_2(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
                          priotity,rural_rbd,locality, priotity_aep)
@@ -270,7 +266,7 @@ for x in range(0,2):
     for j in range(n_sim):
         modelSD = sd.SimData(N,model)
         opt = modelSD.choice()
-        simce_sims[:,j] = opt['Opt Simce'][1-x]
+        simce_sims[:,j] = opt['Opt Simce']
         income_sims[:,j] = opt['Opt Income'][1-x]
         effort_v1 = opt['Opt Effort']
         d_effort_t1 = effort_v1 == 1
@@ -331,6 +327,43 @@ print ('ATT expert', np.mean(att_sim[initial_p == 4]))
 print ('')
 
 
+
+#----------------------------------------------#
+#----------------------------------------------#
+#ATTs
+#
+#----------------------------------------------#
+#----------------------------------------------#
+
+data_reg.set_index(['rbd', 'agno'],inplace = True)
+model_reg = PanelOLS(dependent = data_reg['stdsimce'], exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
+att_data = results.params.inter.round(8)
+se_data = np.sqrt(results.cov.inter.inter)
+
+dataf_graph = {'ATTsim': att_sim}
+dataf_graph = pd.DataFrame(dataf_graph, columns=['ATTsim'])
+
+
+# Figure: ATT distribution
+dataf_graph.plot.kde(linewidth=3, legend=False,alpha = 0.6, color = 'blue');
+plt.rcParams['axes.spines.top'] = False
+plt.rcParams['axes.spines.right'] = False
+#dataf_graph.plot.kde(linewidth=3, legend=False);
+plt.axvline(x = att_mean_sim, ymin=0, ymax=0.95, color='sandybrown', linestyle='-', linewidth=2,alpha = 0.8)
+plt.axvline(x = att_data, ymin=0, ymax=0.95, color='black', linestyle='-', linewidth=2,alpha = 0.6)
+plt.axvline(x = att_data + 1.96*se_data, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
+plt.axvline(x = att_data - 1.96*se_data, ymin=0, ymax=0.95, color='black', linestyle='--', linewidth=1.3,alpha = 0.6)
+plt.annotate("Simulated ATT" "\n" + "("   +'{:04.2f}'.format(att_mean_sim) + r"$\sigma$s)", xy=(0.08, 1),
+            xytext=(0.32, 1), arrowprops=dict(arrowstyle="->"))
+plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(att_data) + r"$\sigma$s)", xy=(0.018, 1),
+            xytext=(-0.4, 1), arrowprops=dict(arrowstyle="->"))
+plt.annotate("ATT distribution", xy=(0.2, 1.7),
+            xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
+plt.xlim(-0.6,0.6)
+#plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v5.pdf', format='pdf')
+plt.savefig('/home/jrodriguezo/teachers/results/att_distribution.pdf', format='pdf')
+
 #----------------------------------------------#
 #----------------------------------------------#
 #Effects by distance to nearest cutoff
@@ -338,49 +371,6 @@ print ('')
 #----------------------------------------------#
 #----------------------------------------------#
 
-"""
-
-#the fact that we are comparing STPD against the previous system versus no incentives does not change the fact that we have a U shape.
-#try with including previous test scores?
-
-Y = att_sim
-data['XY_distance_2'] = data['XY_distance']**2
-X = data[['XY_distance','XY_distance_2']]
-X = sm.add_constant(X)
-model = sm.OLS(Y,X,missing = 'drop')
-results = model.fit()
-print(results.summary())
-y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.params[2]*data['XY_distance_2']
-x_points = np.array([0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2])
-y_sim_2 = results.params[0] + results.params[1]*x_points + results.params[2]*x_points**2
-
-
-fig, ax=plt.subplots()
-plot3 = ax.plot(x_points,y_sim_2,'--o',alpha = .8, color='sandybrown')
-
-
-
-data['XY_distance_3'] = data['XY_distance']**3
-X = data[['XY_distance','XY_distance_2','XY_distance_3']]
-X = sm.add_constant(X)
-model = sm.OLS(Y,X,missing = 'drop')
-results = model.fit()
-print(results.summary())
-y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.params[2]*data['XY_distance_2'] + results.params[3]*data['XY_distance_3']
-
-
-X1 = data['XY_distance']
-X1 = sm.add_constant(X1)
-model = sm.OLS(Y,X1,missing = 'drop')
-results = model.fit()
-print(results.summary())
-
-
-fig, ax=plt.subplots()
-plot3 = ax.plot(data['XY_distance'],y_sim,'--o',alpha = .8, color='sandybrown')
-
-
-"""
 
 
 
@@ -401,10 +391,6 @@ for j in range(5):
 inter_data = np.zeros(5)
 se_data = np.zeros(5)
 
-data_reg.set_index(['rbd', 'agno'],inplace = True)
-model_reg = PanelOLS(dependent = data_reg['stdsimce'], exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
-results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
-att_data = results.params.inter.round(8)
 
 
 
@@ -433,6 +419,68 @@ y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.para
 x_points = np.array([0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
 y_sim_2 = results.params[0] + results.params[1]*x_points + results.params[2]*x_points**2
 
+"""
+
+Y = att_sim
+data['XY_distance_2'] = data['XY_distance']**2
+X = data[['XY_distance','XY_distance_2']]
+X = sm.add_constant(X)
+q95 = np.percentile(att_sim,99)
+q5 = np.percentile(att_sim,1)
+X = X[(data['XY_distance'] <= 0.8)]
+Y = Y[(data['XY_distance'] <= 0.8)]
+model = sm.OLS(Y,X,missing = 'drop')
+results = model.fit()
+print(results.summary())
+y_sim_2 = results.params[0] + results.params[1]*x_points + results.params[2]*x_points**2
+
+Y = att_sim
+data['XY_distance_2'] = data['XY_distance']**2
+data['XY_distance_3'] = data['XY_distance']**3
+X = data[['XY_distance','XY_distance_2','XY_distance_3']]
+X = sm.add_constant(X)
+q95 = np.percentile(att_sim,99)
+q5 = np.percentile(att_sim,1)
+X = X[(data['XY_distance'] <= 0.8)]
+Y = Y[(data['XY_distance'] <= 0.8)]
+model = sm.OLS(Y,X,missing = 'drop')
+results = model.fit()
+print(results.summary())
+
+y_sim = results.params[0] + results.params[1]*data['XY_distance'] + results.params[2]*data['XY_distance_2'] + results.params[3]*data['XY_distance_3']
+x_points = np.array([0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
+y_sim_2 = results.params[0] + results.params[1]*x_points + results.params[2]*x_points**2 + results.params[3]*x_points**3
+
+#Quadratic fit from data
+data_reg.reset_index(inplace = True)
+data_reg.set_index(['rbd', 'agno'],inplace = True)
+data_reg['XY_distance_2'] = data_reg['XY_distance']**2 
+data_reg['inter_xy'] = data_reg['inter']*data_reg['XY_distance']
+data_reg['inter_xy_2'] = data_reg['inter']*data_reg['XY_distance_2']
+model_reg = PanelOLS(dependent = data_reg['stdsimce'], 
+                     exog = data_reg[['constant', 'd_trat', 'd_year', 'inter', 'inter_xy','inter_xy_2','edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
+results = model_reg.fit(cov_type='clustered', clusters=data_reg['drun'])
+y_sim_data = results.params.inter + results.params.inter_xy*x_points + results.params.inter_xy_2*x_points**2
+
+
+fig, ax=plt.subplots()
+plot1 = ax.plot(x_points,y_sim_data,'--b',alpha=.7,label = 'ATT data')
+plot2 = ax.plot(x_points,y_sim_2,'--o',alpha = .8, color='sandybrown', label = 'ATT model')
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Distance to nearest cutoff', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(0,0.26)
+#ax.legend(fontsize = 13)
+ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/att_data_model_quadratic.pdf', format='pdf')
+"""
 
 #Quadratic fit from data
 data_reg.reset_index(inplace = True)

@@ -59,17 +59,11 @@ def corr_simulate(data, B):
     est_corrTestp = np.zeros(B)
     est_share_port_treated = np.zeros(B)
     est_share_stei_treated = np.zeros(B)
-    est_share_adv = np.zeros(B)
 
     #Control sample
     est_mean_SIMCE_control = np.zeros(B)
-    est_var_SIMCE_control = np.zeros(B)
     est_mean_Port_control = np.zeros(B)
     est_mean_Pru_control = np.zeros(B)
-    est_var_Port_control = np.zeros(B)
-    est_var_Pru_control = np.zeros(B)
-    est_share_port_control = np.zeros(B)
-    est_share_stei_control = np.zeros(B)
     
     
     
@@ -126,29 +120,17 @@ def corr_simulate(data, B):
         boo_stei = data_treated['TEST'] >= 2.74
         est_share_stei_treated[i] = np.mean(boo_stei)
         
-        #Moments: share of teachers advacing from initial
-        boo_ad = data_treated['RECON'][data_treated['ASIM'] == 1] > 1
-        est_share_adv[i] = np.mean(boo_ad)
-        
+       
 
         #C. Control Sample
         data_control = datadf_past[rev['d_trat']==0]
         
         #Moments: means and vars of SIMCE, Port and STEI (control groups)
         est_mean_SIMCE_control[i] = np.mean(data_control['SIMCE'])
-        est_var_SIMCE_control[i] = np.var(data_control['SIMCE'])
         est_mean_Port_control[i] = np.mean(data_control['PORTFOLIO'])
         est_mean_Pru_control[i] = np.mean(data_control['TEST'])
-        est_var_Port_control[i] = np.var(data_control['PORTFOLIO'])
-        est_var_Pru_control[i] = np.var(data_control['TEST'])        
+  
         
-        #Moments: share of teachers with Portfolio > 2.5
-        boo_port = data_control['PORTFOLIO'] >= 2.5
-        est_share_port_control[i] = np.mean(boo_port)
-        
-        #Moments: share of teachers with STEI > 2.74
-        boo_stei = data_treated['TEST'] >= 2.74
-        est_share_stei_control[i] = np.mean(boo_stei)
     
 
     ####MEANS####
@@ -171,17 +153,13 @@ def corr_simulate(data, B):
     corrTestp = np.mean(est_corrTestp)
     share_port_treated = np.mean(est_share_port_treated)
     share_stei_treated = np.mean(est_share_stei_treated)
-    share_adv = np.mean(est_share_adv)
+
 
     #Control sample
     mean_SIMCE_control = np.mean(est_mean_SIMCE_control)
-    var_SIMCE_control = np.mean(est_var_SIMCE_control)
     mean_Port_control = np.mean(est_mean_Port_control)
     mean_Pru_control = np.mean(est_mean_Pru_control)
-    var_Port_control = np.mean(est_var_Port_control)
-    var_Pru_control = np.mean(est_var_Pru_control)
-    share_port_control = np.mean(est_share_port_control)
-    share_stei_control = np.mean(est_share_stei_control)
+
 
     ####VARIANCE####
     #Full Sample
@@ -203,25 +181,18 @@ def corr_simulate(data, B):
     std_corrTestp = np.std(est_corrTestp)
     std_share_port_treated = np.std(est_share_port_treated)
     std_share_stei_treated = np.std(est_share_stei_treated)
-    std_share_adv = np.std(est_share_adv)
 
     #Control sample
     std_mean_SIMCE_control = np.std(est_mean_SIMCE_control)
-    std_var_SIMCE_control = np.std(est_var_SIMCE_control)
     std_mean_Port_control = np.std(est_mean_Port_control)
     std_mean_Pru_control = np.std(est_mean_Pru_control)
-    std_var_Port_control = np.std(est_var_Port_control)
-    std_var_Pru_control = np.std(est_var_Pru_control)
-    std_share_port_control = np.std(est_share_port_control)
-    std_share_stei_control = np.std(est_share_stei_control)
+
     
     #var-cov matrix
     samples = np.array([est_corrSEXP,est_corr_EXPPort,est_corr_EXPPru,est_corrSPort,est_corrSPrue,
         est_mean_SIMCE_treated,est_var_SIMCE_treated,est_mean_Port_treated,est_mean_Pru_treated,
         est_var_Port_treated,est_var_Pru_treated,est_corrSPast,est_corrPortp,est_corrTestp,est_share_port_treated,
-        est_share_stei_treated,est_share_adv,
-        est_mean_SIMCE_control,est_var_SIMCE_control,est_mean_Port_control,est_mean_Pru_control,est_var_Port_control,
-        est_var_Pru_control,est_share_port_control,est_share_stei_control])
+        est_mean_SIMCE_control,est_mean_Port_control,est_mean_Pru_control])
     
     varcov = np.cov(samples)
 
@@ -243,17 +214,11 @@ def corr_simulate(data, B):
             'Corr STEI Past': corrTestp,
             'Share Portfolio > 2.5 (treated)': share_port_treated,
             'Share STEI > 2.74 (treated)': share_stei_treated,
-            'Share teachers advancing from initial': share_adv,
 
             'SIMCE Mean (control)': mean_SIMCE_control,
-            'SIMCE Var (control)': var_SIMCE_control,
             'Portfolio Mean (control)': mean_Port_control,
             'STEI Mean (control)': mean_Pru_control,
-            'Portfolio Var (control)': var_Port_control,
-            'STEI Var (control)': var_Pru_control,
-            'Share Portfolio > 2.5 (control)': share_port_control,
-            'Share STEI > 2.74 (control)': share_stei_control,
-            
+                        
             'S.E. Corr Simce and experience': std_corrSEXP,
             'S.E. Corr Portfolio and experience': std_corr_EXPPort,
             'S.E. Corr STEI and experience': std_corr_EXPPru,
@@ -271,17 +236,11 @@ def corr_simulate(data, B):
             'S.E. Corr STEI Past': std_corrTestp,
             'S.E. Share Portfolio > 2.5 (treated)': std_share_port_treated,
             'S.E. Share STEI > 2.74 (treated)': std_share_stei_treated,
-            'S.E. Share teachers advancing from initial': std_share_adv,
 
             'S.E. SIMCE Mean (control)': std_mean_SIMCE_control,
-            'S.E. SIMCE Var (control)': std_var_SIMCE_control,
             'S.E. Portfolio Mean (control)': std_mean_Port_control,
             'S.E. STEI Mean (control)': std_mean_Pru_control,
-            'S.E. Portfolio Var (control)': std_var_Port_control,
-            'S.E. STEI Var (control)': std_var_Pru_control,
-            'S.E. Share Portfolio > 2.5 (control)': std_share_port_control,
-            'S.E. Share STEI > 2.74 (control)': std_share_stei_control,
-                'Var Cov Matrix': varcov}
+            'Var Cov Matrix': varcov}
 
 
 result = corr_simulate(data_python,1000)
@@ -306,15 +265,9 @@ means = np.array([result['Corr Simce and experience'],
             result['Corr STEI Past'],
             result['Share Portfolio > 2.5 (treated)'],
             result['Share STEI > 2.74 (treated)'],
-            result['Share teachers advancing from initial'],
             result['SIMCE Mean (control)'],
-            result['SIMCE Var (control)'],
             result['Portfolio Mean (control)'],
-            result['STEI Mean (control)'],
-            result['Portfolio Var (control)'],
-            result['STEI Var (control)'],
-            result['Share Portfolio > 2.5 (control)'],
-            result['Share STEI > 2.74 (control)']])
+            result['STEI Mean (control)']])
 
 ses = np.array([result['S.E. Corr Simce and experience'],
             result['S.E. Corr Portfolio and experience'],
@@ -332,15 +285,9 @@ ses = np.array([result['S.E. Corr Simce and experience'],
             result['S.E. Corr STEI Past'],
             result['S.E. Share Portfolio > 2.5 (treated)'],
             result['S.E. Share STEI > 2.74 (treated)'],
-            result['S.E. Share teachers advancing from initial'],
             result['S.E. SIMCE Mean (control)'],
-            result['S.E. SIMCE Var (control)'],
             result['S.E. Portfolio Mean (control)'],
-            result['S.E. STEI Mean (control)'],
-            result['S.E. Portfolio Var (control)'],
-            result['S.E. STEI Var (control)'],
-            result['S.E. Share Portfolio > 2.5 (control)'],
-            result['S.E. Share STEI > 2.74 (control)']])
+            result['S.E. STEI Mean (control)']])
 
 np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_new.npy',ses)
 #np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy',ses)

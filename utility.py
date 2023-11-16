@@ -72,7 +72,7 @@ class Utility(object):
               
                 
         
-    def placement(self,ttscores,initial_p):
+    def placement(self,tscores,initial_p):
 
         # *I want to replicate the typecasting of the teachers to the tramo
         # puntajeportafolio := p1
@@ -86,9 +86,7 @@ class Utility(object):
         placementF_aep = np.zeros(self.p1.shape[0])
         #placement_corr = np.zeros(self.p1.shape[0])
 
-        tscores = ttscores[0]*self.treatment + ttscores[1]*(1 - self.treatment)
-        
-        
+            
         #initial placement 1
         placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
         placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
@@ -516,21 +514,17 @@ class Utility(object):
         p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
         p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
         p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        p0_past[self.treatment == 0] = 0
         
 
     
         eps = np.random.randn(self.N)*self.param.betas[3]
         
-        h_treated =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
+        simce =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
             self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
-
-        eps = np.random.randn(self.N)*self.param.betas_control[1]
-
-        h_control =  self.param.betas_control[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
-            self.param.betas[4]*self.years/10  + eps
         
 
-        return [h_treated,h_control]
+        return simce
     
     def t_test(self,effort):
         """
@@ -550,6 +544,7 @@ class Utility(object):
         p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
         p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
         p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        p0_past[self.treatment == 0] = 0
         
         d_effort_t1 = effort == 1
         d_effort_t2 = effort == 2
@@ -559,34 +554,22 @@ class Utility(object):
         effort_h = d_effort_t2 + d_effort_t3
         
        
-        pb_treated = []
-        pb_control = []
-
+        pb = []
            
         for j in range(2):
             
             shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
             
-            pb_treated.append(self.param.alphas[j][0] + \
+            pb.append(self.param.alphas[j][0] + \
                      self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
                          self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
                              shock)
             
-            shock = np.random.normal(0, self.param.alphas_control[j][1], p1v1_past.shape)
+        p_scores = [((1/(1+np.exp(-pb[0]))) + (1/3))*3, ((1/(1+np.exp(-pb[1]))) + (1/3))*3]
             
-            pb_control.append(self.param.alphas_control[j][0] + \
-                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
-                         self.param.alphas[j][3]*self.years/10  + \
-                             shock)              
-
-          
-
-        p_treated = [((1/(1+np.exp(-pb_treated[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_treated[1]))) + (1/3))*3]
-        p_control = [((1/(1+np.exp(-pb_control[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_control[1]))) + (1/3))*3]
-        
 
                 
-        return [p_treated,p_control]
+        return p_scores
 
     def utility(self, income, effort, h):
         """
@@ -605,10 +588,8 @@ class Utility(object):
         effort_h = d_effort_t2 + d_effort_t3
         
         income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
-
-        simce = h[0]*self.treatment + h[1]*(1-self.treatment)
-         
-        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*simce
+     
+        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*h
         
         #mu_c = -0.5
         #ut_h = self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h

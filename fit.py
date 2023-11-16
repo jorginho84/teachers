@@ -42,7 +42,7 @@ np.random.seed(123)
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy")
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
@@ -110,8 +110,6 @@ alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
-alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
-betas_control = [betas_nelder[23],betas_nelder[24]]
 
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
@@ -162,7 +160,7 @@ pri = [48542,66609,115151]
 priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
     
 
-param0 = parameters.Parameters(alphas,betas,gammas,alphas_control,betas_control,hw,porc,pro,pol,AEP,priori)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 model = util.Utility(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,
                      TrameI,priotity,rural_rbd,locality, AEP_priority)
@@ -205,18 +203,12 @@ beta0 = np.array([param0.alphas[0][0],
                           param0.betas[0],
                           param0.betas[1],
                           param0.betas[2],
-                          param0.betas[3],
+                          np.log(param0.betas[3]),
                           param0.betas[4],
                           param0.betas[5],
                           param0.gammas[0],
                           param0.gammas[1],
-                          param0.gammas[2],
-                          param0.alphas_control[0][0],
-                          np.log(param0.alphas_control[0][1]),
-                          param0.alphas_control[1][0],
-                          np.log(param0.alphas_control[1][1]),
-                          param0.betas_control[0],
-                          param0.betas_control[1]])
+                          param0.gammas[2]])
 
 qw = output_ins.objfunction(beta0)
 
@@ -237,15 +229,9 @@ sim = np.array([corr_data['Corr Simce and experience'],
             corr_data['Corr STEI Past'],
             corr_data['Share Portfolio > 2.5 (treated)'],
             corr_data['Share STEI > 2.74 (treated)'],
-            corr_data['Share teachers advancing from initial'],
             corr_data['SIMCE Mean (control)'],
-            corr_data['SIMCE Var (control)'],
             corr_data['Portfolio Mean (control)'],
-            corr_data['STEI Mean (control)'],
-            corr_data['Portfolio Var (control)'],
-            corr_data['STEI Var (control)'],
-            corr_data['Share Portfolio > 2.5 (control)'],
-            corr_data['Share STEI > 2.74 (control)']])
+            corr_data['STEI Mean (control)']])
 
 x_vector = moments_vector - sim 
 
@@ -274,19 +260,12 @@ with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'Corr(STEI, Past)                          &  & '+'{:1.2f}'.format(sim[13]) +r' &  & '+'{:1.2f}'.format(moments_vector[13]) +r'   &  & '+'{:1.3f}'.format(ses_opt[13]) +r' \\'+'\n')
     f.write(r'Share of teachers portfolio >= 2.5        &  & '+'{:1.2f}'.format(sim[14]) +r' &  & '+'{:1.2f}'.format(moments_vector[14]) +r'   &  & '+'{:1.3f}'.format(ses_opt[14]) +r' \\'+'\n')
     f.write(r'Share of teachers STEI >= 2.74        &  & '+'{:1.2f}'.format(sim[15]) +r' &  & '+'{:1.2f}'.format(moments_vector[15]) +r'   &  & '+'{:1.3f}'.format(ses_opt[15]) +r' \\'+'\n')
-    f.write(r'Share of teachers advancing from initial        &  & '+'{:1.2f}'.format(sim[16]) +r' &  & '+'{:1.2f}'.format(moments_vector[16]) +r'   &  & '+'{:1.3f}'.format(ses_opt[16]) +r' \\'+'\n')
-
+    
     f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
     f.write(r'B. Control group (2018- teachers)   &  &       &  &       &  &       \\'+'\n')
-    f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[17]) +r' &  & '+'{:1.2f}'.format(moments_vector[17]) +r'   &  & '+'{:1.3f}'.format(ses_opt[17]) +r' \\'+'\n')
-    f.write(r'Variance SIMCE                          &  & '+'{:1.2f}'.format(sim[18]) +r' &  & '+'{:1.2f}'.format(moments_vector[18]) +r'   &  & '+'{:1.3f}'.format(ses_opt[18]) +r' \\'+'\n')
-    f.write(r'Mean Portfolio                          &  & '+'{:1.2f}'.format(sim[19]) +r' &  & '+'{:1.2f}'.format(moments_vector[19]) +r'   &  & '+'{:1.3f}'.format(ses_opt[19]) +r' \\'+'\n')
-    f.write(r'Mean STEI                          &  & '+'{:1.2f}'.format(sim[20]) +r' &  & '+'{:1.2f}'.format(moments_vector[20]) +r'   &  & '+'{:1.3f}'.format(ses_opt[20]) +r' \\'+'\n')
-    f.write(r'Variance Portfolio                          &  & '+'{:1.2f}'.format(sim[21]) +r' &  & '+'{:1.2f}'.format(moments_vector[21]) +r'   &  & '+'{:1.3f}'.format(ses_opt[21]) +r' \\'+'\n')
-    f.write(r'Variance STEI                          &  & '+'{:1.2f}'.format(sim[22]) +r' &  & '+'{:1.2f}'.format(moments_vector[22]) +r'   &  & '+'{:1.3f}'.format(ses_opt[22]) +r' \\'+'\n')
-    f.write(r'Share of teachers portfolio >= 2.5        &  & '+'{:1.2f}'.format(sim[23]) +r' &  & '+'{:1.2f}'.format(moments_vector[23]) +r'   &  & '+'{:1.3f}'.format(ses_opt[23]) +r' \\'+'\n')
-    f.write(r'Share of teachers STEI >= 2.74        &  & '+'{:1.2f}'.format(sim[24]) +r' &  & '+'{:1.2f}'.format(moments_vector[24]) +r'   &  & '+'{:1.3f}'.format(ses_opt[24]) +r' \\'+'\n')
-
+    f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[16]) +r' &  & '+'{:1.2f}'.format(moments_vector[16]) +r'   &  & '+'{:1.3f}'.format(ses_opt[16]) +r' \\'+'\n')
+    f.write(r'Mean Portfolio                          &  & '+'{:1.2f}'.format(sim[17]) +r' &  & '+'{:1.2f}'.format(moments_vector[17]) +r'   &  & '+'{:1.3f}'.format(ses_opt[17]) +r' \\'+'\n')
+    f.write(r'Mean STEI                          &  & '+'{:1.2f}'.format(sim[18]) +r' &  & '+'{:1.2f}'.format(moments_vector[18]) +r'   &  & '+'{:1.3f}'.format(ses_opt[18]) +r' \\'+'\n')
     f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
     
 

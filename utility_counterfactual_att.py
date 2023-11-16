@@ -35,86 +35,8 @@ class Count_att_2(Utility):
 
 
 
-    def student_h(self, effort):
-        """
-        takes student initial HC and teacher effort to compute achievement
-
-        return: student test score, where effort_low = 0
-
-        """
-        d_effort_t1 = effort == 1
-        d_effort_t2 = effort == 2
-        d_effort_t3 = effort == 3
         
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
-
     
-        eps = np.random.randn(self.N)*self.param.betas[3]
-        
-        h_treated =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
-            self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
-
-                
-
-        return [h_treated,h_treated]
-    
-    def t_test(self,effort):
-        """
-        takes initial scores, effort and experience
-
-        returns: test scores and portfolio
-
-        """
-        
- 
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
-        d_effort_t1 = effort == 1
-        d_effort_t2 = effort == 2
-        d_effort_t3 = effort == 3
-        
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        
-       
-        pb_treated = []
-                   
-        for j in range(2):
-            
-            shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
-            
-            pb_treated.append(self.param.alphas[j][0] + \
-                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
-                         self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
-                             shock)
-           
-
-        p_treated = [((1/(1+np.exp(-pb_treated[0]))) + (1/3))*3, ((1/(1+np.exp(-pb_treated[1]))) + (1/3))*3]
-        
-        
-
-                
-        return [p_treated,p_treated]
 
     def income(self, initial_p):
         """
@@ -320,7 +242,7 @@ class Count_att_2(Utility):
         salary30 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
         """
 
-        #pre-reform, experiencia only once
+        #pre-reform
         
         salary21 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt]), salary3d)
         salary22 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond]), salary3d)

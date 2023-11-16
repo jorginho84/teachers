@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v43.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v46.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -98,15 +98,13 @@ N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
 alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-             betas_nelder[3], betas_nelder[4]],
+             betas_nelder[3], 0.1],
             [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-            betas_nelder[8], betas_nelder[9]]]
+            betas_nelder[8], 0.4]]
             
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
     
-alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
-betas_control = [betas_nelder[23],betas_nelder[24]]
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
 # value hour (pesos)= 14403 *
@@ -154,7 +152,7 @@ pri = [48542,66609,115151]
 priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
 
-param0 = parameters.Parameters(alphas,betas,gammas,alphas_control,betas_control,hw,porc,pro,pol,AEP,priori)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
@@ -185,49 +183,40 @@ print("--- %s seconds ---" % (time_opt))
 
 
 #the list of estimated parameters
-beta_1 = output_me.x[0]
-beta_2 = output_me.x[1]
-beta_3 = output_me.x[2]
-beta_4 = np.exp(output_me.x[3])
-#beta_4 = output_me.x[3]
-beta_5 = output_me.x[4]
-beta_6 = output_me.x[5]
-beta_7 = output_me.x[6]
-beta_8 = output_me.x[7]
-beta_9 = np.exp(output_me.x[8])
-#beta_9 = output_me.x[8]
-beta_10 = output_me.x[9]
-beta_11 = output_me.x[10]
-beta_12 = output_me.x[11]
-beta_13 = output_me.x[12]
-beta_14 = output_me.x[13]
-beta_15 = output_me.x[14]
-beta_16 = output_me.x[15]
-beta_17 = output_me.x[16]
-beta_18 = output_me.x[17]
-beta_19 = output_me.x[18]
-beta_20 = output_me.x[19]
-beta_21 = np.exp(output_me.x[20])
-beta_22 = output_me.x[21]
-beta_23 = np.exp(output_me.x[22])
-beta_24 = output_me.x[23]
-beta_25 = output_me.x[24]
+beta_0 = output_me.x[0]
+beta_1 = output_me.x[1]
+beta_2 = output_me.x[2]
+beta_3 = np.exp(output_me.x[3])
+beta_4 = output_me.x[4]
+beta_5 = output_me.x[5]
+beta_6 = output_me.x[6]
+beta_7 = output_me.x[7]
+beta_8 = np.exp(output_me.x[8])
+beta_9 = output_me.x[9]
+beta_10 = output_me.x[10]
+beta_11 = output_me.x[11]
+beta_12 = output_me.x[12]
+beta_13 = np.exp(output_me.x[13])
+beta_14 = output_me.x[14]
+beta_15 = output_me.x[15]
+beta_16 = output_me.x[16]
+beta_17 = output_me.x[17]
+beta_18 = output_me.x[18]
 
 
 
 
 
-betas_opt_me = np.array([beta_1, beta_2,
+betas_opt_me = np.array([beta_0,beta_1, beta_2,
 	beta_3,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
-	beta_16,beta_17,beta_18,beta_19,beta_20,beta_21,beta_22,beta_23,
-    beta_24,beta_25])
+	beta_16,beta_17,beta_18])
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy',betas_opt_me)
 
 
 
