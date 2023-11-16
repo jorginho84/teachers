@@ -2,14 +2,10 @@
 """
 Created on Wed Nov  4 18:14:43 2020
 
-@author: pjac2
-"""
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  2 16:49:00 2020
+exec(open("/home/jrodriguezo/teachers/codes/count_experiment_2.py").read())
 
-@author: pjac2
 """
+
 
 import numpy as np
 import pandas as pd
@@ -192,7 +188,7 @@ def corr_simulate(data, B):
     samples = np.array([est_corrSEXP,est_corr_EXPPort,est_corr_EXPPru,est_corrSPort,est_corrSPrue,
         est_mean_SIMCE_treated,est_var_SIMCE_treated,est_mean_Port_treated,est_mean_Pru_treated,
         est_var_Port_treated,est_var_Pru_treated,est_corrSPast,est_corrPortp,est_corrTestp,est_share_port_treated,
-        est_mean_SIMCE_control,est_mean_Port_control,est_mean_Pru_control])
+        est_share_stei_treated,est_mean_SIMCE_control,est_mean_Port_control,est_mean_Pru_control])
     
     varcov = np.cov(samples)
 

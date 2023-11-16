@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v46.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -98,9 +98,9 @@ N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
 alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-             betas_nelder[3], 0.1],
+             betas_nelder[3], betas_nelder[4]],
             [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-            betas_nelder[8], 0.4]]
+            betas_nelder[8], betas_nelder[9]]]
             
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
 gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
@@ -159,12 +159,8 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
 ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
 
-
-
-w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
-for j in range(ses_opt.shape[0]):
-    w_matrix[j,j] = ses_opt[j]**(-2)
-
+var_cov = np.load("/home/jrodriguezo/teachers/codes/var_cov_new.npy")
+w_matrix = np.linalg.inv(var_cov)
 
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
@@ -216,7 +212,7 @@ betas_opt_me = np.array([beta_0,beta_1, beta_2,
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v48.npy',betas_opt_me)
 
 
 
