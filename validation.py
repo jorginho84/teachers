@@ -113,6 +113,11 @@ data_reg.loc[data_reg["XY_distance_m"]==data_reg["XY_distance_l"],'XY_distance']
 data_reg.loc[(data_reg["XY_distance_m"].notna()) & (data_reg["XY_distance_l"].isna()),'XY_distance'] = data_reg["XY_distance_m"]
 data_reg.loc[(data_reg["XY_distance_m"].isna()) & (data_reg["XY_distance_l"].notna()),'XY_distance'] = data_reg["XY_distance_l"]
 
+#Initial placement
+data_reg.loc[data_reg["tramo_a2016_m"]==data_reg["tramo_a2016_l"],'tramo_a2016'] = data_reg["tramo_a2016_m"]
+data_reg.loc[(data_reg["tramo_a2016_m"].notna()) & (data_reg["tramo_a2016_l"].isna()),'tramo_a2016'] = data_reg["tramo_a2016_m"]
+data_reg.loc[(data_reg["tramo_a2016_m"].isna()) & (data_reg["tramo_a2016_l"].notna()),'tramo_a2016'] = data_reg["tramo_a2016_l"]
+
 
 ##### drop nan #####
 data_reg = data_reg[(data_reg["edp"].notna())]
@@ -139,6 +144,8 @@ data_reg.loc[(data_reg['XY_distance']> 0.2) & (data_reg['XY_distance'] <= 0.3),'
 data_reg.loc[(data_reg['XY_distance']> 0.3) & (data_reg['XY_distance'] <= 0.4),'distance2'] = 4
 data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 
+#Drop acceso teachers
+data_reg = data_reg[data_reg['tramo_a2016'] != "ACCESO"]
 
 
 
@@ -150,7 +157,7 @@ data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v47.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v49.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
