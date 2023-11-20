@@ -82,13 +82,6 @@ class estimate:
         
         #Control sample
         est_mean_SIMCE_control = np.zeros(times)
-        est_mean_Port_control = np.zeros(times)
-        est_mean_Pru_control = np.zeros(times)
-        est_var_Port_control = np.zeros(times)
-        est_var_Pru_control = np.zeros(times)
-        est_share_port_control = np.zeros(times)
-        est_share_stei_control = np.zeros(times)
-
         
 
         for i in range(1,times):
@@ -118,7 +111,9 @@ class estimate:
             datadfT = pd.DataFrame(dataf, columns=['SIMCE treated','SIMCE control', 'SIMCE','PORTFOLIO treated','PORTFOLIO control','PORTFOLIO',
                 'STEI treated', 'STEI control','STEI','EXP', 'PLACEMENT treated', 'PLACEMENT control' ,'PORTPAST', 'TESTPAST','P_past','Initial Placement'])
 
-            corrM = datadfT.corr()
+            #### B. Treated sample###
+            data_treated =  datadfT[self.treatment == 1]
+            corrM = data_treated.corr()
             #Moments: corr experience and SIMCE
             est_corrSEXP[i] = corrM.iloc[0]['EXP']
 
@@ -130,9 +125,6 @@ class estimate:
             est_corrSPort[i] = corrM.iloc[1]['SIMCE']
             est_corrSPrue[i] = corrM.iloc[2]['SIMCE']
 
-            #### B. Treated sample###
-            data_treated =  datadfT[self.treatment == 1]
-
             #Moments: means and vars of SIMCE, Portfolio and STEI
             est_mean_SIMCE_treated[i] = np.mean(data_treated['SIMCE'])
             est_var_SIMCE_treated[i] = np.var(data_treated['SIMCE'])
@@ -141,7 +133,7 @@ class estimate:
             est_var_Port_treated[i] = np.var(data_treated['PORTFOLIO'])
             est_var_Pru_treated[i] = np.var(data_treated['STEI'])          
 
-            corrM = data_treated.corr()
+            
             #Moments: corr of SIMCE, Portfolio and STEU with past test scores
             est_corrSPast[i] = corrM.iloc[0]['P_past']
             est_corrPortp[i] = corrM.iloc[1]['P_past']
@@ -162,19 +154,16 @@ class estimate:
 
             #Moments: means and vars of SIMCE, Port and STEI (control groups)
             est_mean_SIMCE_control[i] = np.mean(data_control['SIMCE'])
-            est_mean_Port_control[i] = np.mean(data_control['PORTFOLIO'])
-            est_mean_Pru_control[i] = np.mean(data_control['STEI'])
-                        
+                                    
         
         ####MEANS####
-        #Full Sample
+        #Treated sample
         corrSEXP = np.mean(est_corrSEXP)
         corr_EXPPort = np.mean(est_corr_EXPPort)
         corr_EXPPru = np.mean(est_corr_EXPPru)
         corrSPort = np.mean(est_corrSPort)
         corrSPrue = np.mean(est_corrSPrue)
-
-        #Treated sample
+    
         mean_SIMCE_treated = np.mean(est_mean_SIMCE_treated)
         var_SIMCE_treated = np.mean(est_var_SIMCE_treated)
         mean_Port_treated = np.mean(est_mean_Port_treated)
@@ -190,9 +179,6 @@ class estimate:
 
         #Control sample
         mean_SIMCE_control = np.mean(est_mean_SIMCE_control)
-        
-        mean_Port_control = np.mean(est_mean_Port_control)
-        mean_Pru_control = np.mean(est_mean_Pru_control)
         
         
         return {'Corr Simce and experience': corrSEXP,
@@ -213,33 +199,29 @@ class estimate:
             'Share Portfolio > 2.5 (treated)': share_port_treated,
             'Share STEI > 2.74 (treated)': share_stei_treated,
             
-            'SIMCE Mean (control)': mean_SIMCE_control,
-            'Portfolio Mean (control)': mean_Port_control,
-            'STEI Mean (control)': mean_Pru_control}
+            'SIMCE Mean (control)': mean_SIMCE_control}
     
     
     def objfunction(self,beta):
         "Computes value function given a set of parameters"
         
-        self.param0.alphas[0][0] = beta[0]
-        self.param0.alphas[0][1] = beta[1]
-        self.param0.alphas[0][3] = beta[2]
-        self.param0.alphas[0][4] = np.exp(beta[3])
-        self.param0.alphas[0][5] = beta[4]
-        self.param0.alphas[1][0] = beta[5]
-        self.param0.alphas[1][2] = beta[6]
-        self.param0.alphas[1][3] = beta[7]
-        self.param0.alphas[1][4] = np.exp(beta[8])
-        self.param0.alphas[1][5] = beta[9]
-        self.param0.betas[0] = beta[10]
-        self.param0.betas[1] = beta[11]
-        self.param0.betas[2] = beta[12]
-        self.param0.betas[3] = np.exp(beta[13])
-        self.param0.betas[4] = beta[14]
-        self.param0.betas[5] = beta[15]
-        self.param0.gammas[0] = beta[16]
-        self.param0.gammas[1] = beta[17]
-        self.param0.gammas[2] = beta[18]
+        self.param0.alphas[0][1] = beta[0]
+        self.param0.alphas[0][3] = beta[1]
+        self.param0.alphas[0][4] = np.exp(beta[2])
+        self.param0.alphas[0][5] = beta[3]
+        self.param0.alphas[1][2] = beta[4]
+        self.param0.alphas[1][3] = beta[5]
+        self.param0.alphas[1][4] = np.exp(beta[6])
+        self.param0.alphas[1][5] = beta[7]
+        self.param0.betas[0] = beta[8]
+        self.param0.betas[1] = beta[9]
+        self.param0.betas[2] = beta[10]
+        self.param0.betas[3] = np.exp(beta[11])
+        self.param0.betas[4] = beta[12]
+        self.param0.betas[5] = beta[13]
+        self.param0.gammas[0] = beta[14]
+        self.param0.gammas[1] = beta[15]
+        self.param0.gammas[2] = beta[16]
 
         
         model = util.Utility(self.param0,self.N,self.p1_0,self.p2_0,self.years,self.treatment, \
@@ -267,9 +249,7 @@ class estimate:
             result['Corr STEI Past'],
             result['Share Portfolio > 2.5 (treated)'],
             result['Share STEI > 2.74 (treated)'],
-            result['SIMCE Mean (control)'],
-            result['Portfolio Mean (control)'],
-            result['STEI Mean (control)']])
+            result['SIMCE Mean (control)']])
         
         
         
@@ -296,12 +276,10 @@ class estimate:
     def optimizer(self):
         "Uses Nelder-Mead to optimize"
         
-        beta0 = np.array([self.param0.alphas[0][0],
-                          self.param0.alphas[0][1],
+        beta0 = np.array([self.param0.alphas[0][1],
                           self.param0.alphas[0][3],
                           np.log(self.param0.alphas[0][4]),
                           self.param0.alphas[0][5],
-                          self.param0.alphas[1][0],
                           self.param0.alphas[1][2],
                           self.param0.alphas[1][3],
                           np.log(self.param0.alphas[1][4]),

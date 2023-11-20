@@ -42,7 +42,7 @@ np.random.seed(123)
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v49.npy")
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v50.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
@@ -102,9 +102,9 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+alphas = [[0, betas_nelder[1],0,betas_nelder[2],
              betas_nelder[3], betas_nelder[4]],
-            [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+            [0, 0,betas_nelder[6],betas_nelder[7],
             betas_nelder[8], betas_nelder[9]]]
             
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
@@ -178,8 +178,6 @@ np.mean(simce[treatment == 1]) - np.mean(simce[treatment == 0])
 
 #ses_opt = np.load("D:\Git\ExpSIMCE/ses_model.npy")
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
-
-
 for j in range(ses_opt.shape[0]):
     w_matrix[j,j] = ses_opt[j]**(-2)
     
@@ -190,12 +188,10 @@ output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
 
        
        
-beta0 = np.array([param0.alphas[0][0],
-                          param0.alphas[0][1],
+beta0 = np.array([param0.alphas[0][1],
                           param0.alphas[0][3],  
                           np.log(param0.alphas[0][4]),
                           param0.alphas[0][5],
-                          param0.alphas[1][0],
                           param0.alphas[1][2],
                           param0.alphas[1][3],
                           np.log(param0.alphas[1][4]),
@@ -229,9 +225,7 @@ sim = np.array([corr_data['Corr Simce and experience'],
             corr_data['Corr STEI Past'],
             corr_data['Share Portfolio > 2.5 (treated)'],
             corr_data['Share STEI > 2.74 (treated)'],
-            corr_data['SIMCE Mean (control)'],
-            corr_data['Portfolio Mean (control)'],
-            corr_data['STEI Mean (control)']])
+            corr_data['SIMCE Mean (control)']])
 
 x_vector = moments_vector - sim 
 
@@ -249,6 +243,11 @@ with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'& Moment &  & Model &  & Data  &  & S.E. data \\'+'\n')
     f.write(r'\midrule'+'\n')
     f.write(r'A. Treatment group  (2016 teachers) &  &       &  &       &  & \\'+'\n')
+    f.write(r'Corr(Exp, SIMCE)        &  & '+'{:1.2f}'.format(sim[0]) +r' &  & '+'{:1.2f}'.format(moments_vector[0]) +r'   &  & '+'{:1.3f}'.format(ses_opt[0]) +r' \\'+'\n')
+    f.write(r'Corr(Exp, Port)        &  & '+'{:1.2f}'.format(sim[1]) +r' &  & '+'{:1.2f}'.format(moments_vector[1]) +r'   &  & '+'{:1.3f}'.format(ses_opt[1]) +r' \\'+'\n')
+    f.write(r'Corr(Exp, STEI)        &  & '+'{:1.2f}'.format(sim[2]) +r' &  & '+'{:1.2f}'.format(moments_vector[2]) +r'   &  & '+'{:1.3f}'.format(ses_opt[2]) +r' \\'+'\n')
+    f.write(r'Corr(Port, SIMCE)        &  & '+'{:1.2f}'.format(sim[3]) +r' &  & '+'{:1.2f}'.format(moments_vector[3]) +r'   &  & '+'{:1.3f}'.format(ses_opt[3]) +r' \\'+'\n')
+    f.write(r'Corr(STEI, SIMCE)        &  & '+'{:1.2f}'.format(sim[4]) +r' &  & '+'{:1.2f}'.format(moments_vector[4]) +r'   &  & '+'{:1.3f}'.format(ses_opt[4]) +r' \\'+'\n')
     f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[5]) +r' &  & '+'{:1.2f}'.format(moments_vector[5]) +r'   &  & '+'{:1.3f}'.format(ses_opt[5]) +r' \\'+'\n')
     f.write(r'Variance SIMCE                          &  & '+'{:1.2f}'.format(sim[6]) +r' &  & '+'{:1.2f}'.format(moments_vector[6]) +r'   &  & '+'{:1.3f}'.format(ses_opt[6]) +r' \\'+'\n')
     f.write(r'Mean Portfolio                          &  & '+'{:1.2f}'.format(sim[7]) +r' &  & '+'{:1.2f}'.format(moments_vector[7]) +r'   &  & '+'{:1.3f}'.format(ses_opt[7]) +r' \\'+'\n')
@@ -264,17 +263,7 @@ with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
     f.write(r'B. Control group (2018- teachers)   &  &       &  &       &  &       \\'+'\n')
     f.write(r'Mean SIMCE                          &  & '+'{:1.2f}'.format(sim[16]) +r' &  & '+'{:1.2f}'.format(moments_vector[16]) +r'   &  & '+'{:1.3f}'.format(ses_opt[16]) +r' \\'+'\n')
-    f.write(r'Mean Portfolio                          &  & '+'{:1.2f}'.format(sim[17]) +r' &  & '+'{:1.2f}'.format(moments_vector[17]) +r'   &  & '+'{:1.3f}'.format(ses_opt[17]) +r' \\'+'\n')
-    f.write(r'Mean STEI                          &  & '+'{:1.2f}'.format(sim[18]) +r' &  & '+'{:1.2f}'.format(moments_vector[18]) +r'   &  & '+'{:1.3f}'.format(ses_opt[18]) +r' \\'+'\n')
-    f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
-    
-
-    f.write(r'C. Full sample                      &  &       &  &       &  &       \\'+'\n')
-    f.write(r'Corr(Exp, SIMCE)        &  & '+'{:1.2f}'.format(sim[0]) +r' &  & '+'{:1.2f}'.format(moments_vector[0]) +r'   &  & '+'{:1.3f}'.format(ses_opt[0]) +r' \\'+'\n')
-    f.write(r'Corr(Exp, Port)        &  & '+'{:1.2f}'.format(sim[1]) +r' &  & '+'{:1.2f}'.format(moments_vector[1]) +r'   &  & '+'{:1.3f}'.format(ses_opt[1]) +r' \\'+'\n')
-    f.write(r'Corr(Exp, STEI)        &  & '+'{:1.2f}'.format(sim[2]) +r' &  & '+'{:1.2f}'.format(moments_vector[2]) +r'   &  & '+'{:1.3f}'.format(ses_opt[2]) +r' \\'+'\n')
-    f.write(r'Corr(Port, SIMCE)        &  & '+'{:1.2f}'.format(sim[3]) +r' &  & '+'{:1.2f}'.format(moments_vector[3]) +r'   &  & '+'{:1.3f}'.format(ses_opt[3]) +r' \\'+'\n')
-    f.write(r'Corr(STEI, SIMCE)        &  & '+'{:1.2f}'.format(sim[4]) +r' &  & '+'{:1.2f}'.format(moments_vector[4]) +r'   &  & '+'{:1.3f}'.format(ses_opt[4]) +r' \\'+'\n')
+        
     f.write(r'\bottomrule'+'\n')
     f.write(r'\end{tabular}'+'\n')
     f.write(r'}'+'\n')

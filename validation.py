@@ -157,7 +157,7 @@ data_reg = data_reg[data_reg['tramo_a2016'] != "ACCESO"]
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v49.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v50.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')

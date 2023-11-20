@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v48.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v50.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -97,9 +97,9 @@ AEP_priority = np.array(data['priority_aep'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
+alphas = [[0, betas_nelder[1],0,betas_nelder[2],
              betas_nelder[3], betas_nelder[4]],
-            [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
+            [0, 0,betas_nelder[6],betas_nelder[7],
             betas_nelder[8], betas_nelder[9]]]
             
 betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
@@ -160,7 +160,10 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
 
 var_cov = np.load("/home/jrodriguezo/teachers/codes/var_cov_new.npy")
-w_matrix = np.linalg.inv(var_cov)
+
+w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
+for j in range(ses_opt.shape[0]):
+    w_matrix[j,j] = ses_opt[j]**(-2)
 
 
 output_ins = est.estimate(N, years,param0, p1_0,p2_0,treatment, \
@@ -181,23 +184,21 @@ print("--- %s seconds ---" % (time_opt))
 #the list of estimated parameters
 beta_0 = output_me.x[0]
 beta_1 = output_me.x[1]
-beta_2 = output_me.x[2]
-beta_3 = np.exp(output_me.x[3])
+beta_2 = np.exp(output_me.x[2])
+beta_3 = output_me.x[3]
 beta_4 = output_me.x[4]
 beta_5 = output_me.x[5]
-beta_6 = output_me.x[6]
+beta_6 = np.exp(output_me.x[6])
 beta_7 = output_me.x[7]
-beta_8 = np.exp(output_me.x[8])
+beta_8 = output_me.x[8]
 beta_9 = output_me.x[9]
 beta_10 = output_me.x[10]
-beta_11 = output_me.x[11]
+beta_11 = np.exp(output_me.x[11])
 beta_12 = output_me.x[12]
-beta_13 = np.exp(output_me.x[13])
+beta_13 = output_me.x[13]
 beta_14 = output_me.x[14]
 beta_15 = output_me.x[15]
 beta_16 = output_me.x[16]
-beta_17 = output_me.x[17]
-beta_18 = output_me.x[18]
 
 
 
@@ -208,11 +209,11 @@ betas_opt_me = np.array([beta_0,beta_1, beta_2,
 	beta_4,beta_5,beta_6,beta_7,beta_8,
 	beta_9,beta_10,beta_11,beta_12,
 	beta_13,beta_14,beta_15,
-	beta_16,beta_17,beta_18])
+	beta_16])
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v49.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v51.npy',betas_opt_me)
 
 
 
