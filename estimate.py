@@ -108,8 +108,7 @@ class estimate:
             
             
             #### A. Full sample###
-            datadfT = pd.DataFrame(dataf, columns=['SIMCE treated','SIMCE control', 'SIMCE','PORTFOLIO treated','PORTFOLIO control','PORTFOLIO',
-                'STEI treated', 'STEI control','STEI','EXP', 'PLACEMENT treated', 'PLACEMENT control' ,'PORTPAST', 'TESTPAST','P_past','Initial Placement'])
+            datadfT = pd.DataFrame(dataf, columns=['SIMCE','PORTFOLIO','STEI','EXP', 'PLACEMENT treated', 'PLACEMENT control' ,'PORTPAST', 'TESTPAST','P_past','Initial Placement'])
 
             #### B. Treated sample###
             data_treated =  datadfT[self.treatment == 1]

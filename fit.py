@@ -42,7 +42,7 @@ np.random.seed(123)
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v50.npy")
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v51.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
@@ -102,13 +102,13 @@ N = np.size(p1_0)
 
 HOURS = np.array([44]*N)
 
-alphas = [[0, betas_nelder[1],0,betas_nelder[2],
-             betas_nelder[3], betas_nelder[4]],
-            [0, 0,betas_nelder[6],betas_nelder[7],
-            betas_nelder[8], betas_nelder[9]]]
+alphas = [[0, betas_nelder[0],0,betas_nelder[1],
+             betas_nelder[2], betas_nelder[3]],
+            [0, 0,betas_nelder[4],betas_nelder[5],
+            betas_nelder[6], betas_nelder[7]]]
             
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
-gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+betas = [betas_nelder[8], betas_nelder[9], betas_nelder[10],betas_nelder[11],betas_nelder[12],betas_nelder[13]]
+gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
     
 
 
