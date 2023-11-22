@@ -157,7 +157,7 @@ data_reg = data_reg[data_reg['tramo_a2016'] != "ACCESO"]
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v50.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -211,13 +211,13 @@ for x in range(0,2):
     N = np.size(p1_0)
     HOURS = np.array([44]*N)
     
-    alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-             betas_nelder[3], betas_nelder[4]],
-            [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-            betas_nelder[8], betas_nelder[9]]]
-            
-    betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
-    gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+    alphas = [[0, betas_nelder[0],0,betas_nelder[1],
+                 betas_nelder[2], betas_nelder[3]],
+                [0, 0,betas_nelder[4],betas_nelder[5],
+                betas_nelder[6], betas_nelder[7]]]
+                
+    betas = [betas_nelder[8], betas_nelder[9], betas_nelder[10],betas_nelder[11],betas_nelder[12],betas_nelder[13]]
+    gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
     
     dolar= 600
     value = [14403, 15155]
@@ -559,7 +559,7 @@ ax.yaxis.set_ticks_position('left')
 ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
 plt.xticks(fontsize=12)
-#ax.set_ylim(0,0.26)
+ax.set_ylim(-0.05,0.15)
 #ax.legend(fontsize = 13)
 ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
 plt.tight_layout()

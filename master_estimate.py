@@ -35,7 +35,7 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v50.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v53.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
@@ -97,13 +97,13 @@ AEP_priority = np.array(data['priority_aep'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[0, betas_nelder[1],0,betas_nelder[2],
-             betas_nelder[3], betas_nelder[4]],
-            [0, 0,betas_nelder[6],betas_nelder[7],
-            betas_nelder[8], betas_nelder[9]]]
+alphas = [[0, betas_nelder[0],0,betas_nelder[1],
+             betas_nelder[2], betas_nelder[3]],
+            [0, 0,betas_nelder[4],betas_nelder[5],
+            betas_nelder[6], betas_nelder[7]]]
             
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
-gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
+betas = [-0.85, betas_nelder[9], betas_nelder[10],betas_nelder[11],betas_nelder[12],betas_nelder[13]]
+gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
     
 
 # basic rent by hour in dollar (average mayo 2020, until 13/05/2020) *
@@ -213,7 +213,7 @@ betas_opt_me = np.array([beta_0,beta_1, beta_2,
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v51.npy',betas_opt_me)
+np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy',betas_opt_me)
 
 
 
