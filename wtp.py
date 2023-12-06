@@ -53,7 +53,7 @@ from linearmodels.panel import PanelOLS
 np.random.seed(123)
 
 
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v44.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -96,16 +96,13 @@ locality = np.array(data['AsignacionZona'])
 N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
-alphas = [[betas_nelder[0], betas_nelder[1],0,betas_nelder[2],
-         betas_nelder[3], betas_nelder[4]],
-        [betas_nelder[5], 0,betas_nelder[6],betas_nelder[7],
-        betas_nelder[8], betas_nelder[9]]]
-        
-betas = [betas_nelder[10], betas_nelder[11], betas_nelder[12],betas_nelder[13],betas_nelder[14],betas_nelder[15]]
-gammas = [betas_nelder[16],betas_nelder[17],betas_nelder[18]]
-
-alphas_control = [[betas_nelder[19],betas_nelder[20]],[betas_nelder[21],betas_nelder[22]]]
-betas_control = [betas_nelder[23],betas_nelder[24]]
+alphas = [[0, betas_nelder[0],0,betas_nelder[1],
+             betas_nelder[2], betas_nelder[3]],
+            [0, 0,betas_nelder[4],betas_nelder[5],
+            betas_nelder[6], betas_nelder[7]]]
+            
+betas = [betas_nelder[8], betas_nelder[9], betas_nelder[10],betas_nelder[11],betas_nelder[12],betas_nelder[13]]
+gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
 
 dolar= 600
 value = [14403, 15155]
@@ -145,8 +142,7 @@ pol = [progress[0]/dolar, progress[1]/dolar, progress[2]/dolar, progress[3]/dola
 pri = [48542,66609,115151]
 priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
-param0 = parameters.Parameters(alphas,betas,gammas,alphas_control, betas_control,
-                               hw,porc,pro,pol,AEP,priori)
+param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 #List of choices across counterfactuals
 simce = []
@@ -158,7 +154,8 @@ wtp_list = []
 utils_list = []
 delta_income = []
 delta_simce = []
-
+portfolio_list = []
+test_list = []
 
 
 
@@ -185,10 +182,11 @@ for x in range(0,4):
        
     simce_sims = np.zeros((N,n_sim))
     income_sims = np.zeros((N,n_sim))
-    baseline_sims = np.zeros((N,n_sim,2))
     effort_p_sims = np.zeros((N,n_sim))
     effort_t_sims = np.zeros((N,n_sim))
     utils_sims = np.zeros((N,n_sim))
+    portfolio_sims = np.zeros((N,n_sim))
+    test_sims = np.zeros((N,n_sim))
 
     if x == 3:
       modelSD = sdc.SimDataC(N,model)
@@ -198,7 +196,9 @@ for x in range(0,4):
     for j in range(n_sim):
         opt = modelSD.choice()
         utils_sims[:,j] = opt['Opt Utility']
-        simce_sims[:,j] = opt['Opt Simce'][1-x]
+        simce_sims[:,j] = opt['Opt Simce']
+        portfolio_sims[:,j] = opt['Opt Teacher'][0]
+        test_sims[:,j] = opt['Opt Teacher'][1]
         if x == 0:
             income_sims[:,j] = opt['Opt Income'][1]
         else:
@@ -216,19 +216,20 @@ for x in range(0,4):
     
     simce.append(np.mean(simce_sims,axis=1))
     income.append(np.mean(income_sims,axis=1))
-    baseline_p.append(np.mean(baseline_sims,axis=1))
     effort_p.append(np.mean(effort_p_sims,axis = 1))
     effort_t.append(np.mean(effort_t_sims,axis = 1))
     utils_list.append(np.mean(utils_sims,axis = 1))
+    portfolio_list.append(np.mean(portfolio_sims,axis = 1))
+    test_list.append(np.mean(test_sims,axis = 1))
 
 
 #WTP, effects on income and simce
 for x in range(3):
 
     #wtps
-    wtp_list.append(np.exp(utils_list[x + 1] - (gammas[0]*effort_p[0] + gammas[1]*effort_t[0] + gammas[2]*simce[0])) - income[0])
+    wtp_list.append(-1*(np.exp(utils_list[x + 1] - (gammas[0]*effort_p[0] + gammas[1]*effort_t[0] + gammas[2]*simce[0])) - income[0]))
 
-    #Changes in income (to compute added revenues)
+    #Changes in income (to compute added revenues and provision cost)
     delta_income.append(income[x+1] - income[0])
 
     #ATTs on simce
@@ -261,7 +262,7 @@ for x in range(3):
     wtp_student[x] = np.mean(delta_simce[x])*rho*lifetime_earnings*(1-tax)
     wtp_teachers[x] = np.mean(wtp_list[x])*12*(1-tax)
     wtp_overall[x] = wtp_student[x] + wtp_teachers[x]
-    provision[x] = np.mean(wtp_list[x])*12
+    provision[x] = np.mean(delta_income[x])*12
     revenue[x] = np.mean(delta_simce[x])*rho*lifetime_earnings*tax + provision[x]*tax
     net_cost[x] = provision[x] - revenue[x]
     mvpf[x] = wtp_overall[x] / net_cost[x]

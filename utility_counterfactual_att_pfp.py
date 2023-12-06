@@ -283,8 +283,8 @@ class Count_att_2_pfp(Utility):
     
             
         #Treated: a linear pay-for-performance salary        
-        b = 725
-        a = 800
+        b = 4000
+        a = 200
         salary = np.zeros(initial_p_2.shape[0])
         
         salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2

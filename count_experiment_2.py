@@ -183,6 +183,7 @@ for x in range(0,3):
    # SIMULACIÓN SIMDATA
     
    simce_sims = np.zeros((N,n_sim))
+   income_sims = np.zeros((N,n_sim))
    baseline_sims = np.zeros((N,n_sim,2))
    effort_p_sims = np.zeros((N,n_sim))
    effort_t_sims = np.zeros((N,n_sim))
@@ -195,6 +196,7 @@ for x in range(0,3):
    for j in range(n_sim):
       opt = modelSD.choice()
       simce_sims[:,j] = opt['Opt Simce']
+      income_sims[:,j] = opt['Opt Income'][0]*treatment + opt['Opt Income'][1]*(1 - treatment)
       effort_v1 = opt['Opt Effort']
       d_effort_t1 = effort_v1 == 1
       d_effort_t2 = effort_v1 == 2
@@ -205,6 +207,7 @@ for x in range(0,3):
       effort_t_sims[:,j] = effort_h
     
    simce.append(np.mean(simce_sims,axis=1))
+   income.append(np.mean(income_sims,axis=1))
    baseline_p.append(np.mean(baseline_sims,axis=1))
    effort_p.append(np.mean(effort_p_sims,axis = 1))
    effort_t.append(np.mean(effort_t_sims,axis = 1))    
@@ -219,6 +222,8 @@ print ('')
 #For validation purposes
 att_sim_original = simce[1] - simce[0]
 att_sim_count = simce[2] - simce[0]
+att_income_original = income[1] - income[0]
+att_income_count = income[2] - income[0]
 
 
 #---------------------------------------------------------------#
@@ -244,7 +249,8 @@ ax.yaxis.set_ticks_position('left')
 ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
 plt.xticks(fontsize=12)
-#ax.set_ylim(0,0.26)
+ax.set_ylim(0,0.12)
+plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
 ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
