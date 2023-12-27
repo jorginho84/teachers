@@ -54,40 +54,40 @@ class Count_att_2_pfp(Utility):
         #The following will not be used in this counterfactual
         #initial placement 1
         placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] >= 2.75) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & ((tscores[1] >= 1.88) & (tscores[1] <= 2.74)) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74)  ] = 3
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3)) & (tscores[1] > 1.87) ] = 3
-        placementF[(initial_p == 1) & (tscores[0] >= 3)  & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 1) & (tscores[0] >= 3)  & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] > 2.74) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74)  ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] > 1.87) ] = 3
         
         #initial placement 2
         placementF[(initial_p == 2) & (tscores[0] <= 2.25)] = 2
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] >= 2.75) ] = 3
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 1.88) ] = 3
-        placementF[(initial_p == 2) & (tscores[0] >= 3.01)  & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 2) & (tscores[0] >= 3.01)  & (tscores[1] >= 1.88) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] > 1.87) ] = 3
         
         #initial placement 3
         placementF[(initial_p == 3) & (tscores[0] <= 2.25)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] >= 3.98)] = 4
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 2.75)] = 4
-        placementF[(initial_p == 3) & (tscores[0] >= 3.01) & (tscores[1] <= 1.87)] = 3
-        placementF[(initial_p == 3) & (tscores[0] >= 3.01) & (tscores[1] >= 1.88)] = 4
+        placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 3.38)] = 4
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 2.74)] = 4
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] <= 1.87)] = 3
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] > 1.87)] = 4
         
        #initial placement 4
         placementF[(initial_p == 4) & (tscores[0] <= 2.5)] = 4
-        placementF[(initial_p == 4) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 3.38)] = 4
-        placementF[(initial_p == 4) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 3.39)] = 5
-        placementF[(initial_p == 4) & (tscores[0] >= 3.01) & (tscores[1] <= 2.74)] = 4
-        placementF[(initial_p == 4) & (tscores[0] >= 3.01) & (tscores[1] >= 2.75)] = 5
+        placementF[(initial_p == 4) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 3.38)] = 4
+        placementF[(initial_p == 4) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 3.38)] = 5
+        placementF[(initial_p == 4) & (tscores[0] > 3.0) & (tscores[1] <= 2.74)] = 4
+        placementF[(initial_p == 4) & (tscores[0] > 3.01) & (tscores[1] > 2.74)] = 5
         
         #initial placement 5
         placementF[(initial_p == 5)] = 5
@@ -283,8 +283,8 @@ class Count_att_2_pfp(Utility):
     
             
         #Treated: a linear pay-for-performance salary        
-        b = 4000
-        a = 200
+        b = 1626
+        a = 425
         salary = np.zeros(initial_p_2.shape[0])
         
         salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2

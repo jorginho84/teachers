@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 #sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
 #sys.path.append("D:\Git\ExpSIMCE")
 #sys.path.append("C:\\Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13")
-sys.path.append("/home/jrodriguezo/teachers/codes")
+sys.path.append("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy")
 import time
 import utility as util
 import parameters as parameters
@@ -35,16 +35,16 @@ np.random.seed(123)
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v29.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v24.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v53.npy")
+betas_nelder  = np.load(r"C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/estimates/betasopt_model_v53.npy")
 
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_v2023.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
-moments_vector = np.load("/home/jrodriguezo/teachers/codes/moments_new.npy")
+moments_vector = np.load(r"C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/estimates/moments_new.npy")
 
 #data = pd.read_stata('D:\Git\ExpSIMCE/data_pythonpast.dta')
-data = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
+data = pd.read_stata(r'C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/data_pythonpast_v2023.dta')
 #data = pd.read_stata('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/data_pythonpast_v2023.dta')
 
 # Reading the data in pkl extension.
@@ -157,9 +157,9 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/ses_model.npy")
 #ses_opt = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_v2023.npy")
-ses_opt = np.load("/home/jrodriguezo/teachers/codes/ses_model_new.npy")
+ses_opt = np.load(r"C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/estimates/ses_model_new.npy")
 
-var_cov = np.load("/home/jrodriguezo/teachers/codes/var_cov_new.npy")
+var_cov = np.load(r"C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/estimates/var_cov_new.npy")
 
 w_matrix = np.zeros((ses_opt.shape[0],ses_opt.shape[0]))
 for j in range(ses_opt.shape[0]):
@@ -213,7 +213,7 @@ betas_opt_me = np.array([beta_0,beta_1, beta_2,
                         
 
 
-np.save('/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy',betas_opt_me)
+np.save(r'C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/estimates/betasopt_model_v56.npy',betas_opt_me)
 
 
 

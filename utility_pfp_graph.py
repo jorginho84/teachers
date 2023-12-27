@@ -1,8 +1,18 @@
+# -*- coding: utf-8 -*-
 """
-Utility class: takes parameters, X's, and given choices
-computes utility. It modifies the original utility by
-forcing all agents to go through the same production
-functions
+Created on Wed Dec 20 18:52:51 2023
+
+@author: Patricio De Araya
+"""
+
+# -*- coding: utf-8 -*-
+"""
+
+
+-Utility class: takes parameters, X's, and given choices
+computes utility
+
+
 """
 # from __future__ import division #omit for python 3.x
 import numpy as np
@@ -12,28 +22,63 @@ import os
 from scipy import stats
 import math
 from math import *
-sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
-from utility import Utility
 
 
-class Count_att_2_cat(Utility):
+class Utility(object):
     """ 
 
-    This class modifies the economic environment of the agent
+    This class defines the economic environment of the agent
 
     """
 
-    def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
-                 catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority):
+    def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, catPort, catPrueba, 
+                 TrameI, priotity, rural_rbd, locality, AEP_priority):
         """
-        Calling baseline model
+        Set up model's data and paramaters
+
+        treatment: 1 if we simulate carrera docente. 0 otherwise.
 
         """
+
+        self.param = param
+        self.N = N
+        self.p1_0,self.p2_0 = p1_0,p2_0
+        self.years = years
+        self.treatment = treatment
+        self.typeSchool = typeSchool
+        self.HOURS = HOURS
+        self.p1 = p1
+        self.p2 = p2
+        self.catPort = catPort
+        self.catPrueba = catPrueba
+        self.TrameI = TrameI
+        self.priotity = priotity
+        self.rural_rbd = rural_rbd
+        self.locality = locality
+        self.AEP_priority = AEP_priority
+    
+    def initial(self):
         
-        Utility.__init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
-                 catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority)
-
-
+        
+        initial_p = np.zeros(self.p1.shape[0])
+        
+        initial_p[(self.TrameI=='INICIAL')] = 1
+        initial_p[(self.TrameI=='TEMPRANO')] = 2
+        initial_p[(self.TrameI=='AVANZADO')] = 3
+        initial_p[(self.TrameI=='EXPERTO I')] = 4
+        initial_p[(self.TrameI=='EXPERTO II')] = 5
+        
+        #concat = self.catPort +  self.catPrueba
+        #concat = concat.reshape(-1)
+        #concat2fg = [str(i) for i in initial_p]
+        #arr = np.array(concat2fg)
+        #concatlast = arr + concat
+        
+        return initial_p
+        
+              
+                
+        
     def placement(self,tscores,initial_p):
 
         # *I want to replicate the typecasting of the teachers to the tramo
@@ -48,48 +93,36 @@ class Count_att_2_cat(Utility):
         placementF_aep = np.zeros(self.p1.shape[0])
         #placement_corr = np.zeros(self.p1.shape[0])
 
-                
-        #Treatment group: initial placement does not matter
-
+            
         #initial placement 1
         placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
         placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
         placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] > 2.74) ] = 2
         placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
         placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 2.74) & (tscores[1] <= 3.38)) ] = 3
-        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 3.38) ] = 4
-        placementF[(initial_p == 1) & ((tscores[0] > 2.50) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] > 2.50) & (tscores[0] <= 3)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 3
-        placementF[(initial_p == 1) & ((tscores[0] > 2.50) & (tscores[0] <= 3)) & ((tscores[1] > 2.74) & (tscores[1] <= 3.38)) ] = 4
-        placementF[(initial_p == 1) & ((tscores[0] > 2.50) & (tscores[0] <= 3)) & (tscores[1] > 3.38) ] = 5
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74)  ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] > 1.87) ] = 3
         placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 1) & (tscores[0] > 3)  & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 4
-        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] > 2.74) ] = 5
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] > 1.87) ] = 3
         
         #initial placement 2
         placementF[(initial_p == 2) & (tscores[0] <= 2.25)] = 2
         placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
-        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 2.74) & (tscores[1] <= 3.38)) ] = 3
-        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 3.38)  ] = 4
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74) ] = 3
         placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & ((tscores[1] > 1.87) &  (tscores[1] <= 2.74)) ] = 3
-        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & ((tscores[1] > 2.74) &  (tscores[1] <= 3.38)) ] = 4
-        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 3.38) ] = 5
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 1.87) ] = 3
         placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 4
-        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] > 2.74) ] = 5
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] > 1.87) ] = 3
         
         #initial placement 3
         placementF[(initial_p == 3) & (tscores[0] <= 2.25)] = 3
         placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
         placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 3.38)] = 4
         placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & ((tscores[1] >= 2.74) & (tscores[1] <= 3.38))] = 4
-        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 3.38) ] = 5
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 2.74)] = 4
         placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] <= 1.87)] = 3
-        placementF[(initial_p == 3) & (tscores[0] > 3.0) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74))] = 4
-        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] > 2.77) ] = 5
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] > 1.87)] = 4
         
        #initial placement 4
         placementF[(initial_p == 4) & (tscores[0] <= 2.5)] = 4
@@ -100,7 +133,6 @@ class Count_att_2_cat(Utility):
         
         #initial placement 5
         placementF[(initial_p == 5)] = 5
-
                 
         # " Control: AEP "
         placementF_aep[(tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
@@ -121,10 +153,16 @@ class Count_att_2_cat(Utility):
         placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=9
         np.warnings.filterwarnings('ignore')
 
-        
+        #Experience requirements
+        placementF[(placementF == 2) & (self.years < 4) ] = 1
+        placementF[(placementF == 3) & (self.years < 4) ] = 1
+        placementF[(placementF == 4) & (self.years < 8) ] = 3
+        placementF[(placementF == 5) & (self.years < 12) ] = 4
         
 
+        #return [placementF,placement_corr,placementF_aep]
         return [placementF,placementF_aep]
+    
 
     def income(self, initial_p):
         """
@@ -138,7 +176,7 @@ class Count_att_2_cat(Utility):
         HvalueS = self.param.hw[1]
         
         initial_p_2 = initial_p[0].copy()
-        initial_p_aep = initial_p[1].copy()
+        #initial_p_aep = initial_p[1].copy()
        
         RBMNElemt2 = np.zeros(initial_p_2.shape[0])
         RBMNSecond2 = np.zeros(initial_p_2.shape[0])
@@ -277,10 +315,10 @@ class Count_att_2_cat(Utility):
         
         # "Pre-reform Priority allocation (4 years)
         
-        prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
-        prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
-        prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
-        priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
+        #prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
+        #prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
+        #prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
+        #priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
         
         
         # " Locality assignation
@@ -309,9 +347,21 @@ class Count_att_2_cat(Utility):
         salary17 = np.where((initial_p_2==5) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_1]), salary2d)
         salary19 = np.where((initial_p_2==5) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
 
-        #Control: following initial placement
-
+        #pre-reform, experiencia only once
+        """
+        salary21 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt]), salary3d)
+        salary22 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond]), salary3d)
         
+        salary23 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoI]), salary3d)
+        salary24 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoI]), salary3d)
+        
+        salary25 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoII]), salary3d)
+        salary26 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoII]), salary3d)
+        
+        salary27 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoIII]), salary3d)
+        salary28 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoIII]), salary3d)
+        """
+
         initial_p = self.initial()
 
         salary21 = np.where((initial_p==1) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPinitial,prioirtyap,localAssig_1]), salary2d)
@@ -333,11 +383,241 @@ class Count_att_2_cat(Utility):
             
         salary = sum([salary1,salary3,salary5,salary7,salary9,salary11,salary13,salary15,salary17,salary19])
             
-        salary_pr = sum([salary21,salary22,salary23,salary24,salary25,salary26,salary27,salary28,salary29,salary30])
+        salary_pr = sum([salary21,salary22,salary23,salary24,salary25,salary26,salary27,salary28, salary29,salary30])
         
         #This is salary post-reform, for -2018 teachers
 
         #getting 4-year average salary
         return [salary, salary_pr]
+    
+    
+    def distance(self, initial_pF,tscores):
+        """
+        Take the evaluation in portfolio and test.
+            
+        Returns
+        -------
+        distancetrame : Vector of next tramo to reach.
+    
+        """        
+        
+        concat = self.catPort +  self.catPrueba
+        concat = concat.reshape(-1)
+        concat2fg = [str(i) for i in initial_pF]
+        arr = np.array(concat2fg)
+        concatlast = arr + concat
+        
+        #This is Next trame
+        
+        tramolet = np.zeros(self.catPort.shape)
+        
+        #** Initial **
+        #tramolet[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
+                 #(concatlast =="0.0E")]= 154 #"INICIALED"
+        #** Early **
+        tramolet[(concatlast =="1.0EA") | (concatlast =="1.0DB")]= 241 #"TEMPRANODA"    
+        tramolet[(concatlast =="1.0EB") | (concatlast =="1.0DC") | (concatlast =="1.0D")]= 242 #"TEMPRANODB"
+        tramolet[(concatlast =="1.0EC") | (concatlast =="1.0DD")]= 243 #"TEMPRANODC"
+        tramolet[(concatlast =="1.0ED") | (concatlast =="1.0E")]= 244 #"TEMPRANODD"
+        tramolet[(concatlast =="1.0A")]= 214 #"TEMPRANOAD"
+        #** Advanced **
+        tramolet[(concatlast =="1.0CD") |(concatlast =="2.0DB") | (concatlast =="2.0CC") | (concatlast =="2.0D") | \
+                 (concatlast =="2.0C") | (concatlast =="1.0CC") | (concatlast =="1.0DA") | (concatlast =="1.0C") | \
+                     (concatlast =="2.0ED") | (concatlast =="2.0EC") | (concatlast =="2.0EB") | (concatlast =="2.0DD") | \
+                         (concatlast =="2.0DC") | (concatlast =="2.0CD")]= 332 #"AVANZADOCB"
+        tramolet[(concatlast =="2.0BD") | (concatlast =="2.0B") | (concatlast =="1.0B") | (concatlast =="1.0B")]= 323 #"AVANZADOBC"
+        tramolet[(concatlast =="2.0BD") | (concatlast =="2.0B") | (concatlast =="1.0B") | (concatlast =="1.0B") | \
+                 (concatlast =="1.0BD")]= 323 #"AVANZADOBC"
+        #** Expert I **
+        tramolet[(concatlast =="2.0DA") | (concatlast =="3.0CB") | (concatlast =="3.0D") | (concatlast =="3.0CC") | \
+                 (concatlast =="3.0CD") | (concatlast =="3.0DA") | (concatlast =="3.0DB") | (concatlast =="3.0DC") | \
+                     (concatlast =="3.0DD") | (concatlast =="3.0EA") | (concatlast =="3.0EB") | (concatlast =="3.0C") | \
+                         (concatlast =="3.0E") | (concatlast =="3.0EC") | (concatlast =="3.0ED") | (concatlast =="2.0CB")]= 431 #"EXPERTO ICA"
+        tramolet[(concatlast =="2.0AD") | (concatlast =="3.0A") | (concatlast =="3.0AD")]= 413 #"EXPERTO IAC"
+        tramolet[(concatlast =="3.0BC") | (concatlast =="3.0B") | (concatlast =="3.0BD") | (concatlast =="3.0CA")]= 422 #"EXPERTO IBB"
+        #** Expert II **
+        tramolet[(concatlast =="4.0CA") | (concatlast =="4.0BB") | (concatlast =="4.0BC") | (concatlast =="4.0CB") | \
+                 (concatlast =="4.0DA") | (concatlast =="4.0CC") | (concatlast =="4.0DB") | (concatlast =="4.0EA")]= 521 #"EXPERTO IIBA"
+        tramolet[(concatlast =="4.0AC")]= 512 #"EXPERTO IIAB"
+        tramolet[(concatlast =="4.0AB")]= 512 #"EXPERTO IIAA"
+        #** Top Teacher **
+        tramolet[(concatlast =="4.0BA") | (concatlast =="4.0AA") | (concatlast =="3.0AA") | (concatlast =="3.0AB") | \
+                 (concatlast =="3.0BA") | (concatlast =="1.0AA") | (concatlast =="1.0AB") | (concatlast =="1.0AC") | \
+                     (concatlast =="1.0AD") | (concatlast =="1.0BA") | (concatlast =="1.0BB") | (concatlast =="1.0BC") | \
+                         (concatlast =="1.0CA") | (concatlast =="1.0CB") | (concatlast =="5.0AA") | (concatlast =="5.0AB") | \
+                             (concatlast =="5.0BA") | (concatlast =="3.0BB") | (concatlast =="3.0AC") | (concatlast =="5.0BB") | \
+                                 (concatlast =="5.0CA") | (concatlast =="5.0DB")]= 6 #"TOP TEACHER"
+            
+        nexttramo = tramolet
+        
+        #This is distance
+        
+        row = np.zeros(self.catPort.shape)
+        
+        #row[(concatlast =="0.0A") | (concatlast =="0.0B") | (concatlast =="0.0C") | (concatlast =="0.0D") | \
+            #(concatlast =="1.0E")]= 1
+        row[(concatlast =="1.0ED") | (concatlast =="1.0EC") | (concatlast =="1.0EB") | (concatlast =="1.0EA")]= 2
+        row[(concatlast =="2.0DA") | (concatlast =="2.0DB") | (concatlast =="2.0D") | (concatlast =="1.0DA") | \
+            (concatlast =="3.0D") | (concatlast =="2.0D") | (concatlast =="2.0ED") | (concatlast =="2.0EC") | \
+                (concatlast =="2.0EB") | (concatlast =="2.0DD") | (concatlast =="2.0DC") | (concatlast =="3.0DA") | \
+                    (concatlast =="3.0E") | (concatlast =="3.0DB") | (concatlast =="3.0EC") | (concatlast =="3.0DC") | \
+                        (concatlast =="3.0ED") | (concatlast =="3.0DD") | (concatlast =="3.0EA") | (concatlast =="3.0EB")]= 2.26
+        row[(concatlast =="3.0CA") | (concatlast =="4.0CA") | (concatlast =="4.0CB") | (concatlast =="4.0DA") | \
+            (concatlast =="4.0CC") | (concatlast =="4.0DB") | (concatlast =="4.0EA") | (concatlast =="2.0CC") | \
+                (concatlast =="3.0CB")]= 2.51
+        row[(concatlast =="3.0BC") | (concatlast =="4.0BB")]= 3.01
+    
+        
+        col = np.zeros(self.catPort.shape)
+        
+        #col[(concatlast =="1.0A")]= 1
+        col[(concatlast =="2.0BD") | (concatlast =="1.0DD") | (concatlast =="2.0B") | (concatlast =="1.0B") | \
+            (concatlast =="2.0AD") | (concatlast =="1.0BD") | (concatlast =="3.0A") | (concatlast =="3.0AD") | \
+                (concatlast =="1.0BD")]= 1.88
+        col[(concatlast =="1.0ED") | (concatlast =="1.0EC") | (concatlast =="1.0DD") | (concatlast =="1.0DC") | \
+            (concatlast =="1.0CD") | (concatlast =="2.0CC") | (concatlast =="1.0D") | (concatlast =="3.0BC") | \
+                (concatlast =="2.0C") | (concatlast =="3.0BD") | (concatlast =="4.0AC") | (concatlast =="1.0C") | \
+                    (concatlast =="3.0B") | (concatlast =="1.0CC") | (concatlast =="2.0ED") | (concatlast =="2.0EC") | \
+                        (concatlast =="2.0DD") | (concatlast =="2.0DC") | (concatlast =="2.0CD")]= 2.75
+        col[(concatlast =="4.0AB") | (concatlast =="4.0BB") | (concatlast =="3.0CB") | (concatlast =="1.0DB") | \
+            (concatlast =="3.0CC") | (concatlast =="3.0C") | (concatlast =="3.0CD") | (concatlast =="3.0EC") | \
+                (concatlast =="3.0DB") | (concatlast =="3.0ED") | (concatlast =="3.0DC") | (concatlast =="3.0DD") | \
+                    (concatlast =="3.0EB") | (concatlast =="4.0BC") | (concatlast =="4.0CB") | (concatlast =="4.0CC") | \
+                        (concatlast =="4.0DB")]= 3.38
+        
+        susX2 = np.zeros(self.catPort.shape)
+        susX2 = susX2.reshape(-1)
+        susY2 = np.zeros(self.catPort.shape)
+        susY2 = susY2.reshape(-1)
+            
+        row = row.reshape(-1)
+        p1 = tscores[0].reshape(-1)
+        susX = np.where((row != 0 ), p1 - row, susX2)
+        col = col.reshape(-1)
+        p2 = tscores[1].reshape(-1)
+        susY = np.where((col != 0), p2 - col, susY2) 
+        #squareX = np.square(susX)
+        #squareY = np.square(susY)
+        XY_distance2 = np.zeros(self.catPort.shape)
+        XY_distance = np.where((susX != 0) & (susY != 0), (susX+susY)/2, np.where(susX != 0, susX, np.where(susY != 0, susY, XY_distance2))) 
+        #sumsquare = squareX + squareY
+        #finalsquare = np.sqrt(sumsquare)
+        
+        Rsquare = np.empty(self.catPort.shape)
+        Rsquare[:] = np.nan
+        Rsquare2 = np.where(tramolet != 6, XY_distance, Rsquare)
+        
+        #Rsquare_5 = pd.qcut(Rsquare2, 5, labels = False)
+        
+        return [nexttramo, Rsquare2, susX, susY]
+    
+
+
+
+    def student_h(self, effort):
+        """
+        takes student initial HC and teacher effort to compute achievement
+
+        return: student test score, where effort_low = 0
+
+        """
+        d_effort_t1 = effort == 1
+        d_effort_t2 = effort == 2
+        d_effort_t3 = effort == 3
+        
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
+        
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
+     
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        p0_past[self.treatment == 0] = 0
+        
+
+    
+        eps = np.random.randn(self.N)*self.param.betas[3]
+        
+        simce =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
+            self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
+        
+
+        return simce
+    
+    def t_test(self,effort):
+        """
+        takes initial scores, effort and experience
+
+        returns: test scores and portfolio
+
+        """
+        
+ 
+        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
+        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
+        
+     
+        p0_past = np.zeros(p1v1_past.shape)
+        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
+        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
+        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
+        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
+        p0_past[self.treatment == 0] = 0
+        
+        d_effort_t1 = effort == 1
+        d_effort_t2 = effort == 2
+        d_effort_t3 = effort == 3
+        
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
+        
+       
+        pb = []
+           
+        for j in range(2):
+            
+            shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
+            
+            pb.append(self.param.alphas[j][0] + \
+                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
+                         self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
+                             shock)
+            
+        p_scores = [((1/(1+np.exp(-pb[0]))) + (1/3))*3, ((1/(1+np.exp(-pb[1]))) + (1/3))*3]
+            
+
+                
+        return p_scores
+
+    def utility(self, income, effort, h):
+        """
+        Takes states income, student achievement, and effort
+
+        returns: utility in log income terms
+
+        """
+        
+       
+        d_effort_t1 = effort == 1
+        d_effort_t2 = effort == 2
+        d_effort_t3 = effort == 3
+        
+        effort_m = d_effort_t1 + d_effort_t3
+        effort_h = d_effort_t2 + d_effort_t3
+        
+        income_aux = income[0]*self.treatment + income[1]*(1-self.treatment)
+     
+        U_rsl = np.log(income_aux) + self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h + self.param.gammas[2]*h
+        
+        #mu_c = -0.5
+        #ut_h = self.param.gammas[0]*effort_m + self.param.gammas[1]*effort_h
+        #U_rsl = np.exp(ut_h)*((income_aux)**mu_c)/(mu_c) + self.param.gammas[2]*np.log(h)
+        return U_rsl
+
 
 

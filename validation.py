@@ -22,7 +22,7 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 #sys.path.append("C:\\Users\\Jorge\\Dropbox\\Chicago\\Research\\Human capital and the household\]codes\\model")
 #sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers")
-sys.path.append("/home/jrodriguezo/teachers/codes")
+sys.path.append("C://Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy")
 #import gridemax
 import time
 #import int_linear
@@ -65,7 +65,7 @@ np.random.seed(123)
 #----------------------------------------------#
 #----------------------------------------------#
 #data_reg = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/FINALdata.dta')
-data_reg = pd.read_stata('/home/jrodriguezo/teachers/data/FINALdata.dta')
+data_reg = pd.read_stata(r'C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy\FINALdata.dta')
 
 
 
@@ -88,6 +88,11 @@ data_reg.loc[data_reg["drun_m"]==data_reg["drun_l"],'drun'] = data_reg["drun_m"]
 data_reg.loc[(data_reg["drun_m"].notna()) & (data_reg["drun_l"].isna()),'drun'] = data_reg["drun_m"]
 data_reg.loc[(data_reg["drun_m"].isna()) & (data_reg["drun_l"].notna()),'drun'] = data_reg["drun_l"]
 
+#Distance to cutofff
+data_reg.loc[data_reg["XY_distance_m"]==data_reg["XY_distance_l"],'XY_distance'] = data_reg["XY_distance_m"]
+data_reg.loc[(data_reg["XY_distance_m"].notna()) & (data_reg["XY_distance_l"].isna()),'XY_distance'] = data_reg["XY_distance_m"]
+data_reg.loc[(data_reg["XY_distance_m"].isna()) & (data_reg["XY_distance_l"].notna()),'XY_distance'] = data_reg["XY_distance_l"]
+
 #experience
 data_reg.loc[data_reg["experience_m"]==data_reg["experience_l"],'experience'] = data_reg["experience_m"]
 data_reg.loc[(data_reg["experience_m"].notna()) & (data_reg["experience_l"].isna()),'experience'] = data_reg["experience_m"]
@@ -108,17 +113,6 @@ data_reg.loc[data_reg["d_year_m"]==data_reg["d_year_l"],'d_year'] = data_reg["d_
 data_reg.loc[(data_reg["d_year_m"].notna()) & (data_reg["d_year_l"].isna()),'d_year'] = data_reg["d_year_m"]
 data_reg.loc[(data_reg["d_year_m"].isna()) & (data_reg["d_year_l"].notna()),'d_year'] = data_reg["d_year_l"]
 
-#Distance to cutofff
-data_reg.loc[data_reg["XY_distance_m"]==data_reg["XY_distance_l"],'XY_distance'] = data_reg["XY_distance_m"]
-data_reg.loc[(data_reg["XY_distance_m"].notna()) & (data_reg["XY_distance_l"].isna()),'XY_distance'] = data_reg["XY_distance_m"]
-data_reg.loc[(data_reg["XY_distance_m"].isna()) & (data_reg["XY_distance_l"].notna()),'XY_distance'] = data_reg["XY_distance_l"]
-
-#Initial placement
-data_reg.loc[data_reg["tramo_a2016_m"]==data_reg["tramo_a2016_l"],'tramo_a2016'] = data_reg["tramo_a2016_m"]
-data_reg.loc[(data_reg["tramo_a2016_m"].notna()) & (data_reg["tramo_a2016_l"].isna()),'tramo_a2016'] = data_reg["tramo_a2016_m"]
-data_reg.loc[(data_reg["tramo_a2016_m"].isna()) & (data_reg["tramo_a2016_l"].notna()),'tramo_a2016'] = data_reg["tramo_a2016_l"]
-
-
 ##### drop nan #####
 data_reg = data_reg[(data_reg["edp"].notna())]
 data_reg = data_reg[(data_reg["edm"].notna())]
@@ -128,14 +122,23 @@ data_reg = data_reg[(data_reg["drun"].notna())]
 data_reg = data_reg[(data_reg["d_trat"].notna())]
 data_reg = data_reg[(data_reg["d_year"].notna())]
 data_reg = data_reg[(data_reg["inter"].notna())]
-                                                                   
-# keep if eval_year == 1 | eval_year == 2018 | eval_year == 0
-data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 2018) | (data_reg["eval_year"] == 0)]
+
+
+data_reg.loc[data_reg["tramo_a2016_m"]==data_reg["tramo_a2016_l"],'tramo_a2016'] = data_reg["tramo_a2016_m"]
+data_reg.loc[(data_reg["tramo_a2016_m"] != '') & (data_reg["tramo_a2016_l"] == ''),'tramo_a2016'] = data_reg["tramo_a2016_m"]
+data_reg.loc[(data_reg["tramo_a2016_m"] == '') & (data_reg["tramo_a2016_l"] != ''),'tramo_a2016'] = data_reg["tramo_a2016_l"]
+
+#data_reg['tramo_a2016'].value_counts()
+
+data_reg.loc[data_reg["distance_m"]==data_reg["distance_l"],'distance'] = data_reg["distance_m"]
+data_reg.loc[(data_reg["distance_m"] != '') & (data_reg["distance_l"] == ''),'distance'] = data_reg["distance_m"]
+data_reg.loc[(data_reg["distance_m"] == '') & (data_reg["distance_l"] != ''),'distance'] = data_reg["distance_l"]
+
+data_reg['distance'].value_counts()
 
 # mean simce
 data_reg['stdsimce'] = data_reg[['stdsimce_m', 'stdsimce_l']].mean(axis=1)
 data_reg['constant'] = np.ones(np.size(data_reg['stdsimce']))
-
 
 #Distance categories
 data_reg.loc[data_reg['XY_distance']<= 0.1,'distance2'] = 1
@@ -143,9 +146,11 @@ data_reg.loc[(data_reg['XY_distance']> 0.1) & (data_reg['XY_distance'] <= 0.2),'
 data_reg.loc[(data_reg['XY_distance']> 0.2) & (data_reg['XY_distance'] <= 0.3),'distance2'] = 3
 data_reg.loc[(data_reg['XY_distance']> 0.3) & (data_reg['XY_distance'] <= 0.4),'distance2'] = 4
 data_reg.loc[(data_reg['XY_distance']> 0.4),'distance2'] = 5
+data_reg.loc[(data_reg['distance'] == 'TOP TEACHER'),'distance2'] = 5
+
 
 #Drop acceso teachers
-data_reg = data_reg[data_reg['tramo_a2016'] != "ACCESO"]
+#data_reg = data_reg[data_reg['tramo_a2016'] != "ACCESO"]
 
 #Initial placement
 data_reg['placement'] = 0
@@ -155,6 +160,15 @@ data_reg['placement'][data_reg['tramo_a2016'] == 'AVANZADO'] = 3
 data_reg['placement'][data_reg['tramo_a2016'] == 'EXPERTO I'] = 4
 data_reg['placement'][data_reg['tramo_a2016'] == 'EXPERTO II'] = 5
 
+data_reg['distance2'].value_counts()
+
+salary_nan_count = data_reg['distance2'].isna().sum()
+print(salary_nan_count)
+
+# Exclusive data for regression --
+# keep if eval_year == 1 | eval_year == 2018 | eval_year == 0
+data_reg = data_reg[(data_reg["eval_year"] == 1) | (data_reg["eval_year"] == 2018) | (data_reg["eval_year"] == 0)]
+
 #----------------------------------------------#
 #----------------------------------------------#
 #Obtaining simulated effects
@@ -163,11 +177,11 @@ data_reg['placement'][data_reg['tramo_a2016'] == 'EXPERTO II'] = 5
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy")
+betas_nelder  = np.load(r"C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/estimates/betasopt_model_v56.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
-data_1 = pd.read_stata('/home/jrodriguezo/teachers/data/data_pythonpast_v2023.dta')
+data_1 = pd.read_stata(r'C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\teacher_dec23_copy/data_pythonpast_v2023.dta')
 data = data_1[data_1['d_trat']==1]
 N = np.array(data['experience']).shape[0]
 
@@ -374,8 +388,8 @@ plt.annotate("Data ATT" "\n" + "(" +'{:04.2f}'.format(att_data) + r"$\sigma$s)",
 plt.annotate("ATT distribution", xy=(0.2, 1.7),
             xytext=(0.2, 2), arrowprops=dict(arrowstyle="->"))
 plt.xlim(-0.6,0.6)
-#plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Result/att_distribution_v2023_v5.pdf', format='pdf')
-plt.savefig('/home/jrodriguezo/teachers/results/att_distribution.pdf', format='pdf')
+plt.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Results/att_distribution_v2023_v5f.pdf', format='pdf')
+#plt.savefig('/home/jrodriguezo/teachers/results/att_distribution.pdf', format='pdf')
 
 #----------------------------------------------#
 #----------------------------------------------#
@@ -442,7 +456,7 @@ y_sim_data = results.params.inter + results.params.inter_xy*x_points + results.p
 
 #a = results.params.inter.round(8)
 
-
+ 
 
 #ATT data vs ATT overall
 x_points_data = np.arange(5)
@@ -465,7 +479,7 @@ plt.xticks(x_points_data, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],f
 ax.legend(loc = 'upper left',fontsize = 13)
 plt.tight_layout()
 plt.show()
-fig.savefig('/home/jrodriguezo/teachers/results/att_data_model_points.pdf', format='pdf')
+fig.savefig('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Results/att_data_model_pointsf.pdf', format='pdf')
 
 
 
@@ -486,7 +500,7 @@ ax.set_ylim(-0.05,0.15)
 ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.6),fontsize=12,ncol=2)
 plt.tight_layout()
 plt.show()
-fig.savefig('/home/jrodriguezo/teachers/results/att_data_model_quadratic.pdf', format='pdf')
+fig.savefig(r'C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Results/att_data_model_quadraticf.pdf', format='pdf')
 
 
 #----------------------------------------------#
@@ -497,7 +511,7 @@ fig.savefig('/home/jrodriguezo/teachers/results/att_data_model_quadratic.pdf', f
 #----------------------------------------------#
 
 
-inter_data = np.zeros(4)
+inter_data1 = np.zeros(4)
 se_data = np.zeros(4)
 
 #Data points
@@ -508,7 +522,7 @@ for j in range(3):
     model_reg = PanelOLS(dependent = data_reg_j['stdsimce'], 
                          exog = data_reg_j[['constant', 'd_trat', 'd_year', 'inter','edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
     results = model_reg.fit(cov_type='clustered', clusters=data_reg_j['drun'])
-    inter_data[j] = results.params.inter.round(8)
+    inter_data1[j] = results.params.inter.round(8)
     se_data[j] = np.sqrt(results.cov.inter.inter)
 
 data_reg_j = data_reg[(data_reg['placement'] == 4) | (data_reg['placement'] == 5)]
@@ -516,7 +530,7 @@ data_reg_j.set_index(['rbd', 'agno'],inplace = True)
 model_reg = PanelOLS(dependent = data_reg_j['stdsimce'], 
                          exog = data_reg_j[['constant', 'd_trat', 'd_year', 'inter','edp', 'edm', 'ingreso', 'experience']], entity_effects = True)
 results = model_reg.fit(cov_type='clustered', clusters=data_reg_j['drun'])
-inter_data[3] = results.params.inter.round(8)
+inter_data1[3] = results.params.inter.round(8)
 se_data[3] = np.sqrt(results.cov.inter.inter)
     
 
@@ -532,8 +546,8 @@ y_cat[3] = np.mean(att_sim[(initial_p == 4) | (initial_p == 5)])
 #figure
 x_points = np.arange(4)
 fig, ax=plt.subplots()
-plot1 = ax.plot(x_points-0.05,inter_data, color = 'blue', marker= 'o',label = 'ATT data', ls='none')
-plot2 = ax.errorbar(x_points-0.05, inter_data, yerr=se_data, fmt='none', color='blue', capsize=6,lw=0.8)
+plot1 = ax.plot(x_points-0.05,inter_data1, color = 'blue', marker= 'o',label = 'ATT data', ls='none')
+plot2 = ax.errorbar(x_points-0.05, inter_data1, yerr=se_data, fmt='none', color='blue', capsize=6,lw=0.8)
 plot3 = ax.plot(x_points+0.05,y_cat ,alpha = .8, color='sandybrown', ms= 8 , ls = 'none', marker='s', label = 'ATT model')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
 ax.set_xlabel(r'Initial categorization', fontsize=13)
@@ -549,6 +563,6 @@ ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
-fig.savefig('/home/jrodriguezo/teachers/results/att_initial.pdf', format='pdf')
+fig.savefig(r'C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Results/att_initialf.pdf', format='pdf')
 
 

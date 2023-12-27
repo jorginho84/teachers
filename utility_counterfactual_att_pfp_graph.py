@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Dec 20 18:24:22 2023
+
+@author: Patricio De Araya
+"""
+
 """
 Utility class: takes parameters, X's, and given choices
 computes utility. It modifies the original utility by
@@ -16,7 +23,7 @@ sys.path.append("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teache
 from utility import Utility
 
 
-class Count_att_2(Utility):
+class Count_att_2_pfp_2(Utility):
     """ 
 
     This class modifies the economic environment of the agent
@@ -24,33 +31,116 @@ class Count_att_2(Utility):
     """
 
     def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
-                 catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority):
+                 catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority,a,b):
         """
         Calling baseline model
 
         """
+        
+        self.a = a
+        self.b = b
         
         Utility.__init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
                  catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority)
 
 
 
-        
-    
 
-    def income(self, initial_p):
+    def placement(self,tscores,initial_p):
+
+        # *I want to replicate the typecasting of the teachers to the tramo
+        # puntajeportafolio := p1
+        # Puntajepruebaconocimientosespecí := self.p2
+        # The tranche nameXY is defined how X: row nad Y:column
+        # We have {'INICIAL': 1, 'TEMPRANO': 2, 'AVANZADO': 3 , 'EXPERTO I': 4, 'EXPERTO II': 5}
+
+        # Inicializar vector initial_p
+        #initial_p = np.array(['']*(len(self.p1)))
+        placementF = np.zeros(self.p1.shape[0])
+        placementF_aep = np.zeros(self.p1.shape[0])
+        #placement_corr = np.zeros(self.p1.shape[0])
+
+            
+        #The following will not be used in this counterfactual
+        #initial placement 1
+        placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] > 2.74) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74)  ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] > 1.87) ] = 3
+        
+        #initial placement 2
+        placementF[(initial_p == 2) & (tscores[0] <= 2.25)] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] > 1.87) ] = 3
+        
+        #initial placement 3
+        placementF[(initial_p == 3) & (tscores[0] <= 2.25)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 3.38)] = 4
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 2.74)] = 4
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] <= 1.87)] = 3
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] > 1.87)] = 4
+        
+       #initial placement 4
+        placementF[(initial_p == 4) & (tscores[0] <= 2.5)] = 4
+        placementF[(initial_p == 4) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 3.38)] = 4
+        placementF[(initial_p == 4) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 3.38)] = 5
+        placementF[(initial_p == 4) & (tscores[0] > 3.0) & (tscores[1] <= 2.74)] = 4
+        placementF[(initial_p == 4) & (tscores[0] > 3.01) & (tscores[1] > 2.74)] = 5
+        
+        #initial placement 5
+        placementF[(initial_p == 5)] = 5
+                
+        # " Control: AEP "
+        placementF_aep[(tscores[0]<2) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
+        placementF_aep[(tscores[0]<2) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=6
+        placementF_aep[(tscores[0]<2) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=6
+        placementF_aep[(tscores[0]<2) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6 
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=7
+        placementF_aep[((tscores[0]>=2) & (tscores[0]<=2.5)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=8
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=7
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=8
+        placementF_aep[((tscores[0]>2.5) & (tscores[0]<=3)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=9
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]>=1) & (tscores[1] <= 1.87)) & (self.treatment == 0)]=6
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 1.87) & (tscores[1] <= 2.74)) & (self.treatment == 0)]=8
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 2.74) & (tscores[1] <= 3.38)) & (self.treatment == 0)]=9
+        placementF_aep[((tscores[0]>3) & (tscores[0]<=4)) & ((tscores[1]> 3.38) & (tscores[1] <= 4)) & (self.treatment == 0)]=9
+        np.warnings.filterwarnings('ignore')
+
+        
+        
+
+        #return [placementF,placement_corr,placementF_aep]
+        return [placementF,placementF_aep]
+
+    def income(self, initial_p,tscores):
         """
         takes treatment dummy, teach test scores, 
         initial placement, and self.years of experience
 
         """
+        
         # " WE SIMULATE A PROFESSOR WITH 44 HOURS "
         # " Values in dolars "
         HvalueE = self.param.hw[0]
         HvalueS = self.param.hw[1]
         
         initial_p_2 = initial_p[0].copy()
-        #initial_p_aep = initial_p[1].copy()
+        initial_p_aep = initial_p[1].copy()
        
         RBMNElemt2 = np.zeros(initial_p_2.shape[0])
         RBMNSecond2 = np.zeros(initial_p_2.shape[0])
@@ -189,10 +279,10 @@ class Count_att_2(Utility):
         
         # "Pre-reform Priority allocation (4 years)
         
-        #prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
-        #prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
-        #prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
-        #priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
+        prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
+        prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
+        prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
+        priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
         
         
         # " Locality assignation
@@ -202,24 +292,11 @@ class Count_att_2(Utility):
 
     
             
-        # " SUM OF TOTAL SALARY "
+        #Treated: a linear pay-for-performance salary        
 
+        salary = np.zeros(initial_p_2.shape[0])
         
-        salary1 = np.where((initial_p_2==1) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPinitial,prioirtyap,localAssig_1]), salary2d)
-        salary3 = np.where((initial_p_2==1) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,ExpTrameS,BRP,ATDPinitial,prioirtyap,localAssig_0]), salary2d)
-        
-        salary5 = np.where((initial_p_2==2) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPearly,prioirtyap,localAssig_1]), salary2d)
-        salary7 = np.where((initial_p_2==2) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPearly,prioirtyap,localAssig_0]), salary2d)
-
-        
-        salary9 = np.where((initial_p_2==3) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_1]), salary2d)
-        salary11 = np.where((initial_p_2==3) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPadvanced,ATDPadvancedfixed,prioirtyap,localAssig_0]), salary2d)
-
-        salary13 = np.where((initial_p_2==4) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert1,ATDPexpert1fixed,prioirtyap,localAssig_1]), salary2d)
-        salary15 = np.where((initial_p_2==4) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert1,ATDPexpert1fixed,prioirtyap,localAssig_0]), salary2d)
-
-        salary17 = np.where((initial_p_2==5) & (self.treatment == 1) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_1]), salary2d)
-        salary19 = np.where((initial_p_2==5) & (self.treatment == 1) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
+        salary[(self.treatment == 1)] = self.a + self.b*(tscores[0] + tscores[1])/2
 
         #Control: following initial placement
 
@@ -241,24 +318,6 @@ class Count_att_2(Utility):
         salary29 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_1]), salary2d)
         salary30 = np.where((initial_p==5) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRP,ATDPexpert2,ATDPexpert2fixed,prioirtyap,localAssig_0]), salary2d)
         
-
-        """
-        #pre-reform
-        salary21 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt]), salary3d)
-        salary22 = np.where((initial_p_aep==6) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond]), salary3d)
-        
-        salary23 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoI]), salary3d)
-        salary24 = np.where((initial_p_aep==7) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoI]), salary3d)
-        
-        salary25 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoII]), salary3d)
-        salary26 = np.where((initial_p_aep==8) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoII]), salary3d)
-        
-        salary27 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 1), sum([RBMNElemt,2*ExpTrameE,BRPWithout,AsigElemt,priorityaep,AcreditaTramoIII]), salary3d)
-        salary28 = np.where((initial_p_aep==9) & (self.treatment == 0) & (self.typeSchool == 0), sum([RBMNSecond,2*ExpTrameS,BRPWithout,AsigSecond,priorityaep,AcreditaTramoIII]), salary3d)
-        """
-        
-            
-        salary = sum([salary1,salary3,salary5,salary7,salary9,salary11,salary13,salary15,salary17,salary19])
             
         salary_pr = sum([salary21,salary22,salary23,salary24,salary25,salary26,salary27,salary28,salary29,salary30])
         
@@ -266,86 +325,4 @@ class Count_att_2(Utility):
 
         #getting 4-year average salary
         return [salary, salary_pr]
-
-    def student_h(self, effort):
-        """
-        takes student initial HC and teacher effort to compute achievement
-
-        return: student test score, where effort_low = 0
-
-        """
-        d_effort_t1 = effort == 1
-        d_effort_t2 = effort == 2
-        d_effort_t3 = effort == 3
-        
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
-        
-
-    
-        eps = np.random.randn(self.N)*self.param.betas[3]
-        
-        simce =  self.param.betas[0] + self.param.betas[1]*effort_m + self.param.betas[2]*effort_h + \
-            self.param.betas[4]*self.years/10 + self.param.betas[5]*p0_past + eps
-        
-
-        return simce
-    
-    def t_test(self,effort):
-        """
-        takes initial scores, effort and experience
-
-        returns: test scores and portfolio
-
-        """
-        
- 
-        p1v1_past = np.where(np.isnan(self.p1_0), 0, self.p1_0)
-        p2v1_past = np.where(np.isnan(self.p2_0), 0, self.p2_0)
-        
-     
-        p0_past = np.zeros(p1v1_past.shape)
-        p0_past = np.where((p1v1_past == 0),p2v1_past, p0_past)
-        p0_past = np.where((p2v1_past == 0),p1v1_past, p0_past)
-        p0_past = np.where((p1v1_past != 0) & (p2v1_past != 0) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = np.where((p1v1_past == p2v1_past) ,(self.p1_0 + self.p2_0)/2, p0_past)
-        p0_past = (p0_past-np.mean(p0_past))/np.std(p0_past)
-        
-        
-        d_effort_t1 = effort == 1
-        d_effort_t2 = effort == 2
-        d_effort_t3 = effort == 3
-        
-        effort_m = d_effort_t1 + d_effort_t3
-        effort_h = d_effort_t2 + d_effort_t3
-        
-       
-        pb = []
-           
-        for j in range(2):
-            
-            shock = np.random.normal(0, self.param.alphas[j][4], p1v1_past.shape)
-            
-            pb.append(self.param.alphas[j][0] + \
-                     self.param.alphas[j][1]*effort_m + self.param.alphas[j][2]*effort_h + \
-                         self.param.alphas[j][3]*self.years/10 + self.param.alphas[j][5]*p0_past  + \
-                             shock)
-            
-        p_scores = [((1/(1+np.exp(-pb[0]))) + (1/3))*3, ((1/(1+np.exp(-pb[1]))) + (1/3))*3]
-            
-
-                
-        return p_scores
-
 

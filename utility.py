@@ -89,40 +89,40 @@ class Utility(object):
             
         #initial placement 1
         placementF[(initial_p == 1) & (tscores[0] <= 1.99)] = 1
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.00) & (tscores[0] <= 2.25)) & (tscores[1] >= 2.75) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & ((tscores[1] >= 1.88) & (tscores[1] <= 2.74)) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74)  ] = 3
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 1) & ((tscores[0] >= 2.51) & (tscores[0] <= 3)) & (tscores[1] > 1.87) ] = 3
-        placementF[(initial_p == 1) & (tscores[0] >= 3)  & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 1) & (tscores[0] >= 3)  & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] <= 2.74) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 1.99) & (tscores[0] <= 2.25)) & (tscores[1] > 2.74) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 1.87) ] = 1
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & ((tscores[1] > 1.87) & (tscores[1] <= 2.74)) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74)  ] = 3
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & ((tscores[0] > 2.5) & (tscores[0] <= 3)) & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 1) & (tscores[0] > 3)  & (tscores[1] > 1.87) ] = 3
         
         #initial placement 2
         placementF[(initial_p == 2) & (tscores[0] <= 2.25)] = 2
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] >= 2.75) ] = 3
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 2) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 1.88) ] = 3
-        placementF[(initial_p == 2) & (tscores[0] >= 3.01)  & (tscores[1] <= 1.87) ] = 2
-        placementF[(initial_p == 2) & (tscores[0] >= 3.01)  & (tscores[1] >= 1.88) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 2.74)] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 2.74) ] = 3
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 1.87) ] = 3
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] <= 1.87) ] = 2
+        placementF[(initial_p == 2) & (tscores[0] > 3.0)  & (tscores[1] > 1.87) ] = 3
         
         #initial placement 3
         placementF[(initial_p == 3) & (tscores[0] <= 2.25)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.26) & (tscores[0] <= 2.5)) & (tscores[1] >= 3.39)] = 4
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
-        placementF[(initial_p == 3) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 2.75)] = 4
-        placementF[(initial_p == 3) & (tscores[0] >= 3.01) & (tscores[1] <= 1.87)] = 3
-        placementF[(initial_p == 3) & (tscores[0] >= 3.01) & (tscores[1] >= 1.88)] = 4
+        placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] <= 3.38)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.25) & (tscores[0] <= 2.5)) & (tscores[1] > 3.38)] = 4
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 2.74)] = 3
+        placementF[(initial_p == 3) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 2.74)] = 4
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] <= 1.87)] = 3
+        placementF[(initial_p == 3) & (tscores[0] > 3.0) & (tscores[1] > 1.87)] = 4
         
        #initial placement 4
         placementF[(initial_p == 4) & (tscores[0] <= 2.5)] = 4
-        placementF[(initial_p == 4) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] <= 3.38)] = 4
-        placementF[(initial_p == 4) & ((tscores[0] >= 2.51) & (tscores[0] <= 3.0)) & (tscores[1] >= 3.39)] = 5
-        placementF[(initial_p == 4) & (tscores[0] >= 3.01) & (tscores[1] <= 2.74)] = 4
-        placementF[(initial_p == 4) & (tscores[0] >= 3.01) & (tscores[1] >= 2.75)] = 5
+        placementF[(initial_p == 4) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] <= 3.38)] = 4
+        placementF[(initial_p == 4) & ((tscores[0] > 2.5) & (tscores[0] <= 3.0)) & (tscores[1] > 3.38)] = 5
+        placementF[(initial_p == 4) & (tscores[0] > 3.0) & (tscores[1] <= 2.74)] = 4
+        placementF[(initial_p == 4) & (tscores[0] > 3.0) & (tscores[1] > 2.74)] = 5
         
         #initial placement 5
         placementF[(initial_p == 5)] = 5
@@ -169,7 +169,7 @@ class Utility(object):
         HvalueS = self.param.hw[1]
         
         initial_p_2 = initial_p[0].copy()
-        initial_p_aep = initial_p[1].copy()
+        #initial_p_aep = initial_p[1].copy()
        
         RBMNElemt2 = np.zeros(initial_p_2.shape[0])
         RBMNSecond2 = np.zeros(initial_p_2.shape[0])
@@ -308,10 +308,10 @@ class Utility(object):
         
         # "Pre-reform Priority allocation (4 years)
         
-        prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
-        prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
-        prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
-        priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
+        #prioirtyap_aep1 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==7), (AcreditaTramoI*0.4), prioirtyap_aep11)
+        #prioirtyap_aep2 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==8), (AcreditaTramoII*0.4), prioirtyap_aep22)
+        #prioirtyap_aep3 = np.where((self.AEP_priority >= 0.6) & (initial_p_aep==9), (AcreditaTramoIII*0.4), prioirtyap_aep33)
+        #priorityaep = sum([prioirtyap_aep1,prioirtyap_aep2,prioirtyap_aep3])
         
         
         # " Locality assignation
