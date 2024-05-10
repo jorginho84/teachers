@@ -93,10 +93,10 @@ def simulation(j):
     N = np.size(p1_0)
     HOURS = np.array([44]*N)
     alphas = [[0, betas_nelder[0],0,betas_nelder[1],
-             betas_nelder[2], betas_nelder[3]],
-            [0, 0,betas_nelder[4],betas_nelder[5],
-            betas_nelder[6], betas_nelder[7]]]
-            
+                 betas_nelder[2], betas_nelder[3]],
+                [0, 0,betas_nelder[4],betas_nelder[5],
+                betas_nelder[6], betas_nelder[7]]]
+                
     betas = [-0.85, betas_nelder[9], betas_nelder[10],betas_nelder[11],betas_nelder[12],betas_nelder[13]]
     gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
 
@@ -242,6 +242,6 @@ betas_opt = np.array([dics_se['SE alpha_01'],dics_se['SE alpha_03'],dics_se['SE 
 
 
 
-np.save('/home/jrodriguezo/teachers/results/se_model_v54.npy',betas_opt)
+np.save('/home/jrodriguezo/teachers/results/se_model_v56.npy',betas_opt)
 
 

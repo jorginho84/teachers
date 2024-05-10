@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 25 17:33:39 2021
 
-@author: jorge-home
+"""
 
 This code computes fit analysis
 
@@ -42,7 +38,7 @@ np.random.seed(123)
 #betas_nelder  = np.load("D:\Git\ExpSIMCE/betasopt_model_RA3.npy")
 #betas_nelder  = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/betasopt_model_v25.npy")
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy")
+betas_nelder = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v56.npy")
 
 #moments_vector = np.load("D:\Git\ExpSIMCE/moments.npy")
 #moments_vector = np.load("C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy")
@@ -103,10 +99,10 @@ N = np.size(p1_0)
 HOURS = np.array([44]*N)
 
 alphas = [[0, betas_nelder[0],0,betas_nelder[1],
-             betas_nelder[2], betas_nelder[3]],
-            [0, 0,betas_nelder[4],betas_nelder[5],
-            betas_nelder[6], betas_nelder[7]]]
-            
+                 betas_nelder[2], betas_nelder[3]],
+                [0, 0,betas_nelder[4],betas_nelder[5],
+                betas_nelder[6], betas_nelder[7]]]
+                
 betas = [betas_nelder[8], betas_nelder[9], betas_nelder[10],betas_nelder[11],betas_nelder[12],betas_nelder[13]]
 gammas = [betas_nelder[14],betas_nelder[15],betas_nelder[16]]
     
@@ -240,7 +236,7 @@ with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'\footnotesize{'+'\n')
     f.write(r'\begin{tabular}{llccccc}'+'\n')
     f.write(r'\toprule'+'\n')
-    f.write(r'& Moment &  & Model &  & Data  &  & S.E. data \\'+'\n')
+    f.write(r' Moment &  & Model &  & Data  &  & S.E. data \\'+'\n')
     f.write(r'\midrule'+'\n')
     f.write(r'A. Treatment group  (2016 teachers) &  &       &  &       &  & \\'+'\n')
     f.write(r'Corr(Exp, SIMCE)        &  & '+'{:1.2f}'.format(sim[0]) +r' &  & '+'{:1.2f}'.format(moments_vector[0]) +r'   &  & '+'{:1.3f}'.format(ses_opt[0]) +r' \\'+'\n')
@@ -257,8 +253,8 @@ with open('/home/jrodriguezo/teachers/results/fit_table.tex','w') as f:
     f.write(r'Corr(SIMCE, Past)                          &  & '+'{:1.2f}'.format(sim[11]) +r' &  & '+'{:1.2f}'.format(moments_vector[11]) +r'   &  & '+'{:1.3f}'.format(ses_opt[11]) +r' \\'+'\n')
     f.write(r'Corr(Portfolio, Past)                          &  & '+'{:1.2f}'.format(sim[12]) +r' &  & '+'{:1.2f}'.format(moments_vector[12]) +r'   &  & '+'{:1.3f}'.format(ses_opt[12]) +r' \\'+'\n')
     f.write(r'Corr(STEI, Past)                          &  & '+'{:1.2f}'.format(sim[13]) +r' &  & '+'{:1.2f}'.format(moments_vector[13]) +r'   &  & '+'{:1.3f}'.format(ses_opt[13]) +r' \\'+'\n')
-    f.write(r'Share of teachers portfolio >= 2.5        &  & '+'{:1.2f}'.format(sim[14]) +r' &  & '+'{:1.2f}'.format(moments_vector[14]) +r'   &  & '+'{:1.3f}'.format(ses_opt[14]) +r' \\'+'\n')
-    f.write(r'Share of teachers STEI >= 2.74        &  & '+'{:1.2f}'.format(sim[15]) +r' &  & '+'{:1.2f}'.format(moments_vector[15]) +r'   &  & '+'{:1.3f}'.format(ses_opt[15]) +r' \\'+'\n')
+    f.write(r'Share of teachers portfolio $\geq $ 2.5        &  & '+'{:1.2f}'.format(sim[14]) +r' &  & '+'{:1.2f}'.format(moments_vector[14]) +r'   &  & '+'{:1.3f}'.format(ses_opt[14]) +r' \\'+'\n')
+    f.write(r'Share of teachers STEI $\geq $ 2.74        &  & '+'{:1.2f}'.format(sim[15]) +r' &  & '+'{:1.2f}'.format(moments_vector[15]) +r'   &  & '+'{:1.3f}'.format(ses_opt[15]) +r' \\'+'\n')
     
     f.write(r'                                    &  &       &  &       &  &       \\'+'\n')
     f.write(r'B. Control group (2018- teachers)   &  &       &  &       &  &       \\'+'\n')

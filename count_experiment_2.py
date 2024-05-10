@@ -61,7 +61,7 @@ np.random.seed(123)
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v56.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -152,6 +152,13 @@ priori = [pri[0]/dolar, pri[1]/dolar, pri[2]/dolar]
 
 param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
+
+
+
+#------------------------------------------------------------------------------#
+#Effects by distance to nearest cutoff (distance based on previous test scores)
+#------------------------------------------------------------------------------#
+
 #List of choices across counterfactuals
 simce = []
 baseline_p = []
@@ -159,14 +166,15 @@ income = []
 effort_p = []
 effort_t = []
 
+b_baseline = 700
+a_baseline = 500
+c_baseline = 0.55
+
 
 #Original ATT
 for x in range(0,3):
 
    
-
-
-    
    # TREATMENT #
 
    if x <= 1:
@@ -177,7 +185,7 @@ for x in range(0,3):
    else:
       treatment = np.ones(N)
       model = Count_att_2_pfp(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
-                         priotity,rural_rbd,locality, priotity_aep)
+                         priotity,rural_rbd,locality, priotity_aep,a_baseline,b_baseline,c_baseline)
 
   
    # SIMULACIÓN SIMDATA
@@ -226,9 +234,6 @@ att_income_original = income[1] - income[0]
 att_income_count = income[2] - income[0]
 
 
-#---------------------------------------------------------------#
-#Effects by distance to nearest cutoff (distance based on previous test scores)
-#---------------------------------------------------------------#
 
 y = np.zeros(5)
 y_c = np.zeros(5)
@@ -241,17 +246,17 @@ for j in range(5):
 fig, ax=plt.subplots()
 plot1 = ax.bar(x,y,color='b' ,alpha=.9, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att_sim_original)) + r'$\sigma$)')
 plot3 = ax.bar(x,y_c,fc= None ,alpha=.6, lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_sim_count)) + r'$\sigma$)')
-ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
-ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=13)
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=15)
+ax.set_xlabel(r'Quintiles of distance to nearest cutoff', fontsize=15)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
 ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
 plt.xticks(fontsize=12)
-ax.set_ylim(0,0.12)
+ax.set_ylim(0,0.10)
 plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
-ax.legend(loc = 'upper left',fontsize = 13)
+ax.legend(loc = 'upper left',fontsize = 15)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
 plt.show()
@@ -259,6 +264,228 @@ fig.savefig('/home/jrodriguezo/teachers/results/att_count_pfp.pdf', format='pdf'
 
 
     
+#------------------------------------------------------------------------------#
+#Effects across slopes
+#------------------------------------------------------------------------------#
+
+
+#Outcomes across b
+blen = len(np.arange(0,3000,100))
+simce_a = np.zeros((N,blen))
+baseline_p_a = np.zeros((N,blen))
+effort_p_a = np.zeros((N,blen))
+effort_t_a = np.zeros((N,blen))
+
+
+
+
+treatment = np.ones(N)
+b_count = 0
+for b in range(0,3000,100):
+
+   model = Count_att_2_pfp(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+                       priotity,rural_rbd,locality, priotity_aep,a_baseline,b,c_baseline)
+   
+   simce_sims = np.zeros((N,n_sim))
+   income_sims = np.zeros((N,n_sim))
+   effort_p_sims = np.zeros((N,n_sim))
+   effort_t_sims = np.zeros((N,n_sim))
+   utils_sims = np.zeros((N,n_sim))
+   portfolio_sims = np.zeros((N,n_sim))
+   test_sims = np.zeros((N,n_sim))
+   placement_sims = np.zeros((N,n_sim))
+
+
+   modelSD = sdc.SimDataC(N,model)
+   
+       
+   for j in range(n_sim):
+       opt = modelSD.choice()
+       utils_sims[:,j] = opt['Opt Utility']
+       simce_sims[:,j] = opt['Opt Simce']
+       portfolio_sims[:,j] = opt['Opt Teacher'][0]
+       test_sims[:,j] = opt['Opt Teacher'][1]
+       placement_sims[:,j] = opt['Opt Placement'][0]
+       income_sims[:,j] = opt['Opt Income'][0]
+   
+       effort_v1 = opt['Opt Effort']
+       d_effort_t1 = effort_v1 == 1
+       d_effort_t2 = effort_v1 == 2
+       d_effort_t3 = effort_v1 == 3
+       
+       effort_m = d_effort_t1 + d_effort_t3
+       effort_h = d_effort_t2 + d_effort_t3
+       effort_p_sims[:,j] = effort_m
+       effort_t_sims[:,j] = effort_h
+       
+   simce_a[:,b_count] = np.mean(simce_sims,axis=1)
+   effort_p_a[:,b_count] = np.mean(effort_p_sims,axis = 1)
+   effort_t_a[:,b_count] = np.mean(effort_t_sims,axis = 1)
+   
+
+   b_count = b_count + 1
+
+         
+
+
+
+#Effects on SIMCE, effort, and WTP
+s_a = np.zeros((blen))
+p_a = np.zeros((blen))
+t_a = np.zeros((blen))
+
+
+for x in range(blen):
+   
+   s_a[x] = np.mean(simce_a[:,x] - simce[0])
+   p_a[x] = np.mean(effort_p_a[:,x] - effort_p[0])
+   t_a[x] = np.mean(effort_t_a[:,x] - effort_t[0])
+
+
+#Effects across b   
+b_points = np.arange(0,3000,100)
+fig, ax=plt.subplots()
+plot1 = ax.scatter(b_points,s_a,color='b' ,alpha=.8,s=70)
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=15)
+ax.set_xlabel(r'Slope in wage schedule', fontsize=15)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+ax.set_ylim(-0.01,0.1)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+#ax.legend(loc = 'upper left',fontsize = 15)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/pfp_slopes_simce.pdf', format='pdf')
+plt.close()
+
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(b_points,p_a,color='b' ,marker = 'o',alpha=.8, label='Portfolio effort',s=70)
+plot2 = ax.scatter(b_points,t_a,color='r' ,marker = '^', alpha=.8, label='STEI effort',s=70)
+ax.set_ylabel(r'Effect on effort', fontsize=15)
+ax.set_xlabel(r'Slope in wage schedule', fontsize=15)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+ax.set_ylim(-0.1,1.05)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+ax.legend(loc = 'upper left',fontsize = 15)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/pfp_slopes_effort.pdf', format='pdf')
+
+
+#------------------------------------------------------------------------------#
+#Effects across weights
+#------------------------------------------------------------------------------#
+
+simce_a = []
+effort_p_a = []
+effort_t_a = []
+
+
+#Original ATT
+     
+        
     
+treatment = np.ones(N)
+
+for c in np.arange(0, 1, 0.05):
+   
+   model = Count_att_2_pfp(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
+                       priotity,rural_rbd,locality, priotity_aep,a_baseline,b_baseline,c)
+   
+   simce_sims = np.zeros((N,n_sim))
+   income_sims = np.zeros((N,n_sim))
+   effort_p_sims = np.zeros((N,n_sim))
+   effort_t_sims = np.zeros((N,n_sim))
+   utils_sims = np.zeros((N,n_sim))
+   portfolio_sims = np.zeros((N,n_sim))
+   test_sims = np.zeros((N,n_sim))
+   placement_sims = np.zeros((N,n_sim))
+
+
+   modelSD = sdc.SimDataC(N,model)
+   
+       
+   for j in range(n_sim):
+       opt = modelSD.choice()
+       utils_sims[:,j] = opt['Opt Utility']
+       simce_sims[:,j] = opt['Opt Simce']
+       portfolio_sims[:,j] = opt['Opt Teacher'][0]
+       test_sims[:,j] = opt['Opt Teacher'][1]
+       placement_sims[:,j] = opt['Opt Placement'][0]
+       income_sims[:,j] = opt['Opt Income'][0]
+   
+       effort_v1 = opt['Opt Effort']
+       d_effort_t1 = effort_v1 == 1
+       d_effort_t2 = effort_v1 == 2
+       d_effort_t3 = effort_v1 == 3
+       
+       effort_m = d_effort_t1 + d_effort_t3
+       effort_h = d_effort_t2 + d_effort_t3
+       effort_p_sims[:,j] = effort_m
+       effort_t_sims[:,j] = effort_h
+       
+   simce_a.append(np.mean(simce_sims,axis=1))
+   effort_p_a.append(np.mean(effort_p_sims,axis = 1))
+   effort_t_a.append(np.mean(effort_t_sims,axis = 1))
+   
+           
+#Effects on SIMCE, effort, and WTP
+s_a = np.zeros((len(simce_a),))
+p_a = np.zeros((len(simce_a),))
+t_a = np.zeros((len(simce_a),))
+
+for x in range(len(simce_a)):
+    s_a[x] = np.mean(simce_a[x] - simce[0])
+    p_a[x] = np.mean(effort_p_a[x] - effort_p[0])
+    t_a[x] = np.mean(effort_t_a[x] - effort_t[0])
+
+
+
+x_points = np.arange(0, 1, 0.05)
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,s_a,color='b' ,alpha=.8,s=70)
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=15)
+ax.set_xlabel(r'Weight on Portfolio', fontsize=15)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+#ax.legend().set_visible(False)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares.pdf', format='pdf')
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,p_a,color='b' ,marker = 'o',alpha=.8, label='Portfolio effort',s=70)
+plot2 = ax.scatter(x_points,t_a,color='r' ,marker = '^', alpha=.8, label='STEI effort',s=70)
+ax.set_ylabel(r'Effect on effort', fontsize=15)
+ax.set_xlabel(r'Weight on Portfolio', fontsize=15)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+ax.legend(loc = 'upper right',fontsize = 15)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares_effort.pdf', format='pdf')
 
 

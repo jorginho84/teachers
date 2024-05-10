@@ -1,8 +1,7 @@
-
 """
 This code computes effects on simce of different PFP policies
 
-exec(open("/home/jrodriguezo/teachers/codes/wtp_graph.py").read())
+exec(open("/home/jrodriguezo/teachers/codes/wtp_pfp_share.py").read())
 """
 
 from __future__ import division
@@ -144,6 +143,7 @@ param0 = parameters.Parameters(alphas,betas,gammas,hw,porc,pro,pol,AEP,priori)
 
 b_baseline = 900
 a_baseline = 1000
+c_baseline = 0.5
 #List of choices across counterfactuals
 
 #baseline
@@ -172,17 +172,6 @@ delta_simce_a = []
 portfolio_list_a = []
 test_list_a = []
 
-simce_b = []
-baseline_p_b = []
-income_b = []
-effort_p_b = []
-effort_t_b = []
-wtp_list_b = []
-utils_list_b = []
-delta_income_b = []
-delta_simce_b = []
-portfolio_list_b = []
-test_list_b = []
 
 
 #Original ATT
@@ -240,56 +229,10 @@ for x in range(0,2):
     if x == 1:
         treatment = np.ones(N)
         
-        #for a in range(50, 610, 20):
-        for b in range(100, 3000, 200):
+        for c in np.arange(0, 1, 0.05):
             
             model = Count_att_2_pfp(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
-                                priotity,rural_rbd,locality, priotity_aep,a_baseline,b)
-            
-            simce_sims = np.zeros((N,n_sim))
-            income_sims = np.zeros((N,n_sim))
-            effort_p_sims = np.zeros((N,n_sim))
-            effort_t_sims = np.zeros((N,n_sim))
-            utils_sims = np.zeros((N,n_sim))
-            portfolio_sims = np.zeros((N,n_sim))
-            test_sims = np.zeros((N,n_sim))
-            placement_sims = np.zeros((N,n_sim))
-        
-        
-            modelSD = sdc.SimDataC(N,model)
-            
-                
-            for j in range(n_sim):
-                opt = modelSD.choice()
-                utils_sims[:,j] = opt['Opt Utility']
-                simce_sims[:,j] = opt['Opt Simce']
-                portfolio_sims[:,j] = opt['Opt Teacher'][0]
-                test_sims[:,j] = opt['Opt Teacher'][1]
-                placement_sims[:,j] = opt['Opt Placement'][0]
-                income_sims[:,j] = opt['Opt Income'][0]
-            
-                effort_v1 = opt['Opt Effort']
-                d_effort_t1 = effort_v1 == 1
-                d_effort_t2 = effort_v1 == 2
-                d_effort_t3 = effort_v1 == 3
-                
-                effort_m = d_effort_t1 + d_effort_t3
-                effort_h = d_effort_t2 + d_effort_t3
-                effort_p_sims[:,j] = effort_m
-                effort_t_sims[:,j] = effort_h
-                
-            simce_b.append(np.mean(simce_sims,axis=1))
-            income_b.append(np.mean(income_sims,axis=1))
-            effort_p_b.append(np.mean(effort_p_sims,axis = 1))
-            effort_t_b.append(np.mean(effort_t_sims,axis = 1))
-            utils_list_b.append(np.mean(utils_sims,axis = 1))
-            portfolio_list_b.append(np.mean(portfolio_sims,axis = 1))
-            test_list_b.append(np.mean(test_sims,axis = 1))
-
-        for a in range(100, 3000, 200):
-            
-            model = Count_att_2_pfp(param0,N,p1_0,p2_0,years,treatment,typeSchool,HOURS,p1,p2,catPort,catPrueba,TrameI,
-                                priotity,rural_rbd,locality, priotity_aep,a,b_baseline)
+                                priotity,rural_rbd,locality, priotity_aep,a_baseline,b_baseline,c)
             
             simce_sims = np.zeros((N,n_sim))
             income_sims = np.zeros((N,n_sim))
@@ -330,46 +273,11 @@ for x in range(0,2):
             utils_list_a.append(np.mean(utils_sims,axis = 1))
             portfolio_list_a.append(np.mean(portfolio_sims,axis = 1))
             test_list_a.append(np.mean(test_sims,axis = 1))
-    
+
+           
 
 
-#Effects on SIMCE
-s_a = np.zeros((len(simce_a),))
-s_b = np.zeros((len(simce_a),))  
-for x in range(len(simce_a)):
-    s_a[x] = np.mean(simce_a[x] - simce[0])
-    s_b[x] = np.mean(simce_b[x] - simce[0])
-
-x_points = np.arange(100, 3000, 200)
-
-fig, ax=plt.subplots()
-plot1 = ax.scatter(x_points,s_a,color='b' ,alpha=.9, label = 'Baseline')
-plot1 = ax.scatter(x_points,s_b,color='r' ,alpha=.9, label = 'Slope')
-ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
-ax.set_xlabel(r'Parameter in wage schedule (baseline/slope)', fontsize=13)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.yaxis.set_ticks_position('left')
-ax.xaxis.set_ticks_position('bottom')
-plt.yticks(fontsize=12)
-plt.xticks(fontsize=12)
-ax.set_ylim(-0.12,0.12)
-#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
-ax.legend(loc = 'upper left',fontsize = 13)
-#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
-plt.tight_layout()
-plt.show()
-fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp.pdf', format='pdf')
-
-
-
-
-
-"""
-# mean ATTs on simce and Efforts
-means_attefort = [np.mean(effort_p[3]), np.mean(effort_t[3]), np.mean(delta_simce[2])] 
-
-#Parameters
+#Parameters for MVPF
 rho = 0.1
 tax = 0.35
 #Averge annual wage (2020 dollars, jan2020-jan2002)
@@ -380,24 +288,136 @@ interes = 0.03
 
 for i in range(40):
     wage[i] = av_annual_wage/((1+interes)**(i))
-    
 lifetime_earnings = np.sum(wage)
 
+#Effects on SIMCE, effort, and WTP
+s_a = np.zeros((len(simce_a),))
+p_a = np.zeros((len(simce_a),))
+t_a = np.zeros((len(simce_a),))
+wtp_a = np.zeros((len(simce_a),))
+inc_a = np.zeros((len(simce_a),))
+wtp_student = np.zeros((len(simce_a),))
+wtp_teachers = np.zeros((len(simce_a),))
+wtp_overall = np.zeros((len(simce_a),))
+provision = np.zeros((len(simce_a),))
+revenue = np.zeros((len(simce_a),))
+net_cost = np.zeros((len(simce_a),))
+mvpf = np.zeros((len(simce_a),))
 
-wtp_student = np.zeros(3)
-wtp_teachers = np.zeros(3)
-wtp_overall = np.zeros(3)
-provision = np.zeros(3)
-revenue = np.zeros(3)
-net_cost = np.zeros(3)
-mvpf = np.zeros(3)
+for x in range(len(simce_a)):
+    s_a[x] = np.mean(simce_a[x] - simce[0])
+    p_a[x] = np.mean(effort_p_a[x] - effort_p[0])
+    t_a[x] = np.mean(effort_t_a[x] - effort_t[0])
 
-for x in range(3):
-    wtp_student[x] = np.mean(delta_simce[x])*rho*lifetime_earnings*(1-tax)
-    wtp_teachers[x] = np.mean(wtp_list[x])*12*(1-tax)
+    #Changes in WTP
+    wtp_teachers[x] = np.mean(-1*(np.exp(utils_list_a[x] - (gammas[0]*effort_p[0] + gammas[1]*effort_t[0] + gammas[2]*simce[0])) - income[0]))
+
+    #Changes in income (to compute added revenues and provision cost)
+    inc_a[x] = np.mean(income_a[x] - income[0])
+
+    wtp_student[x] = s_a[x]*rho*lifetime_earnings
     wtp_overall[x] = wtp_student[x] + wtp_teachers[x]
-    provision[x] = np.mean(delta_income[x])*12
-    revenue[x] = np.mean(delta_simce[x])*rho*lifetime_earnings*tax + provision[x]*tax
+    provision[x] = np.mean(inc_a[x])*12
+    revenue[x] = s_a[x]*rho*lifetime_earnings*tax + provision[x]*tax
     net_cost[x] = provision[x] - revenue[x]
     mvpf[x] = wtp_overall[x] / net_cost[x]
-"""
+
+
+
+
+
+x_points = np.arange(0, 1, 0.05)
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,s_a,color='b' ,alpha=.8)
+ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
+ax.set_xlabel(r'Parameter in wage schedule (baseline/slope)', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+#ax.legend().set_visible(False)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares.pdf', format='pdf')
+
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,p_a,color='b' ,alpha=.8, label='Portfolio effort')
+plot2 = ax.scatter(x_points,t_a,color='r' ,alpha=.8, label='STEI effort')
+ax.set_ylabel(r'Effect on effort', fontsize=13)
+ax.set_xlabel(r'Parameter in wage schedule (baseline/slope)', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+ax.legend(loc = 'upper left',fontsize = 13)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares_effort.pdf', format='pdf')
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,wtp_a,color='b' ,alpha=.8)
+ax.set_ylabel(r'Effect on WTP', fontsize=13)
+ax.set_xlabel(r'Parameter in wage schedule (baseline/slope)', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+#ax.legend().set_visible(False)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares_wtp.pdf', format='pdf')
+
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,provision,color='b' ,alpha=.8,label = 'Provision' )
+plot2 = ax.scatter(x_points,revenue,color='r' ,alpha=.8,label = 'Revenues' )
+plot3 = ax.scatter(x_points,net_cost,color='green' ,alpha=.8,label = 'Net cost' )
+ax.set_ylabel(r'Effect on WTP', fontsize=13)
+ax.set_xlabel(r'Parameter in wage schedule (baseline/slope)', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+ax.legend(loc = 'upper left',fontsize = 13)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares_costs.pdf', format='pdf')
+
+fig, ax=plt.subplots()
+plot1 = ax.scatter(x_points,mvpf,color='b' ,alpha=.8)
+ax.set_ylabel(r'Effect on WTP', fontsize=13)
+ax.set_xlabel(r'Parameter in wage schedule (baseline/slope)', fontsize=13)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+#ax.set_ylim(-0.12,0.12)
+#plt.xticks(x, ['0.0-0.1', '0.1-0.2', '0.2-0.3', '0.3-0.4', '0.4-'],fontsize=12)
+#ax.legend().set_visible(False)
+plt.tight_layout()
+plt.show()
+fig.savefig('/home/jrodriguezo/teachers/results/simce_pfp_shares_mvpf.pdf', format='pdf')
+
+
+
+

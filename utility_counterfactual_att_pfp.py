@@ -24,7 +24,7 @@ class Count_att_2_pfp(Utility):
     """
 
     def __init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
-                 catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority):
+                 catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority,a,b,c):
         """
         Calling baseline model
 
@@ -32,6 +32,9 @@ class Count_att_2_pfp(Utility):
         
         Utility.__init__(self, param, N, p1_0, p2_0, years, treatment, typeSchool, HOURS, p1, p2, 
                  catPort, catPrueba, TrameI,priotity, rural_rbd, locality, AEP_priority)
+        self.a = a
+        self.b = b
+        self.c = c
 
 
 
@@ -287,7 +290,7 @@ class Count_att_2_pfp(Utility):
         a = 425
         salary = np.zeros(initial_p_2.shape[0])
         
-        salary[(self.treatment == 1)] = a + b*(tscores[0] + tscores[1])/2
+        salary[(self.treatment == 1)] = self.a + self.b*(tscores[0]*self.c + tscores[1]*(1 - self.c))
 
         #Control: following initial placement
 

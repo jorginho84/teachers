@@ -60,7 +60,7 @@ np.random.seed(123)
 #----------------------------------------------#
 
 #betas_nelder  = np.load("/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/betasopt_model_v40.npy")
-betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v54.npy")
+betas_nelder  = np.load("/home/jrodriguezo/teachers/codes/betasopt_model_v56.npy")
 
 #Only treated teachers
 #data_1 = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
@@ -221,19 +221,18 @@ initial_p = np.zeros(N)
 initial_p[(TrameI=='INICIAL')] = 1
 initial_p[(TrameI=='TEMPRANO')] = 2
 initial_p[(TrameI=='AVANZADO')] = 3
-initial_p[(TrameI=='EXPERTO I')] = 4
-initial_p[(TrameI=='EXPERTO II')] = 5
+initial_p[(TrameI=='EXPERTO I') | (TrameI=='EXPERTO II')] = 4
 
 
 #---------------------------------------------------------------#
 #Effects by initial categorization
 #---------------------------------------------------------------#
 
-y = np.zeros(5)
-y_c = np.zeros(5)
-x = [1,2,3,4,5]
+y = np.zeros(4)
+y_c = np.zeros(4)
+x = [1,2,3,4]
 
-for j in range(5):
+for j in range(4):
 	y[j] = np.mean(att_sim_original[initial_p == j + 1])
 	y_c[j] = np.mean(att_sim_count[initial_p == j + 1])
 
@@ -247,8 +246,8 @@ ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
 ax.xaxis.set_ticks_position('bottom')
 plt.yticks(fontsize=12)
-plt.xticks(x, ['Initial', 'Early', 'Advanced', 'Expert I', 'Expert II'],fontsize=12)
-#ax.set_ylim(0,0.26)
+plt.xticks(x, ['Initial', 'Early', 'Advanced', 'Expert I/II'],fontsize=12)
+ax.set_ylim(0,0.12)
 ax.legend(loc = 'upper left',fontsize = 13)
 #ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
 plt.tight_layout()
