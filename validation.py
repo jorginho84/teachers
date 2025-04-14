@@ -394,6 +394,34 @@ plt.yticks(fontsize=12)
 plt.savefig('/home/jrodriguezo/teachers/results/att_distribution.pdf', format='pdf')
 
 
+#Figure: only two bars
+x_points = np.arange(2)
+y1 = np.zeros(2)
+y1[0] = att_data
+y2 = np.zeros(2)
+y2[1] = att_mean_sim
+
+fig, ax=plt.subplots()
+plot1 = ax.bar(x_points,y1,alpha = .8, width=0.5,color='blue', edgecolor = 'black', lw = 0.5)
+plot2 = ax.bar(x_points,y2,alpha = .8, width=0.5,color='sandybrown', edgecolor = 'black', lw = 0.5)
+plot3 = ax.errorbar(x_points,y1,yerr=np.array([se_data,0]),fmt='none',ecolor='black',capsize=5,capthick=0.8,alpha=0.9)
+ax.set_ylabel(r'Effect on SIMCE', fontsize=14)
+#ax.set_xlabel(r'Policy', fontsize=14)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+#ax.hlines(y=0, xmin=0-0.1, xmax=3+0.1, ls = '--', color='k')
+plt.yticks(fontsize=14)
+plt.xticks([0,1], ['DiD ATT', 'Simulated ATT'],fontsize=14)
+plt.tick_params(bottom = False)
+ax.set_ylim(0,0.15)
+#ax.legend(loc = 'upper left',fontsize = 14)
+#ax.legend(loc='lower center',bbox_to_anchor=(0.5, -0.1),fontsize=12,ncol=3)
+plt.tight_layout()
+plt.show()
+fig.savefig(r'/home/jrodriguezo/teachers/results/att_bars.pdf', format='pdf')
+
 #----------------------------------------------#
 #----------------------------------------------#
 #Effects on effort choices

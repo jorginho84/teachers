@@ -117,7 +117,7 @@ value = [14403, 15155]
 hw = [value[0]/dolar,value[1]/dolar]
 porc = [0.0338, 0.0333]
 
-#inflation adjustemtn: 2012Jan-2020Jan: 1.111
+#inflation adjustment: 2012Jan-2020Jan: 1.111
 Asig = [50000*1.111, 100000*1.111, 150000*1.111]
 AEP = [Asig[0]/dolar,Asig[1]/dolar,Asig[2]/dolar] 
 
