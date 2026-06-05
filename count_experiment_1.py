@@ -237,8 +237,8 @@ for j in range(4):
 	y_c[j] = np.mean(att_sim_count[initial_p == j + 1])
 
 fig, ax=plt.subplots()
-plot1 = ax.bar(x,y,color='b' ,alpha=.9, label = 'ATT original STPD ('+'{:04.2f}'.format(np.mean(att_sim_original)) + r'$\sigma$)')
-plot3 = ax.bar(x,y_c,fc= None ,alpha=.6, lw = 3,label = 'ATT modified STPD (' +'{:04.2f}'.format(np.mean(att_sim_count)) + r'$\sigma$)')
+plot1 = ax.bar(x,y,color='b' ,alpha=.9, label = 'ATT original Carrera Docente ('+'{:04.2f}'.format(np.mean(att_sim_original)) + r'$\sigma$)')
+plot3 = ax.bar(x,y_c,fc= None ,alpha=.6, lw = 3,label = 'ATT modified Carrera Docente (' +'{:04.2f}'.format(np.mean(att_sim_count)) + r'$\sigma$)')
 ax.set_ylabel(r'Effect on SIMCE (in $\sigma$)', fontsize=13)
 ax.set_xlabel(r'Initial categorization', fontsize=13)
 ax.spines['right'].set_visible(False)

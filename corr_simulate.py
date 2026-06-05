@@ -30,6 +30,7 @@ from openpyxl import load_workbook
 data_python = pd.read_stata('/Users/jorge-home/Dropbox/Research/teachers-reform/teachers/DATA/data_pythonpast_v2023.dta')
 data_python['trame'] = data_python['trame'].replace(['INICIAL', 'TEMPRANO', 'AVANZADO', 'EXPERTO I', 'EXPERTO II'], [1,2,3,4,5])
 data_python['tramo_a2016'] = data_python['tramo_a2016'].replace(['INICIAL', 'TEMPRANO', 'AVANZADO', 'EXPERTO I', 'EXPERTO II'], [1,2,3,4,5]) 
+data_python['exp_2'] = data_python['experience']**2
 
 #### BOOTSTRAP ####
 
@@ -38,7 +39,8 @@ def corr_simulate(data, B):
     
 
     #Treated sample
-    est_corrSEXP = np.zeros(B)
+    est_corrSEXPB1 = np.zeros(B)
+    est_corrSEXPB2 = np.zeros(B)
     est_corr_EXPPort = np.zeros(B)
     est_corr_EXPPru = np.zeros(B)
     est_corrSPort = np.zeros(B)
@@ -75,8 +77,8 @@ def corr_simulate(data, B):
         p0_past = np.where((p2v1 == 0),p1v1, p0_past)
         p0_past = np.where((p1v1 != 0) & (p2v1 != 0) ,(p1_past + p2_past)/2, p0_past)
         dataf_past = {'PORTFOLIO': rev['score_port'], 'TEST': rev['score_test'], 'P_past': p0_past, 'SIMCE': rev['stdsimce'],
-                      'EXP': rev['experience'], 'ASIM': rev['tramo_a2016'], 'RECON': rev['trame']}
-        datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO','SIMCE','EXP','ASIM','RECON'])
+                      'EXP': rev['experience'], 'EXP_2': rev['exp_2'], 'ASIM': rev['tramo_a2016'], 'RECON': rev['trame']}
+        datadf_past = pd.DataFrame(dataf_past, columns=['P_past','TEST','PORTFOLIO','SIMCE','EXP','EXP_2','ASIM','RECON'])
                 
                 
         #B. Treated Sample
@@ -84,7 +86,12 @@ def corr_simulate(data, B):
 
         corrM = data_treated.corr()
         #Moments: Corr of experience and SIMCE
-        est_corrSEXP[i] = corrM.iloc[3]['EXP']
+        X = data_treated[['EXP', 'EXP_2']] 
+        X = sm.add_constant(X)
+        y = data_treated['SIMCE']
+        reg_exp2 = sm.OLS(y, X).fit()
+        est_corrSEXPB1[i] = reg_exp2.params['EXP']
+        est_corrSEXPB2[i] = reg_exp2.params['EXP_2']
         
         #Moments: Corr experience and teacher test scores
         est_corr_EXPPort[i] = corrM.iloc[2]['EXP']
@@ -134,7 +141,8 @@ def corr_simulate(data, B):
 
 
     #Treated sample
-    corrSEXP = np.mean(est_corrSEXP)
+    corrSEXPB1 = np.mean(est_corrSEXPB1)
+    corrSEXPB2 = np.mean(est_corrSEXPB2)
     corr_EXPPort = np.mean(est_corr_EXPPort)
     corr_EXPPru = np.mean(est_corr_EXPPru)
     corrSPort = np.mean(est_corrSPort)
@@ -159,7 +167,8 @@ def corr_simulate(data, B):
 
     ####VARIANCE####
     #Treated sample
-    std_corrSEXP = np.std(est_corrSEXP)
+    std_corrSEXPB1 = np.std(est_corrSEXPB1)
+    std_corrSEXPB2 = np.std(est_corrSEXPB2)
     std_corr_EXPPort = np.std(est_corr_EXPPort)
     std_corr_EXPPru = np.std(est_corr_EXPPru)
     std_corrSPort = np.std(est_corrSPort)
@@ -184,7 +193,7 @@ def corr_simulate(data, B):
 
     
     #var-cov matrix
-    samples = np.array([est_corrSEXP,est_corr_EXPPort,est_corr_EXPPru,est_corrSPort,est_corrSPrue,
+    samples = np.array([est_corrSEXPB1, est_corrSEXPB2,est_corr_EXPPort,est_corr_EXPPru,est_corrSPort,est_corrSPrue,
         est_mean_SIMCE_treated,est_var_SIMCE_treated,est_mean_Port_treated,est_mean_Pru_treated,
         est_var_Port_treated,est_var_Pru_treated,est_corrSPast,est_corrPortp,est_corrTestp,est_share_port_treated,
         est_share_stei_treated,est_mean_SIMCE_control])
@@ -192,7 +201,8 @@ def corr_simulate(data, B):
     varcov = np.cov(samples)
 
 
-    return {'Corr Simce and experience': corrSEXP,
+    return {'Corr Simce and experience': corrSEXPB1,
+            'Corr Simce and experience squared': corrSEXPB2,
             'Corr Portfolio and experience': corr_EXPPort,
             'Corr STEI and experience': corr_EXPPru,
             'Corr SIMCE and Portfolio': corrSPort,
@@ -212,7 +222,8 @@ def corr_simulate(data, B):
 
             'SIMCE Mean (control)': mean_SIMCE_control,
                                     
-            'S.E. Corr Simce and experience': std_corrSEXP,
+            'S.E. Corr Simce and experience': std_corrSEXPB1,
+            'S.E. Corr Simce and experience squared': std_corrSEXPB2,
             'S.E. Corr Portfolio and experience': std_corr_EXPPort,
             'S.E. Corr STEI and experience': std_corr_EXPPru,
             'S.E. Corr SIMCE and Portfolio': std_corrSPort,
@@ -241,6 +252,7 @@ varcov = result['Var Cov Matrix']
 
 
 means = np.array([result['Corr Simce and experience'],
+            result['Corr Simce and experience squared'],
             result['Corr Portfolio and experience'],
             result['Corr STEI and experience'],
             result['Corr SIMCE and Portfolio'],
@@ -259,6 +271,7 @@ means = np.array([result['Corr Simce and experience'],
             result['SIMCE Mean (control)']])
 
 ses = np.array([result['S.E. Corr Simce and experience'],
+            result['S.E. Corr Simce and experience squared'],
             result['S.E. Corr Portfolio and experience'],
             result['S.E. Corr STEI and experience'],
             result['S.E. Corr SIMCE and Portfolio'],
@@ -276,13 +289,13 @@ ses = np.array([result['S.E. Corr Simce and experience'],
             result['S.E. Share STEI > 2.74 (treated)'],
             result['S.E. SIMCE Mean (control)']])
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_new.npy',ses)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/ses_model_2025.npy',ses)
 #np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/ses_model_v2023.npy',ses)
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_new.npy',means)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/moments_2025.npy',means)
 #np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/moments_v2023.npy',means)
 
-np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/var_cov_new.npy',varcov)
+np.save('/Users/jorge-home/Dropbox/Research/teachers-reform/codes/teachers/estimates/var_cov_2025.npy',varcov)
 #np.save('C:/Users\Patricio De Araya\Dropbox\LocalRA\LocalTeacher\Local_teacher_julio13/var_cov_v2023.npy',varcov)
 
 

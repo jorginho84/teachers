@@ -293,7 +293,7 @@ with open(r'/home/jrodriguezo/teachers/results/wtp_table.tex','w') as f:
     f.write(r'\footnotesize{'+'\n')
     f.write(r'\begin{tabular}{lcccccccc}'+'\n')
     f.write(r'\toprule'+'\n')
-    f.write(r'&  & \multirow{2}{*}{\makecell[c]{\textbf{Original} \\ \textbf{STPD}}} & & \multirow{2}{*}{\makecell[c]{\textbf{Policy 1} \\ \textbf{(no experience)}}} & & \multirow{2}{*}{\makecell[c]{\textbf{Policy 2} \\ \textbf{(linear PFP)}}} \\'+'\n')
+    f.write(r'&  & \multirow{2}{*}{\makecell[c]{\textbf{Original} \\ \textbf{Carrera Docente}}} & & \multirow{2}{*}{\makecell[c]{\textbf{Policy 1} \\ \textbf{(no experience)}}} & & \multirow{2}{*}{\makecell[c]{\textbf{Policy 2} \\ \textbf{(linear PFP)}}} \\'+'\n')
     f.write(r'& &  & &  & & \\'+'\n')
     f.write(r'\midrule'+'\n')
     f.write(r'\textbf{A. Willingness to pay}  & &  & &  & & \\'+'\n')
